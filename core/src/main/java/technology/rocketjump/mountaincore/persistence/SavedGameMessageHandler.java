@@ -49,6 +49,9 @@ import technology.rocketjump.mountaincore.ui.widgets.GameDialogDictionary;
 import technology.rocketjump.mountaincore.ui.widgets.ModalDialog;
 
 import java.io.*;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -280,32 +283,46 @@ public class SavedGameMessageHandler implements Telegraph, GameContextAware, Ass
 			try {
 				JSONObject headerJson = produceHeaderFrom(fileContents);
 
-				File saveFile = userFileManager.getOrCreateSaveFile(saveFileName);
-				File tempMainFile = userFileManager.getOrCreateSaveFile("body.temp");
-				File tempHeaderFile = userFileManager.getOrCreateSaveFile("header.temp");
-				File tempMinimapTextureFile = userFileManager.getOrCreateSaveFile(SavedGameStore.MINIMAP_ENTRY_NAME);
+				File tempMainFile = userFileManager.getTempSaveFile("body");
+				File tempHeaderFile = userFileManager.getTempSaveFile("header");
+				File tempMinimapTextureFile = userFileManager.getTempSaveFile("minimap");
+				File tempArchiveFile = userFileManager.getTempSaveFile("archive");
+				Pixmap minimapPixmap = null;
+				try {
+					writeJsonToFile(fileContents, tempMainFile);
+					writeJsonToFile(headerJson, tempHeaderFile);
 
-				writeJsonToFile(fileContents, tempMainFile);
-				writeJsonToFile(headerJson, tempHeaderFile);
+					minimapPixmap = MinimapPixmapGenerator.generateFrom(gameContext.getAreaMap());
+					PixmapIO.writePNG(new FileHandle(tempMinimapTextureFile), minimapPixmap);
 
-				Pixmap minimapPixmap = MinimapPixmapGenerator.generateFrom(gameContext.getAreaMap());
-				PixmapIO.writePNG(new FileHandle(tempMinimapTextureFile), minimapPixmap);
+					try (OutputStream archiveStream = new FileOutputStream(tempArchiveFile);
+						 ArchiveOutputStream archive = new ArchiveStreamFactory()
+								 .createArchiveOutputStream(ArchiveStreamFactory.ZIP, archiveStream)) {
+						addArchiveEntry(tempHeaderFile, ARCHIVE_HEADER_ENTRY_NAME, archive);
+						addArchiveEntry(tempMainFile, saveFileName + ".json", archive);
+						addArchiveEntry(tempMinimapTextureFile, SavedGameStore.MINIMAP_ENTRY_NAME, archive);
+						archive.finish();
+					}
 
-				OutputStream archiveStream = new FileOutputStream(saveFile);
-				ArchiveOutputStream archive = new ArchiveStreamFactory().createArchiveOutputStream(ArchiveStreamFactory.ZIP, archiveStream);
+					// The archive is whole and closed before anything touches the real save file.
+					// Up to this line a failure costs the player the save they were making, never
+					// the one they already had.
+					File saveFile = userFileManager.getOrCreateSaveFile(saveFileName);
+					replaceFile(tempArchiveFile, saveFile);
 
-				addArchiveEntry(tempHeaderFile, ARCHIVE_HEADER_ENTRY_NAME, archive);
-				addArchiveEntry(tempMainFile, saveFileName + ".json", archive);
-				addArchiveEntry(tempMinimapTextureFile, SavedGameStore.MINIMAP_ENTRY_NAME, archive);
-
-				archive.finish();
-				IOUtils.closeQuietly(archiveStream);
-
-				tempMainFile.delete();
-				tempHeaderFile.delete();
-				tempMinimapTextureFile.delete();
-				justSavedInfo = new SavedGameInfo(saveFile, headerJson, i18nTranslator, minimapPixmap);//do not dispose minimapPixmap, it will be handled elsewhere
-				return BackgroundTaskResult.success();
+					justSavedInfo = new SavedGameInfo(saveFile, headerJson, i18nTranslator, minimapPixmap);//do not dispose minimapPixmap, it will be handled elsewhere
+					minimapPixmap = null;
+					return BackgroundTaskResult.success();
+				} finally {
+					FileUtils.deleteQuietly(tempMainFile);
+					FileUtils.deleteQuietly(tempHeaderFile);
+					FileUtils.deleteQuietly(tempMinimapTextureFile);
+					FileUtils.deleteQuietly(tempArchiveFile);
+					if (minimapPixmap != null) {
+						// Only reached when the save failed, so nothing else is going to take it
+						minimapPixmap.dispose();
+					}
+				}
 			} catch (Exception e) {
 				CrashHandler.logCrash(e);
 				return BackgroundTaskResult.error(ErrorType.WHILE_SAVING);
@@ -331,6 +348,19 @@ public class SavedGameMessageHandler implements Telegraph, GameContextAware, Ass
 			}
 		}
 		return result.toString();
+	}
+
+	/**
+	 * Put one file in the place of another in a single step where the filesystem allows it,
+	 * so that a save which fails partway through cannot leave a truncated file behind in
+	 * place of a good one.
+	 */
+	private void replaceFile(File source, File target) throws IOException {
+		try {
+			Files.move(source.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+		} catch (AtomicMoveNotSupportedException e) {
+			Files.move(source.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
