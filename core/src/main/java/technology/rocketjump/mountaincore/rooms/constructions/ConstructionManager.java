@@ -116,7 +116,10 @@ public class ConstructionManager implements Updatable {
 			// work site cleared
 			construction.setState(ConstructionState.SELECTING_MATERIALS);
 			populateRequirementMaterials(construction); // sets to WAITING_FOR_RESOURCES when all materials chosen
-			return;
+			// Deliberately no return: if the materials were just chosen, claim them in
+			// this same pass. Waiting for the next one hands the resources to whatever
+			// construction was already waiting, however much lower its priority.
+			// (Spotted in octoshrimpy's fork of the same game, commit 9994fb5.)
 		}
 
 		refreshPlacedAllocations(construction);
