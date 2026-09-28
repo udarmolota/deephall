@@ -298,6 +298,11 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 		}
 
 		List<ScheduleCategory> currentScheduleCategories = getCurrentSchedule().getCurrentApplicableCategories(gameContext.getGameClock());
+		// Goals expire, but until now they were only swept out in addGoalsToQueue, which
+		// runs on the infrequent update. A goal picked in between could already be stale -
+		// the settler would walk off to eat or sleep on an urge that had passed, and look
+		// like it was ignoring its work. Sweep before taking the next one.
+		goalQueue.removeExpiredGoals(gameContext.getGameClock());
 		QueuedGoal nextGoal = goalQueue.popNextGoal(currentScheduleCategories);
 		if (nextGoal == null) {
 			return new AssignedGoal(SpecialGoal.IDLE.getInstance(), parentEntity, messageDispatcher, gameContext);
