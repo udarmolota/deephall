@@ -231,10 +231,16 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
 
         System.loadLibrary("zomdroid");
 
-        System.load(AppStorage.requireSingleton().getHomePath() + "/" + gameInstance.getFmodLibraryPath() + "/libfmod.so");
-        System.load(AppStorage.requireSingleton().getHomePath() + "/" + gameInstance.getFmodLibraryPath() + "/libfmodstudio.so");
+        // FMOD is Project Zomboid's sound engine, loaded here on the Android side so the game can
+        // find it already initialised. Another game has no FMOD path in its preset, and loading
+        // "<home>//libfmod.so" failed in onCreate, which Android answered by restarting the
+        // activity - over and over.
+        if (gameInstance.isProjectZomboid()) {
+            System.load(AppStorage.requireSingleton().getHomePath() + "/" + gameInstance.getFmodLibraryPath() + "/libfmod.so");
+            System.load(AppStorage.requireSingleton().getHomePath() + "/" + gameInstance.getFmodLibraryPath() + "/libfmodstudio.so");
 
-        FMOD.init(this);
+            FMOD.init(this);
+        }
 
         binding.gameSv.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override

@@ -24,104 +24,119 @@ public class GameLauncher {
     public static void launch(GameInstance gameInstance, boolean serverProbeClient, String coopBridgePath) throws ErrnoException {
         serverProbeClient = BuildConfig.DEBUG && serverProbeClient;
         boolean coopHostTest = coopBridgePath != null;
+        // An instance copies its preset once, when it is created. Zomboid instances keep that copy
+        // and are migrated by hand when a preset has to change; Deephall's preset is still moving
+        // with every launcher build, so take the current one at each launch and let a fix to the
+        // preset reach the instance that already exists.
+        if (!gameInstance.isProjectZomboid()) {
+            com.zomdroid.game.InstallationPreset current =
+                    com.zomdroid.game.PresetManager.findByName(gameInstance.getPresetName());
+            if (current != null) gameInstance.applyPreset(current);
+        }
         // Everything the launch path used to read from the global preferences now belongs to this
         // instance. Read once: InstanceSettings is a view over shared prefs, not a snapshot.
         final com.zomdroid.game.InstanceSettings settings = gameInstance.settings();
-        if ("Build 41".equals(gameInstance.getPresetName())) {
-            try { com.zomdroid.steam.MultiplayerLibraries.recover(new File(gameInstance.getGamePath())); }
-            catch (java.io.IOException e) { Log.w("GameLauncher", "Could not recover MP library backup", e); }
-        }
-
-        // B42: make sure ShaderUnit.class carries the combineShaderSources patch (needed by
-        // NG_GL4ES). Normally done at instance creation; doing it here too picks up instances
-        // created by older launcher versions whose md5-table didn't know their game version.
-        // Self-quenching: once the .bak exists this is a single stat call.
-        com.zomdroid.patch.ShaderUnitPatchApplier.applyIfNeeded(gameInstance);
-        // Also covers Build 42.20+ instances installed with an older launcher.
-        com.zomdroid.patch.FmodLoadPatchApplier.applyIfNeeded(gameInstance);
-        // Bink is only provided for x86_64 and cannot be loaded by the ARM64 HotSpot VM. Avoid a
-        // full NoClassDefFoundError stack trace from UI panels on every rendered frame.
-        com.zomdroid.patch.BinkVideoPatchApplier.applyIfNeeded(gameInstance);
-        // Heal instances a previous launcher version stubbed: put the original LightingJNI.class
-        // back so the emulated Linux Lighting (which really exports squareSetLightTransmission)
-        // gets the native call instead of a leftover Java no-op. Running at launch covers already
-        // installed instances without reinstalling the game.
-        com.zomdroid.patch.LightingTransmissionPatchApplier.restoreOriginalIfStubbed(gameInstance);
-        // Restore the two ZNetStatistics field names the stale Android RakNet still looks up
-        // (renamed in 42.15, native never rebuilt -> NoSuchFieldError on statistics-enabled
-        // servers). Runs at every launch, so instances created by any launcher version are covered.
-        com.zomdroid.patch.ZNetStatisticsPatchApplier.applyIfNeeded(gameInstance);
-        // Build 42: empty MainScreenState.printSpecs(), whose oshi hardware walk dies on Android
-        // before the player can reach anything, and make renderVideo() return false so the game
-        // draws its own static background instead of loading a Bink library that does not exist
-        // for ARM64. Same deal as above — every launch, so older instances are covered too.
-        com.zomdroid.patch.MainScreenStatePatchApplier.applyIfNeeded(gameInstance);
-        // Select safe native implementations after the class-level patches are known to be ready.
-        com.zomdroid.patch.NativeLibraryWorkarounds.disableIncompleteNativeLibraries(gameInstance);
-        // Build 42.12+'s ARM64 PathFind implementation is under test after reports of characters
-        // choosing incorrect interaction routes. Use PZ's own Java fallback without affecting
-        // Build 41 or the older pre-fat-jar Build 42 releases.
-        com.zomdroid.patch.PathfindingWorkaround.forceJavaPathfinderFor4212Plus(gameInstance,
-                new File(gameInstance.getHomePath(), coopHostTest ? "coop-probe" : serverProbeClient ? "client-probe" : "Zomboid"));
-        // Re-apply the 42.13 case workaround against where this instance lives right now. The mod
-        // aliases and the doubled path spell out an absolute location, so they go stale when an
-        // instance is renamed or copied; this also reaches mods installed before any of it existed,
-        // and sweeps the instance-level aliases b39a80a briefly shipped.
-        // Hosting sees the same mods as normal play; linked first so the repair below also builds
-        // the routes the game will look up through coop-probe/mods.
-        if (coopHostTest) {
-            try {
-                HostingProfileMods.link(gameInstance);
-            } catch (java.io.IOException e) {
-                Log.w("Zomdroid", "Hosting profile keeps its own mods folder", e);
+        // All of this is written against Project Zomboid's own class files, native
+        // libraries and folder names: patched classes, FMOD, the emulated x86 libraries,
+        // its mod path aliases. Another game has none of it, and some of these would
+        // happily rename a file that only happens to share a name.
+        if (gameInstance.isProjectZomboid()) {
+            if ("Build 41".equals(gameInstance.getPresetName())) {
+                try { com.zomdroid.steam.MultiplayerLibraries.recover(new File(gameInstance.getGamePath())); }
+                catch (java.io.IOException e) { Log.w("GameLauncher", "Could not recover MP library backup", e); }
             }
-        }
-        com.zomdroid.patch.LowercasePathAliases.repair(gameInstance);
-        // Retire our bundled jassimp (built from Assimp 5.4.3) by taking it off java.library.path.
-        // Each game version ships the importer its models were authored against - B41's x86_64 is
-        // assimp 5.0.1, 42.12+ adds TIS's own ARM64 5.3.1 - and the linker routes libjassimp64 to
-        // those (the game's ARM64 when present, box64 for the x86_64 one). Our copy sat earlier on
-        // the search path and shadowed them for every build, which is where both the B41 floating
-        // hair/clothing and the B42 KI5 part offsets came from. It cannot stay even as a fallback:
-        // with jassimp on the emulated-lib list the dlopen hook would feed our ARM64 file to box64
-        // and fail the whole load on B41. Renamed rather than deleted so this is reversible, and
-        // re-checked every launch because a dependency bundle update re-extracts the file.
-        File bundledJassimp = new File(AppStorage.requireSingleton().getHomePath(),
-                C.deps.LIBS_ANDROID_ARM64_v8a + "/libjassimp64.so");
-        if (bundledJassimp.isFile()) {
-            File retired = new File(bundledJassimp.getParentFile(), "libjassimp64.so.zomdroid-543-off");
-            if (bundledJassimp.renameTo(retired)) {
-                Log.i("GameLauncher", "Bundled libjassimp64.so retired; the game's own importer will load");
-            } else {
-                Log.w("GameLauncher", "Failed to retire bundled libjassimp64.so - model bone offsets may be wrong");
+
+            // B42: make sure ShaderUnit.class carries the combineShaderSources patch (needed by
+            // NG_GL4ES). Normally done at instance creation; doing it here too picks up instances
+            // created by older launcher versions whose md5-table didn't know their game version.
+            // Self-quenching: once the .bak exists this is a single stat call.
+            com.zomdroid.patch.ShaderUnitPatchApplier.applyIfNeeded(gameInstance);
+            // Also covers Build 42.20+ instances installed with an older launcher.
+            com.zomdroid.patch.FmodLoadPatchApplier.applyIfNeeded(gameInstance);
+            // Bink is only provided for x86_64 and cannot be loaded by the ARM64 HotSpot VM. Avoid a
+            // full NoClassDefFoundError stack trace from UI panels on every rendered frame.
+            com.zomdroid.patch.BinkVideoPatchApplier.applyIfNeeded(gameInstance);
+            // Heal instances a previous launcher version stubbed: put the original LightingJNI.class
+            // back so the emulated Linux Lighting (which really exports squareSetLightTransmission)
+            // gets the native call instead of a leftover Java no-op. Running at launch covers already
+            // installed instances without reinstalling the game.
+            com.zomdroid.patch.LightingTransmissionPatchApplier.restoreOriginalIfStubbed(gameInstance);
+            // Restore the two ZNetStatistics field names the stale Android RakNet still looks up
+            // (renamed in 42.15, native never rebuilt -> NoSuchFieldError on statistics-enabled
+            // servers). Runs at every launch, so instances created by any launcher version are covered.
+            com.zomdroid.patch.ZNetStatisticsPatchApplier.applyIfNeeded(gameInstance);
+            // Build 42: empty MainScreenState.printSpecs(), whose oshi hardware walk dies on Android
+            // before the player can reach anything, and make renderVideo() return false so the game
+            // draws its own static background instead of loading a Bink library that does not exist
+            // for ARM64. Same deal as above — every launch, so older instances are covered too.
+            com.zomdroid.patch.MainScreenStatePatchApplier.applyIfNeeded(gameInstance);
+            // Select safe native implementations after the class-level patches are known to be ready.
+            com.zomdroid.patch.NativeLibraryWorkarounds.disableIncompleteNativeLibraries(gameInstance);
+            // Build 42.12+'s ARM64 PathFind implementation is under test after reports of characters
+            // choosing incorrect interaction routes. Use PZ's own Java fallback without affecting
+            // Build 41 or the older pre-fat-jar Build 42 releases.
+            com.zomdroid.patch.PathfindingWorkaround.forceJavaPathfinderFor4212Plus(gameInstance,
+                    new File(gameInstance.getHomePath(), coopHostTest ? "coop-probe" : serverProbeClient ? "client-probe" : "Zomboid"));
+            // Re-apply the 42.13 case workaround against where this instance lives right now. The mod
+            // aliases and the doubled path spell out an absolute location, so they go stale when an
+            // instance is renamed or copied; this also reaches mods installed before any of it existed,
+            // and sweeps the instance-level aliases b39a80a briefly shipped.
+            // Hosting sees the same mods as normal play; linked first so the repair below also builds
+            // the routes the game will look up through coop-probe/mods.
+            if (coopHostTest) {
+                try {
+                    HostingProfileMods.link(gameInstance);
+                } catch (java.io.IOException e) {
+                    Log.w("Zomdroid", "Hosting profile keeps its own mods folder", e);
+                }
             }
-        }
+            com.zomdroid.patch.LowercasePathAliases.repair(gameInstance);
+            // Retire our bundled jassimp (built from Assimp 5.4.3) by taking it off java.library.path.
+            // Each game version ships the importer its models were authored against - B41's x86_64 is
+            // assimp 5.0.1, 42.12+ adds TIS's own ARM64 5.3.1 - and the linker routes libjassimp64 to
+            // those (the game's ARM64 when present, box64 for the x86_64 one). Our copy sat earlier on
+            // the search path and shadowed them for every build, which is where both the B41 floating
+            // hair/clothing and the B42 KI5 part offsets came from. It cannot stay even as a fallback:
+            // with jassimp on the emulated-lib list the dlopen hook would feed our ARM64 file to box64
+            // and fail the whole load on B41. Renamed rather than deleted so this is reversible, and
+            // re-checked every launch because a dependency bundle update re-extracts the file.
+            File bundledJassimp = new File(AppStorage.requireSingleton().getHomePath(),
+                    C.deps.LIBS_ANDROID_ARM64_v8a + "/libjassimp64.so");
+            if (bundledJassimp.isFile()) {
+                File retired = new File(bundledJassimp.getParentFile(), "libjassimp64.so.zomdroid-543-off");
+                if (bundledJassimp.renameTo(retired)) {
+                    Log.i("GameLauncher", "Bundled libjassimp64.so retired; the game's own importer will load");
+                } else {
+                    Log.w("GameLauncher", "Failed to retire bundled libjassimp64.so - model bone offsets may be wrong");
+                }
+            }
 
-        // The game's own ARM64 jassimp (42.12+) is left ALONE, and so is our hybrid build. Both
-        // were briefly wired up here on the theory that TIS's importer broke mod animation clips;
-        // that theory is dead. Every importer was tried on one device with one save - the hybrid,
-        // the stock 5.4.3 that worked on 1.4.7v4, and the game's x86_64 through box64 - and all
-        // three failed identically, "bridge done" never printed. The actual culprit was our own
-        // per-entry lowercase aliases inflating the mod file table; with those off, the scene plays
-        // on the game's own importer. See LowercasePathAliases.PER_ENTRY_ALIASES_ENABLED.
-        //
-        // So 42.12+ keeps TIS's native ARM64 build: it is what shipped in 1.4.8, it is what fixed
-        // the KI5 hoods and the hair, and it is faster than the emulated route. Swapping a working
-        // importer for one of ours with no defect to fix is exactly the dice-reroll we keep saying
-        // we will not do. The hybrid recipe survives as patches/assimp/0002.patch in
-        // zomdroid-dependencies and is one CI run away if TIS ever ships a broken ARM64 build.
-        //
-        // Any stale override from a build that did wire it up must not survive into this process.
-        Os.unsetenv("ZOMDROID_JASSIMP64_OVERRIDE");
+            // The game's own ARM64 jassimp (42.12+) is left ALONE, and so is our hybrid build. Both
+            // were briefly wired up here on the theory that TIS's importer broke mod animation clips;
+            // that theory is dead. Every importer was tried on one device with one save - the hybrid,
+            // the stock 5.4.3 that worked on 1.4.7v4, and the game's x86_64 through box64 - and all
+            // three failed identically, "bridge done" never printed. The actual culprit was our own
+            // per-entry lowercase aliases inflating the mod file table; with those off, the scene plays
+            // on the game's own importer. See LowercasePathAliases.PER_ENTRY_ALIASES_ENABLED.
+            //
+            // So 42.12+ keeps TIS's native ARM64 build: it is what shipped in 1.4.8, it is what fixed
+            // the KI5 hoods and the hair, and it is faster than the emulated route. Swapping a working
+            // importer for one of ours with no defect to fix is exactly the dice-reroll we keep saying
+            // we will not do. The hybrid recipe survives as patches/assimp/0002.patch in
+            // zomdroid-dependencies and is one CI run away if TIS ever ships a broken ARM64 build.
+            //
+            // Any stale override from a build that did wire it up must not survive into this process.
+            Os.unsetenv("ZOMDROID_JASSIMP64_OVERRIDE");
 
-        // A 42.12+ instance that a previous test build disabled stays disabled until repaired -
-        // the game would silently keep running the emulated importer forever otherwise.
-        File tisJassimpDisabled = new File(gameInstance.getGamePath(),
-                "android/arm64-v8a/libjassimp64.so.disabled");
-        if (tisJassimpDisabled.isFile()) {
-            File active = new File(tisJassimpDisabled.getParentFile(), "libjassimp64.so");
-            if (!active.exists() && tisJassimpDisabled.renameTo(active)) {
-                Log.i("GameLauncher", "Re-enabled the game's ARM64 libjassimp64.so");
+            // A 42.12+ instance that a previous test build disabled stays disabled until repaired -
+            // the game would silently keep running the emulated importer forever otherwise.
+            File tisJassimpDisabled = new File(gameInstance.getGamePath(),
+                    "android/arm64-v8a/libjassimp64.so.disabled");
+            if (tisJassimpDisabled.isFile()) {
+                File active = new File(tisJassimpDisabled.getParentFile(), "libjassimp64.so");
+                if (!active.exists() && tisJassimpDisabled.renameTo(active)) {
+                    Log.i("GameLauncher", "Re-enabled the game's ARM64 libjassimp64.so");
+                }
             }
         }
 
@@ -274,11 +289,13 @@ public class GameLauncher {
             }
         }
 
-        File macosGame = new File(gameInstance.getGamePath());
-        try {
-            com.zomdroid.steam.MacosLibraries.recover(macosGame);
-        } catch (java.io.IOException e) {
-            Log.w("Zomdroid", "Cannot recover macOS library set", e);
+        if (gameInstance.isProjectZomboid()) {
+            File macosGame = new File(gameInstance.getGamePath());
+            try {
+                com.zomdroid.steam.MacosLibraries.recover(macosGame);
+            } catch (java.io.IOException e) {
+                Log.w("Zomdroid", "Cannot recover macOS library set", e);
+            }
         }
 
         // Environment variables from user settings
@@ -295,9 +312,11 @@ public class GameLauncher {
         // The native-library settings, applied AFTER the user's env vars on purpose: a leftover
         // ZOMDROID_MACHO_LIBS=1 typed during testing kept the macOS libraries on against the
         // settings (2026-09-12, twice), so the settings are the only authority for these names.
-        NativeLibraryEnvironment.applyMacos(gameInstance, new File(gameInstance.getHomePath(),
-                coopHostTest ? "coop-probe" : serverProbeClient ? "client-probe" : "Zomboid"));
-        Os.setenv("ZOMDROID_NATIVE_FMOD", settings.isNativeFmodEnabled() ? "1" : "0", true);
+        if (gameInstance.isProjectZomboid()) {
+            NativeLibraryEnvironment.applyMacos(gameInstance, new File(gameInstance.getHomePath(),
+                    coopHostTest ? "coop-probe" : serverProbeClient ? "client-probe" : "Zomboid"));
+            Os.setenv("ZOMDROID_NATIVE_FMOD", settings.isNativeFmodEnabled() ? "1" : "0", true);
+        }
         // Debug builds always carry the emulated-JNI statistics ([JNISTAT] in native.log); a user
         // value of 0 still turns them off.
         if (BuildConfig.DEBUG && Os.getenv("ZOMDROID_JNI_STATS") == null) {

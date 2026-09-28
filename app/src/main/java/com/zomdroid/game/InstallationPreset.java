@@ -15,6 +15,10 @@ public class InstallationPreset {
     public final String mainClassName;
     public final String javaAgentPath;
     public final String javaAgentArgs;
+    /** A file inside the game directory whose presence means the game is installed. */
+    public final String gameFileMarker;
+    /** Games that are not Project Zomboid skip the workarounds written for its code. */
+    public final boolean projectZomboid;
 
     private InstallationPreset(Builder builder) {
         this.name = builder.name;
@@ -29,6 +33,8 @@ public class InstallationPreset {
         this.mainClassName = builder.mainClassName;
         this.javaAgentPath = builder.javaAgentPath;
         this.javaAgentArgs = builder.javaAgentArgs;
+        this.gameFileMarker = builder.gameFileMarker;
+        this.projectZomboid = builder.projectZomboid;
     }
 
     @NonNull
@@ -50,6 +56,8 @@ public class InstallationPreset {
         private String mainClassName = "";
         private String javaAgentPath = "";
         private String javaAgentArgs = "";
+        private String gameFileMarker = "";
+        private boolean projectZomboid = true;
 
         public Builder setName(String name) {
             this.name = name;
@@ -108,6 +116,16 @@ public class InstallationPreset {
 
         public Builder setJavaAgentArgs(String javaAgentArgs) {
             this.javaAgentArgs = javaAgentArgs;
+            return this;
+        }
+
+        public Builder setGameFileMarker(String gameFileMarker) {
+            this.gameFileMarker = gameFileMarker;
+            return this;
+        }
+
+        public Builder setProjectZomboid(boolean projectZomboid) {
+            this.projectZomboid = projectZomboid;
             return this;
         }
 

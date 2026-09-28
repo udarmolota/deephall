@@ -138,22 +138,68 @@ public class PresetManager {
                 //.setJavaAgentArgs("build=41")
                 .build()
         );
+
+        // Deephall, our fork of Mountaincore. Nothing here is Project Zomboid: one fat jar, no
+        // FMOD, no java agent, and no x86 libraries to emulate. The LWJGL classes are shipped
+        // beside the game rather than taken from the fat jar, so that the Java side is the same
+        // 3.3.6 as the natives we load; being first on the class path is what makes that stick.
+        // Registered last so the PRESET_* indices above keep pointing at the Zomboid presets.
+        presets.add(new InstallationPreset.Builder()
+                .setName("Deephall")
+                .setBuildVersion("deephall")
+                .setProjectZomboid(false)
+                .setGameFileMarker("mountaincore.jar")
+                .setClassPathArray(new String[]{
+                        "lwjgl336/lwjgl-3.3.6.jar",
+                        "lwjgl336/lwjgl-glfw-3.3.6.jar",
+                        "lwjgl336/lwjgl-jemalloc-3.3.6.jar",
+                        "lwjgl336/lwjgl-openal-3.3.6.jar",
+                        "lwjgl336/lwjgl-opengl-3.3.6.jar",
+                        "lwjgl336/lwjgl-stb-3.3.6.jar",
+                        "mountaincore.jar",
+                        "."
+                })
+                .setLibraryPathArray(new String[]{
+                        C.deps.LIBS_LWJGL_336,
+                        C.deps.LIBS_ANDROID_ARM64_v8a
+                })
+                // Nothing of Deephall runs under box64, but the launcher's linker hook starts
+                // box64 before the JVM whatever the game, and box64 cannot come up without its
+                // x86_64 glibc and JNI wrapper. Without this the JVM is never created at all.
+                .setLibraryPathForEmulationArray(new String[]{
+                        C.deps.LIBS_LINUX_X86_64
+                })
+                // One window, no splash screen, no audio device. See DesktopLauncher.
+                .setExtraJvmArgs(new String[]{"-Dmountaincore.android=true"})
+                .setMainClassName("technology/rocketjump/mountaincore/launcher/DesktopLauncher")
+                .build()
+        );
     }
 
     public static ArrayList<InstallationPreset> getPresets() {
         return presets;
     }
 
+    /** The preset registered under that name, or null. */
+    public static InstallationPreset findByName(String name) {
+        for (InstallationPreset preset : presets) {
+            if (preset.name.equals(name)) return preset;
+        }
+        return null;
+    }
+
     /** Indices into {@link #getPresets()}: the order the presets are registered in above. */
     public static final int PRESET_BUILD_42 = 0;
     public static final int PRESET_BUILD_42_12 = 1;
     public static final int PRESET_BUILD_41 = 2;
+    public static final int PRESET_DEEPHALL = 3;
 
     /**
      * Which preset a set of game files calls for, from their paths: ZIP entry names, or paths
      * relative to an extracted game folder. Tolerant of wrapper folders, so it works on an archive
      * before the root drill as well as on the flattened folder after it.
      * <pre>
+     *   mountaincore.jar         -> Deephall
      *   natives/libPZBullet64.so -> Build 42.12+ (the 42.20+ Linux layout)
      *   an android/ folder       -> Build 42.12+
      *   imgui*.jar               -> Build 42
@@ -163,6 +209,8 @@ public class PresetManager {
     public static int detectPresetIndex(Iterable<String> paths) {
         boolean imgui = false, android = false, layout4220 = false;
         for (String path : paths) {
+            // Deephall ships as a single fat jar with that name, which no Zomboid build has.
+            if (isDeephallJar(path)) return PRESET_DEEPHALL;
             if (isBuild4220NativeLayoutEntry(path)) layout4220 = true;
             if (isAndroidDirEntry(path)) android = true;
             if (isImguiJar(path)) imgui = true;
@@ -203,6 +251,11 @@ public class PresetManager {
         String n = name.replace('\\', '/');
         return n.equals("natives/libPZBullet64.so")
                 || n.endsWith("/natives/libPZBullet64.so");
+    }
+
+    private static boolean isDeephallJar(String name) {
+        String n = name.replace('\\', '/');
+        return n.equals("mountaincore.jar") || n.endsWith("/mountaincore.jar");
     }
 
     private static boolean isImguiJar(String name) {

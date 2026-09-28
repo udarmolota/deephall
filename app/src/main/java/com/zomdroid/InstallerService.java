@@ -290,63 +290,70 @@ public class InstallerService extends Service implements TaskProgressListener {
         executorService.submit(() -> {
             try {
                 installGameFiles(gameInstance, gameFilesArchiveUri, archiveKind);
-                // Users often zip the game inside one or more wrapper folders. Drill down to the
-                // real game root (folder holding ProjectZomboid64/projectzomboid.jar/zombie) and
-                // lift it up to gamePath, so nothing downstream cares about the extra nesting.
-                flattenGameRootIfWrapped(new File(gameInstance.getGamePath()));
-                // The preset was chosen from the archive index before anything was unpacked, and
-                // a GOG installer hides the game behind a shell script. The files are on disk now:
-                // let them have the last word.
-                reconcilePresetWithGameFiles(gameInstance);
-                // Build 42.20+ moved all Linux libraries under natives/ and the bundled Android
-                // libraries under natives/android/arm64-v8a/. Normalize that layout back to the
-                // structure Zomdroid uses so the existing Java, box64 and linker paths stay valid.
-                normalizeNativeLayoutFor4220(gameInstance);
-                // 42.13+: extract projectzomboid.jar if present
-                extractProjectZomboidJarSimple(gameInstance);
-                // 42.20+ redundantly loads Android FMOD from the HotSpot VM. Zomdroid has
-                // already loaded and initialized it on ART; keep only fmodintegration64 here.
-                com.zomdroid.patch.FmodLoadPatchApplier.applyIfNeeded(gameInstance);
-                // Bink has no ARM64 library. Make getVideo() return the already-supported
-                // "unavailable" result instead of throwing and logging every UI frame.
-                com.zomdroid.patch.BinkVideoPatchApplier.applyIfNeeded(gameInstance);
-                // The Lighting stub is retired (the ARM64 library turned out stale wholesale —
-                // circle light instead of cones); on a fresh install the class is never stubbed,
-                // this only heals a leftover stub if the instance dir survived from before.
-                com.zomdroid.patch.LightingTransmissionPatchApplier.restoreOriginalIfStubbed(gameInstance);
+                // Everything from here to the end of the install is Project Zomboid's:
+                // its wrapper folders, its preset detection, its native layout, its class
+                // patches. Deephall arrives as the folder it runs from and needs none of
+                // it - and reconcilePresetWithGameFiles would hand it a Zomboid preset.
+                if (gameInstance.isProjectZomboid()) {
+                    // Users often zip the game inside one or more wrapper folders. Drill down to the
+                    // real game root (folder holding ProjectZomboid64/projectzomboid.jar/zombie) and
+                    // lift it up to gamePath, so nothing downstream cares about the extra nesting.
+                    flattenGameRootIfWrapped(new File(gameInstance.getGamePath()));
+                    // The preset was chosen from the archive index before anything was unpacked, and
+                    // a GOG installer hides the game behind a shell script. The files are on disk now:
+                    // let them have the last word.
+                    reconcilePresetWithGameFiles(gameInstance);
+                    // Build 42.20+ moved all Linux libraries under natives/ and the bundled Android
+                    // libraries under natives/android/arm64-v8a/. Normalize that layout back to the
+                    // structure Zomdroid uses so the existing Java, box64 and linker paths stay valid.
+                    normalizeNativeLayoutFor4220(gameInstance);
+                    // 42.13+: extract projectzomboid.jar if present
+                    extractProjectZomboidJarSimple(gameInstance);
+                    // 42.20+ redundantly loads Android FMOD from the HotSpot VM. Zomdroid has
+                    // already loaded and initialized it on ART; keep only fmodintegration64 here.
+                    com.zomdroid.patch.FmodLoadPatchApplier.applyIfNeeded(gameInstance);
+                    // Bink has no ARM64 library. Make getVideo() return the already-supported
+                    // "unavailable" result instead of throwing and logging every UI frame.
+                    com.zomdroid.patch.BinkVideoPatchApplier.applyIfNeeded(gameInstance);
+                    // The Lighting stub is retired (the ARM64 library turned out stale wholesale —
+                    // circle light instead of cones); on a fresh install the class is never stubbed,
+                    // this only heals a leftover stub if the instance dir survived from before.
+                    com.zomdroid.patch.LightingTransmissionPatchApplier.restoreOriginalIfStubbed(gameInstance);
 
-                // Added in 1.3.2 for native game libs
-                File androidDirFromGame = new File(gameInstance.getGamePath() + "/android");
-                boolean gameHasAndroid = androidDirFromGame.exists();
+                    // Added in 1.3.2 for native game libs
+                    File androidDirFromGame = new File(gameInstance.getGamePath() + "/android");
+                    boolean gameHasAndroid = androidDirFromGame.exists();
 
-                String nativeLibsPath = gameInstance.getGamePath() + "/android/arm64-v8a";
-                File nativeLibsDir = new File(nativeLibsPath);
+                    String nativeLibsPath = gameInstance.getGamePath() + "/android/arm64-v8a";
+                    File nativeLibsDir = new File(nativeLibsPath);
 
-                if (!gameHasAndroid) {
-                    if (nativeLibsDir.exists()) FileUtils.deleteDirectory(nativeLibsDir);
-                    nativeLibsDir.mkdirs();
-                } else {
-                    if (!nativeLibsDir.exists()) nativeLibsDir.mkdirs();
-                }
-
-                Uri nativeLibsArchiveUri = intent.getParcelableExtra(EXTRA_NATIVE_LIBS_URI);
-                if (nativeLibsArchiveUri != null) {
-                    try (InputStream nativeLibsStream = getContentResolver().openInputStream(nativeLibsArchiveUri)) {
-                        announceExtraction();
-                        FileUtils.extractZipToDisk(nativeLibsStream, nativeLibsPath, this,
-                                FileUtils.queryFileSize(getContentResolver(), nativeLibsArchiveUri));
-                    } catch (IOException e) {
-                        System.out.println("Native libraries not installed: " + e.getMessage());
-                        // Still can work without MP
+                    if (!gameHasAndroid) {
+                        if (nativeLibsDir.exists()) FileUtils.deleteDirectory(nativeLibsDir);
+                        nativeLibsDir.mkdirs();
+                    } else {
+                        if (!nativeLibsDir.exists()) nativeLibsDir.mkdirs();
                     }
-                } else {
-                    System.out.println("No native libraries provided — skipping multiplayer setup");
+
+                    Uri nativeLibsArchiveUri = intent.getParcelableExtra(EXTRA_NATIVE_LIBS_URI);
+                    if (nativeLibsArchiveUri != null) {
+                        try (InputStream nativeLibsStream = getContentResolver().openInputStream(nativeLibsArchiveUri)) {
+                            announceExtraction();
+                            FileUtils.extractZipToDisk(nativeLibsStream, nativeLibsPath, this,
+                                    FileUtils.queryFileSize(getContentResolver(), nativeLibsArchiveUri));
+                        } catch (IOException e) {
+                            System.out.println("Native libraries not installed: " + e.getMessage());
+                            // Still can work without MP
+                        }
+                    } else {
+                        System.out.println("No native libraries provided — skipping multiplayer setup");
+                    }
+
+                    // 42.13: rename problematic native libs
+                    maybeDisableLibFor42(gameInstance);
+                    // B42: patch ShaderUnit to enable combineShaderSources (required for NG_GL4ES)
+                    maybePatchShaderUnitCombine(gameInstance);
                 }
 
-                // 42.13: rename problematic native libs
-                maybeDisableLibFor42(gameInstance);
-                // B42: patch ShaderUnit to enable combineShaderSources (required for NG_GL4ES)
-                maybePatchShaderUnitCombine(gameInstance);
                 // The printSpecs() and ZNetStatistics class patches used to run here from bundled
                 // replacement classes. Both are now constant-pool surgery on the installed class,
                 // applied by GameLauncher at every launch — which also covers instances created

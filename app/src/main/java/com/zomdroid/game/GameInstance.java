@@ -34,6 +34,12 @@ public class GameInstance {
     // intentionally separate from the broad "Build 42.12+" preset so build-specific workarounds
     // can be gated at the 42.20 packaging/runtime boundary.
     private boolean build4220Plus = false;
+    // A file inside the game directory that says the game is there. Null on instances written
+    // before other games were supported, which is why hasGameFiles still knows the old rules.
+    private String gameFileMarker;
+    // Boxed on purpose: Gson leaves a field a saved instance does not carry at null, and every
+    // instance written before this existed is Project Zomboid. Read it through isProjectZomboid.
+    private Boolean projectZomboid;
 
     public GameInstance(String name, InstallationPreset preset) throws FileSystemException {
         this.name = name;
@@ -50,6 +56,8 @@ public class GameInstance {
         this.javaAgentPath = preset.javaAgentPath;
         this.javaAgentArgs = preset.javaAgentArgs;
         this.presetName = preset.name;
+        this.gameFileMarker = preset.gameFileMarker;
+        this.projectZomboid = preset.projectZomboid;
     }
 
     /**
@@ -71,6 +79,8 @@ public class GameInstance {
         this.javaAgentPath = preset.javaAgentPath;
         this.javaAgentArgs = preset.javaAgentArgs;
         this.presetName = preset.name;
+        this.gameFileMarker = preset.gameFileMarker;
+        this.projectZomboid = preset.projectZomboid;
     }
 
     private static String buildHomePath(String name) {
@@ -227,7 +237,19 @@ public class GameInstance {
         this.installationFinished = true;
     }
 
+    /**
+     * Project Zomboid needs a pile of workarounds written against its own code - patched class
+     * files, its native libraries, its mod folders. None of them mean anything for another game.
+     */
+    public boolean isProjectZomboid() {
+        return this.projectZomboid == null || this.projectZomboid;
+    }
+
     public boolean hasGameFiles() {
+        if (this.gameFileMarker != null && !this.gameFileMarker.isEmpty()) {
+            return new File(getGamePath(), this.gameFileMarker).exists();
+        }
+
         // New fat-jar structure (42.12+)
         for (String cp : getClassPathArray()) {
             if ("projectzomboid.jar".equals(cp)) {
@@ -242,6 +264,12 @@ public class GameInstance {
     }
 
     public boolean hasFilesForLinux() {
+        if (!isProjectZomboid()) {
+            // The marker below is one of Zomboid's own native libraries, and its absence is how
+            // the launcher recognises a Windows copy of the game. Another game cannot answer
+            // that question this way, and hasGameFiles has already checked what it does need.
+            return true;
+        }
         File pzBulletFile = new File(getGamePath() + "/libPZBullet64.so");
         return pzBulletFile.exists();
     }
