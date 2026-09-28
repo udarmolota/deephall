@@ -51,6 +51,9 @@ import static technology.rocketjump.mountaincore.zones.ZoneClassification.ZoneTy
 @Singleton
 public class LiquidMessageHandler implements GameContextAware, Telegraph {
 
+	/** How many of the closest tiles of a zone are worth considering. */
+	private static final int NEAREST_ZONE_TILES_TO_CHOOSE_FROM = 5;
+
 	private final MessageDispatcher messageDispatcher;
 	private final GameMaterialDictionary gameMaterialDictionary;
 	private GameContext gameContext;
@@ -146,7 +149,7 @@ public class LiquidMessageHandler implements GameContextAware, Telegraph {
 
 		Job transferLiquidJob = new Job(transferLiquidJobType);
 		if (nearestApplicableZone.isPresent()) {
-			ZoneTile zoneTile = pickTileInZone(nearestApplicableZone.get(), gameContext.getRandom(), areaMap);
+			ZoneTile zoneTile = pickTileInZone(nearestApplicableZone.get(), gameContext.getRandom(), areaMap, message.requesterPosition);
 			if (zoneTile != null) {
 				MapTile accessTile = areaMap.getTile(zoneTile.getAccessLocation());
 
@@ -269,7 +272,7 @@ public class LiquidMessageHandler implements GameContextAware, Telegraph {
 
 		Optional<LiquidAllocation> foundAllocation = Optional.empty();
 		for (Zone zone : nearestApplicableZones) {
-			ZoneTile zoneTile = pickTileInZone(zone, gameContext.getRandom(), gameContext.getAreaMap());
+			ZoneTile zoneTile = pickTileInZone(zone, gameContext.getRandom(), gameContext.getAreaMap(), requesterPosition);
 			if (zoneTile != null) {
 				MapTile targetTile = gameContext.getAreaMap().getTile(zoneTile.getTargetTile());
 
@@ -388,6 +391,18 @@ public class LiquidMessageHandler implements GameContextAware, Telegraph {
 	}
 
 	public static ZoneTile pickTileInZone(Zone zone, Random random, TiledMap areaMap) {
+		return pickTileInZone(zone, random, areaMap, null);
+	}
+
+	/**
+	 * A spot to use in a zone. When the position of whoever is going there is
+	 * known, pick one of the nearest few tiles rather than any tile at all: a
+	 * river is a single zone that can run the width of the map, and a settler
+	 * sent to a random tile of it would walk past the water in front of them to
+	 * drink at the far bank. The nearest few, rather than the single nearest, so
+	 * that a thirsty settlement does not queue on one square.
+	 */
+	public static ZoneTile pickTileInZone(Zone zone, Random random, TiledMap areaMap, Vector2 goingFrom) {
 		List<ZoneTile> potentialTiles = new ArrayList<>();
 		for (Iterator<ZoneTile> iter = zone.iterator(); iter.hasNext(); ) {
 			ZoneTile zoneTile = iter.next();
@@ -399,10 +414,18 @@ public class LiquidMessageHandler implements GameContextAware, Telegraph {
 
 		if (potentialTiles.isEmpty()) {
 			return null;
-		} else {
+		}
+		if (goingFrom == null) {
 			Collections.shuffle(potentialTiles, random);
 			return potentialTiles.get(random.nextInt(potentialTiles.size()));
 		}
+		potentialTiles.sort(Comparator.comparingDouble(zoneTile -> {
+			float dx = zoneTile.getAccessLocation().x - goingFrom.x;
+			float dy = zoneTile.getAccessLocation().y - goingFrom.y;
+			return dx * dx + dy * dy;
+		}));
+		int candidates = Math.min(NEAREST_ZONE_TILES_TO_CHOOSE_FROM, potentialTiles.size());
+		return potentialTiles.get(random.nextInt(candidates));
 	}
 
 	public static LiquidContainerComponent getLiquidContainerFromFurnitureInTile(MapTile targetTile) {
