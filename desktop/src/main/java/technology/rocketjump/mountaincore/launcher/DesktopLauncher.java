@@ -131,6 +131,16 @@ public class DesktopLauncher {
                 Logger.error("Could not parse " + DISPLAY_RESOLUTION.name() + " preference: " + preferredResolution);
                 resolutionToUse = desktopResolution;
             }
+            if (resolutionToUse.width > desktopResolution.width || resolutionToUse.height > desktopResolution.height) {
+                // A resolution larger than the screen leaves the window, and with it the
+                // options that would undo the choice, off the edge of the display. The
+                // preference lives outside the game directory, so reinstalling does not
+                // help either: the player is simply stuck. Fall back to what fits and
+                // remember that, so the options screen shows the truth.
+                Logger.warn("Saved resolution " + resolutionToUse + " does not fit the display " + desktopResolution + ", falling back");
+                resolutionToUse = desktopResolution;
+                userPreferences.setPreference(DISPLAY_RESOLUTION, desktopResolution.toString());
+            }
         }
         DisplaySettings.currentResolution = resolutionToUse;
         return resolutionToUse;
