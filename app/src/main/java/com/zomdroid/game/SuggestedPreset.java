@@ -1,0 +1,305 @@
+package com.zomdroid.game;
+
+import android.app.ActivityManager;
+import android.content.Context;
+
+import com.zomdroid.GpuInfo;
+import com.zomdroid.LauncherPreferences;
+import com.zomdroid.R;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * The settings combinations we hand out, in one place.
+ *
+ * <p>Renderer, texture shrinking, Java arguments, resolution scale and the memory saver are not
+ * independent choices - they only work as sets, and the sets differ per game build. Spread across
+ * five screens they drift: for two weeks after 1.4.7 our own dialogs still called NG_GL4ES
+ * "experimental" and announced ZINK as the renderer that had been selected, while the combination
+ * that actually worked for everyone was NG_GL4ES with shrinking. People read the old wording,
+ * stayed on ZINK and arrived with "Build 42 lags and crashes after a few minutes".
+ *
+ * <p>So every place that sets these values goes through here: the dialog after an instance is
+ * installed, and the buttons in Settings. One definition, no second version to forget.
+ *
+ * <h3>Why the default is not the best renderer</h3>
+ *
+ * <p>ZINK draws a cleaner picture and is genuinely lighter on the GPU. It also only works on
+ * Adreno, wants a driver picked by hand, and needs ANGLE on Mali. NG_GL4ES is heavier, but has no
+ * preconditions at all and ETC2 texture compression buys the memory back - at full resolution,
+ * which is why the preset no longer turns shrinking on and the grid of seams it used to draw is
+ * gone. Chosen by "how likely is someone to reach a playable state without help", the heavier
+ * renderer wins everywhere except Adreno, where ZINK needs nothing special.
+ */
+public enum SuggestedPreset {
+
+    /** Build 42 on Adreno, where ZINK works with no setup beyond a driver. */
+    BUILD_42_QUALITY(R.string.preset_name_b42, LauncherPreferences.Renderer.ZINK_ZFA,
+            null, LauncherPreferences.BUILD_42_JVM_ARGS, Boolean.FALSE),
+
+    /**
+     * Build 42 everywhere else, and the fallback offered on Adreno when ZINK misbehaves.
+     *
+     * <p>Shrinking is cleared: NG_GL4ES now compresses textures with ETC2, which claims every
+     * upload of 512x512 and up at full resolution before the shrink logic can halve it. The two
+     * end up costing the same memory - a half-size RGBA8 texture and a full-size ETC2 one are both
+     * one byte per original pixel - so shrinking no longer buys anything, it only used to pay for
+     * it with the grid of seams on the ground. The line is removed, not written as
+     * {@code LIBGL_SHRINK=0}: NG took any LIBGL_SHRINK for the player's own choice and kept the
+     * memory saver's texture budget off, so the saver never engaged on this preset (found
+     * 2026-09-16 from field reports; NG now ignores 0, and we no longer write it).
+     */
+    BUILD_42_COMPATIBILITY(R.string.preset_name_b42_compat, LauncherPreferences.Renderer.NG_GL4ES,
+            null, LauncherPreferences.BUILD_42_JVM_ARGS, null),
+
+    /**
+     * Build 41. NG_GL4ES does not run on it at all, and ZINK would need an Adreno GPU and a driver,
+     * so GL4ES - which needs nothing - is the one that works for everyone. The Build 42 Java
+     * arguments are deliberately not reused: their 2 GB heap cap buys nothing here and can push a
+     * 4 GB phone into the low-memory killer. Shrinking is cleared rather than left alone, because
+     * GL4ES honours LIBGL_SHRINK too and Build 41 is light enough not to need the picture damage.
+     */
+    BUILD_41(R.string.preset_name_b41, LauncherPreferences.Renderer.GL4ES,
+            null, LauncherPreferences.DEFAULT_JVM_ARGS, Boolean.FALSE);
+
+    /**
+     * Shrinks only textures above 512 and skips empty ones. Mode 1 shrinks everything including
+     * empty textures, which is where the crash reports come from - it stays a manual choice and
+     * never goes into a one-tap preset. See the note in SettingsFragment: the modes are strategies,
+     * not a scale.
+     */
+    public static final String SHRINK_BALANCED = "7";
+
+    public static final String SHRINK_KEY = "LIBGL_SHRINK";
+
+    /** Field-proven on every device we have data from; also what the reports run at. */
+    private static final float RENDER_SCALE = 0.60f;
+
+    /** The memory saver helps at or below this much RAM and is pointless above it. */
+    private static final long MEMORY_SAVER_MAX_GB = 8;
+
+    private final int labelRes;
+    private final LauncherPreferences.Renderer renderer;
+    private final String shrink;      // null clears LIBGL_SHRINK
+    private final String jvmArgs;
+    private final Boolean memorySaver; // null decides by installed RAM
+
+    SuggestedPreset(int labelRes, LauncherPreferences.Renderer renderer, String shrink,
+                    String jvmArgs, Boolean memorySaver) {
+        this.labelRes = labelRes;
+        this.renderer = renderer;
+        this.shrink = shrink;
+        this.jvmArgs = jvmArgs;
+        this.memorySaver = memorySaver;
+    }
+
+    public int getLabelRes() {
+        return labelRes;
+    }
+
+    /**
+     * Which preset a freshly installed instance should get. The build decides everything except
+     * the Build 42 renderer, which depends on whether the GPU can run ZINK unaided.
+     *
+     * @param presetName the installation preset name, e.g. "Build 42.12+"
+     * @param gpuVendor  as reported by InstallerService, e.g. "QUALCOMM"; may be null
+     */
+    public static SuggestedPreset forInstall(String presetName, String gpuVendor) {
+        if (presetName == null || !presetName.startsWith("Build 42")) return BUILD_41;
+        return forBuild42(gpuVendor);
+    }
+
+    public static SuggestedPreset forBuild42(String gpuVendor) {
+        return QUALCOMM.equals(gpuVendor) ? BUILD_42_QUALITY : BUILD_42_COMPATIBILITY;
+    }
+
+    public static final String QUALCOMM = "QUALCOMM";
+    public static final String MEDIATEK = "MEDIATEK";
+
+    /**
+     * Which SoC family this is, or null when it is neither. Only the two we have renderer evidence
+     * for are named; everything else is deliberately "unknown" rather than guessed, because the
+     * answer only decides between ZINK and NG_GL4ES and NG_GL4ES is the safe side of that.
+     *
+     * <p>Lives here rather than in the install screen because Settings needs the same answer, and
+     * two copies of a detector like this drift.
+     */
+    public static String detectGpuVendor() {
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                new java.io.FileReader("/proc/cpuinfo"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String lower = line.toLowerCase(Locale.US);
+                if (lower.contains("qualcomm") || lower.contains("snapdragon")) return QUALCOMM;
+                if (lower.contains("mediatek") || lower.contains("dimensity")
+                        || lower.contains("helio")) return MEDIATEK;
+            }
+        } catch (Exception ignored) {}
+
+        java.util.ArrayList<String> buildFields = new java.util.ArrayList<>();
+        buildFields.add(android.os.Build.HARDWARE);
+        buildFields.add(android.os.Build.BOARD);
+        // SOC_MODEL/SOC_MANUFACTURER exist only from API 31. On Android 11 merely referencing them
+        // throws NoSuchFieldError - an Error, so a catch(Exception) never helped - and the old
+        // fixed array computed all four up front, dying before HARDWARE/BOARD were even looked at.
+        // That crashed A11 on every Settings open and at NG_GL4ES launch; two players reported it
+        // against 1.4.8. Devices whose cpuinfo names the vendor never got here, which is why not
+        // every A11 user crashed.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            buildFields.add(android.os.Build.SOC_MODEL);
+            buildFields.add(android.os.Build.SOC_MANUFACTURER);
+        }
+        for (String field : buildFields) {
+            if (field == null) continue;
+            String lower = field.toLowerCase(Locale.US);
+            if (lower.contains("qcom") || lower.contains("qualcomm")
+                    || lower.contains("snapdragon")) return QUALCOMM;
+            if (lower.contains("mt") || lower.contains("mediatek")
+                    || lower.contains("dimensity") || lower.contains("helio")) return MEDIATEK;
+        }
+
+        // Last resort, and what keeps Android 11 Snapdragons auto-detected without the SOC fields:
+        // the cached EGL probe reads GL_RENDERER from the phone's own driver, and "Adreno" is a
+        // positive Qualcomm ID. Adreno only - a Mali renderer says nothing about the SoC vendor
+        // (MediaTek, Exynos and Tensor all ship Mali), so everything else stays unknown.
+        if (GpuInfo.query().isAdreno()) return QUALCOMM;
+        return null;
+    }
+
+    /** True where ZINK is the Build 42 default, i.e. where the compatibility set is worth offering separately. */
+    public static boolean hasCompatibilityAlternative(String gpuVendor) {
+        return forBuild42(gpuVendor) == BUILD_42_QUALITY;
+    }
+
+    /** Write this combination into one instance's settings. */
+    public void apply(Context context, InstanceSettings prefs) {
+        prefs.setRenderer(renderer);
+        prefs.setEnvVars(withShrink(prefs.getEnvVars(), shrink));
+        prefs.setJvmArgs(jvmArgs);
+        prefs.setRenderScale(RENDER_SCALE);
+        prefs.setMemorySaver(resolveMemorySaver(context));
+        LauncherPreferences.VulkanDriver driver = resolveDriver(prefs);
+        if (driver != null) prefs.setVulkanDriver(driver);
+    }
+
+    /**
+     * The Vulkan driver this preset wants, or null to leave the current choice alone.
+     *
+     * <p>Only ZINK reads it, and only Adreno has a Turnip build to read. Leaving it at System was
+     * the missing half of "Snapdragon detected, ZINK has been selected": ZINK on the stock Adreno
+     * driver black-screens on plenty of phones, and we papered over that by asking people to go and
+     * pick Freedreno by hand. The GPU says which one - see {@link GpuInfo}.
+     */
+    private LauncherPreferences.VulkanDriver resolveDriver(InstanceSettings prefs) {
+        if (renderer != LauncherPreferences.Renderer.ZINK_ZFA
+                && renderer != LauncherPreferences.Renderer.ZINK_OSMESA) return null;
+        // Never overwrite a driver someone imported themselves - that is a deliberate act, usually
+        // after a bad experience with everything we ship.
+        if (prefs.getVulkanDriver() == LauncherPreferences.VulkanDriver.CUSTOM_DRIVER) return null;
+        return GpuInfo.query().recommendedDriver();
+    }
+
+    /**
+     * What applying this would change, one line per setting, already worded for a person. Empty
+     * when the current settings already match - the caller can then say so instead of showing an
+     * empty confirmation.
+     */
+    public List<String> describeChanges(Context context, InstanceSettings prefs) {
+        List<String> changes = new ArrayList<>();
+
+        if (prefs.getRenderer() != renderer)
+            changes.add(context.getString(R.string.preset_change_renderer,
+                    prefs.getRenderer().name(), renderer.name()));
+
+        String currentShrink = readShrink(prefs.getEnvVars());
+        // LIBGL_SHRINK=0 is what this preset used to write; it means the same as no line at all,
+        // so it is not announced as a change (applying the preset still removes it).
+        if ("0".equals(currentShrink)) currentShrink = null;
+        if (!equal(currentShrink, shrink))
+            changes.add(context.getString(R.string.preset_change_shrink,
+                    shrinkLabel(context, currentShrink), shrinkLabel(context, shrink)));
+
+        if (!jvmArgs.equals(prefs.getJvmArgs()))
+            changes.add(context.getString(R.string.preset_change_jvm_args));
+
+        if (Math.abs(prefs.getRenderScale() - RENDER_SCALE) > 0.001f)
+            changes.add(context.getString(R.string.preset_change_render_scale,
+                    percent(prefs.getRenderScale()), percent(RENDER_SCALE)));
+
+        LauncherPreferences.VulkanDriver driver = resolveDriver(prefs);
+        if (driver != null && prefs.getVulkanDriver() != driver)
+            changes.add(context.getString(R.string.preset_change_vulkan_driver,
+                    prefs.getVulkanDriver().name(), driver.name()));
+
+        boolean saver = resolveMemorySaver(context);
+        if (prefs.isMemorySaver() != saver)
+            changes.add(context.getString(saver
+                    ? R.string.preset_change_memory_saver_on
+                    : R.string.preset_change_memory_saver_off));
+
+        return changes;
+    }
+
+    private boolean resolveMemorySaver(Context context) {
+        if (memorySaver != null) return memorySaver;
+        return totalRamGb(context) <= MEMORY_SAVER_MAX_GB;
+    }
+
+    /**
+     * Installed RAM, rounded up. MemTotal is what the kernel manages, so an 8 GB device reports
+     * about 7.4 - rounding up is what makes the comparison mean what the marketing number says.
+     * Returns a large value when unavailable, so an unknown device does not get the saver forced on.
+     */
+    private static long totalRamGb(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (am == null) return Long.MAX_VALUE;
+        ActivityManager.MemoryInfo info = new ActivityManager.MemoryInfo();
+        am.getMemoryInfo(info);
+        if (info.totalMem <= 0) return Long.MAX_VALUE;
+        return Math.round(Math.ceil(info.totalMem / (1024.0 * 1024.0 * 1024.0)));
+    }
+
+    // -------------------- LIBGL_SHRINK inside the free-text env vars --------------------
+
+    /** The LIBGL_SHRINK value currently set, or null. */
+    public static String readShrink(String envVars) {
+        if (envVars == null) return null;
+        for (String token : envVars.trim().split("\\s+")) {
+            if (token.startsWith(SHRINK_KEY + "=")) return token.substring(SHRINK_KEY.length() + 1);
+        }
+        return null;
+    }
+
+    /** Replace or drop LIBGL_SHRINK, leaving every other variable exactly where it was. */
+    public static String withShrink(String envVars, String value) {
+        StringBuilder out = new StringBuilder();
+        if (envVars != null) {
+            for (String token : envVars.trim().split("\\s+")) {
+                if (token.isEmpty() || token.startsWith(SHRINK_KEY + "=")) continue;
+                if (out.length() > 0) out.append(' ');
+                out.append(token);
+            }
+        }
+        if (value != null) {
+            if (out.length() > 0) out.append(' ');
+            out.append(SHRINK_KEY).append('=').append(value);
+        }
+        return out.toString();
+    }
+
+    private static String shrinkLabel(Context context, String value) {
+        if (value == null) return context.getString(R.string.settings_texture_shrink_none);
+        if (SHRINK_BALANCED.equals(value)) return context.getString(R.string.settings_texture_shrink_balanced);
+        return SHRINK_KEY + "=" + value; // a mode typed by hand - show it verbatim
+    }
+
+    private static String percent(float scale) {
+        return String.format(Locale.US, "%d%%", Math.round(scale * 100));
+    }
+
+    private static boolean equal(String a, String b) {
+        return a == null ? b == null : a.equals(b);
+    }
+}

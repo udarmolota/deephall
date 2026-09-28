@@ -1,0 +1,84 @@
+> [!NOTE]  
+> While the original development is currently on hold, community-driven updates are being made.  
+> Check the [CHANGELOG](CHANGELOG.md) for the latest improvements. If you like the work that’s been done you can support it via [Buy me a Coffee](https://buymeacoffee.com/udarmolota).
+
+# Zomdroid
+
+**Zomdroid** is a launcher for [Project Zomboid](https://projectzomboid.com) on mobile Android devices.
+
+> [!NOTE]
+> This application is **not developed by The Indie Stone** and is **not affiliated with them** in any way.
+> Zomdroid ships **no part of the game** — no code, no assets, no binaries. You supply your own legally
+> owned copy. See [NOTICE](NOTICE.md) for the full statement, the changes the launcher makes to your
+> own copy on your device, and every third-party component and its licence.
+
+## Features
+
+- ✔️ Supports **Project Zomboid Build 41**
+- ✔️ Supports **Project Zomboid Build 42**
+- ✔️ Supports **Gamepad support** 
+- ✔️ Supports **Lua mods** 
+- ✔️ Supports **multiplayer: join, host a game, run a dedicated server** (v1.5.0)
+- ✔️ Supports **Keyboard + mouse support**
+
+## System requirements 
+
+- Android 11
+- 6GB of free RAM (usually achievable on devices with at least 6-8GB of total RAM for b41, 8GB+ for b42)
+- 10-15 GB of free internal storage for downloading and installing the game
+
+## Roadmap
+
+Both roadmap goals are done: device compatibility (v1.4.x) and full multiplayer (v1.5.0).
+
+- [x] Expand GPU and device compatibility
+- [x] Add full multiplayer support (v1.5.0)
+
+## Prebuilt binaries and JARs
+
+Prebuilt binaries and JARs are located in the `app/src/main/assets/bundles` folder,  
+**except** for **Box64** and **GLFW**, which are built alongside the Zomdroid APK.
+
+All Zomdroid dependencies—**except Box64 and GLFW**—can be either:
+- Built from the [zomdroid-dependencies](https://github.com/udarmolota/zomdroid-dependencies) repository  
+  (Mesa, LWJGL, Assimp, JNIWrapper, GL4ES, zomdroid-agent), or
+- Downloaded from official sources (FMOD, standard GNU/Linux libraries, JRE from PojavLauncherTeam, SQLite JDBC)
+  
+## Supporting Development
+
+This is an independent project. To help keep it going, financial contributions are welcome via [Ko-Fi](https://ko-fi.com/udarmolota).
+
+## Feedback
+
+Please report issues or suggest features via [GitHub Issues](https://github.com/udarmolota/zomdroid/issues)
+
+## Credits & Third-Party Sources
+
+Versions and licences for everything below are listed in [NOTICE](NOTICE.md).
+
+- [OpenJDK](https://github.com/openjdk/jdk) (Android port by [PojavLauncherTeam](https://github.com/PojavLauncherTeam/android-openjdk-build-multiarch)) - Used as the Java backend
+
+- [Box64](https://github.com/ptitSeb/box64) - Used as the emulation backend
+
+- [GL4ES](https://github.com/ptitSeb/gl4es) - Used as the rendering backend
+
+- [Mesa](https://gitlab.freedesktop.org/mesa/mesa) - Used as the rendering backend (Zink, Freedreno Turnip driver)
+
+- [ByteBuddy](https://github.com/raphw/byte-buddy) - Used for java agent creation and runtime code generation
+
+- [ANTLR](https://github.com/antlr/antlr4) - Used for shader parsing and lexing
+
+- [GLFW](https://github.com/glfw/glfw) - Library for OpenGL, OpenGL ES and Vulkan development on the desktop (required by Project Zomboid)
+
+- [LWJGL](https://github.com/LWJGL/lwjgl3) - Java game library (required by Project Zomboid)
+
+- [Assimp](https://github.com/assimp/assimp) - Asset loading library (required by Project Zomboid)
+
+- [FMOD](https://www.fmod.com/) (proprietary) - Audio library (required by Project Zomboid)
+
+- [SQLite JDBC](https://github.com/xerial/sqlite-jdbc) - Library for accessing and creating SQLite database files in Java (required by Project Zomboid)
+
+- [liblinkernsbypass](https://github.com/bylaws/liblinkernsbypass) - Library that provides access to the hidden linker namespace functionality on Android 9+
+
+- [Winlator](https://github.com/brunodev85/winlator), [Termux](https://github.com/termux/termux-app), and [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher) - Served as inspiration and guidance
+

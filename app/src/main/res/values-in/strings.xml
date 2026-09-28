@@ -1,0 +1,658 @@
+<resources>
+    <string name="app_name" translatable="false">Zomdroid</string>
+
+    <string name="percentage_format" translatable="false">%d%%</string>
+
+    <string name="legal_notice_title">Pemberitahuan hukum</string>
+    <string name="legal_notice_message">Launcher ini adalah alat pihak ketiga dan memerlukan file asli Project Zomboid untuk berfungsi. Anda harus memiliki salinan game berlisensi untuk menggunakan perangkat lunak ini. Pengembang launcher ini tidak berafiliasi dengan pembuat game asli dan tidak bertanggung jawab atas konsekuensi hukum apapun yang timbul dari penggunaan perangkat lunak ini.</string>
+
+    <string name="fragment_label_launcher">Launcher</string>
+    <string name="fragment_label_new_game_instance">Instans game baru</string>
+    <string name="fragment_label_settings">Pengaturan</string>
+    <string name="fragment_label_controls_editor">Editor kontrol</string>
+    <string name="fragment_label_wiki">Wiki</string>
+    <string name="fragment_label_onscreen">Hanya tombol layar</string>
+    <string name="nav_menu_install_mod">Impor Mod</string>
+
+    <string name="controls_editor_instructions">Tekan lama pada ruang kosong untuk membuka menu konteks. Perubahan disimpan otomatis setelah selesai</string>
+    <string name="controls_editor_add_element">Tambah elemen kontrol</string>
+    <string name="control_element_scale">Skala</string>
+    <string name="control_element_text">Teks</string>
+    <string name="control_element_text_empty">Kosong</string>
+    <string name="control_element_bindings">Ikatan</string>
+    <string name="control_element_select_binding">Pilih ikatan</string>
+    <string name="control_element_binding_invalid">Ikatan tidak valid</string>
+    <string name="control_element_opacity">Opasitas</string>
+    <string name="control_element_tap_click">Ketuk = klik kiri</string>
+    <string name="control_element_binding_left">Ikatan Kiri</string>
+    <string name="control_element_binding_up">Ikatan Atas</string>
+    <string name="control_element_binding_right">Ikatan Kanan</string>
+    <string name="control_element_binding_down">Ikatan Bawah</string>
+    <string name="control_element_input_type_mnk">Mouse &amp; Keyboard</string>
+    <string name="control_element_input_type_gamepad">Gamepad</string>
+    <string name="gamepad_mapper_button_lt">LT (Pemicu Kiri)</string>
+    <string name="gamepad_mapper_button_rt">RT (Pemicu Kanan)</string>
+
+    <string name="game_instance_name">Nama</string>
+    <string name="game_instance_preset">Preset</string>
+    <string name="game_instance_files">File game (.zip)</string>
+    <string name="game_instance_browse_files_hint">Cari file…</string>
+    <string name="game_instance_no_file_selected">Tidak ada file dipilih</string>
+    <string name="game_instance_name_invalid">Nama tidak valid</string>
+    <string name="game_instance_name_already_exists">Sudah ada</string>
+    <string name="game_instance_unsupported_extension">Hanya arsip .zip yang didukung</string>
+
+    <string name="dialog_button_ok">OK</string>
+    <string name="dialog_button_accept">Terima</string>
+    <string name="dialog_button_quit">Keluar</string>
+    <string name="dialog_button_view_guide">Lihat panduan</string>
+    <string name="dialog_button_close">Tutup</string>
+    <string name="dialog_button_confirm">Konfirmasi</string>
+    <string name="dialog_button_cancel">Batal</string>
+    <string name="dialog_title_delete_game_instance">Hapus instans game?</string>
+    <string name="dialog_title_info">Info</string>
+    <string name="dialog_title_fatal_error">Kesalahan fatal</string>
+    <string name="dialog_title_creating_instance">Membuat instans game…</string>
+    <string name="dialog_title_instance_created">Instans berhasil dibuat</string>
+    <string name="dialog_title_failed_to_create_instance">Gagal membuat instans</string>
+    <string name="dialog_title_deleting_game_instance">Menghapus instans game…</string>
+    <string name="dialog_title_instance_deleted">Instans berhasil dihapus</string>
+    <string name="dialog_title_failed_to_delete_instance">Gagal menghapus instans</string>
+    <string name="dialog_title_installing_dependencies">Menginstal dependensi…</string>
+    <string name="dialog_title_dependencies_installed">Dependensi berhasil diinstal</string>
+    <string name="dialog_title_failed_to_install_dependencies">Gagal menginstal dependensi</string>
+    <string name="dialog_title_donate">Dukung pengembangan</string>
+    <string name="dialog_title_game_files_missing">File game tidak ditemukan</string>
+    <string name="dialog_title_game_files_not_for_linux">File yang diinstal tidak didukung</string>
+
+    <string name="installation_not_finished">Instalasi belum selesai</string>
+    <string name="dependencies_not_installed">Dependensi Zomdroid belum diinstal</string>
+
+    <string name="settings_renderer">Renderer</string>
+    <string name="settings_vulkan_driver">Driver Vulkan</string>
+    <string name="settings_resolution_scale">Skala resolusi</string>
+    <string name="settings_hud">Tampilan dalam game</string>
+    <string name="settings_hud_off">Mati</string>
+    <string name="settings_hud_fps">Hanya FPS</string>
+    <string name="settings_hud_full">Info lengkap</string>
+    <string name="settings_hud_hint">Info lengkap menampilkan bilah di atas: beban GPU dan CPU, memori, daya, suhu, dan grafik FPS. Membantu melihat apa yang memperlambat game.</string>
+    <string name="settings_audio_api">API Audio</string>
+    <string name="settings_render_hint">Build 41 → GL4ES, Build 42 → ZINK (Dimensity: aktifkan ANGLE)</string>
+
+    <string name="nav_menu_controls_editor">Editor kontrol</string>
+    <string name="nav_menu_gamepad_mapper">Pengatur gamepad</string>
+    <string name="nav_menu_manage_storage">Kelola penyimpanan</string>
+    <string name="nav_menu_donate">Donasi</string>
+    <string name="control_element_delete">Hapus elemen</string>
+    <string name="control_element_input_type">Jenis input</string>
+    <string name="control_element_stick_binding">Ikatan Stik</string>
+    <string name="control_element_icon">Ikon</string>
+
+    <string name="game_instance_manage_storage">Kelola penyimpanan</string>
+    <string name="game_instance_restore_backup">Pulihkan salinan F10</string>
+    <string name="backup_warning_title">Sebelum Anda mengaktifkannya</string>
+    <string name="backup_warning_message">Menekan F10 membuat salinan penuh dunia Anda, titik untuk kembali setelah crash atau kematian.\n\nSemakin besar simpanan Anda, yaitu semakin lama karakter Anda hidup, semakin lama salinan dibuat. Luangkan beberapa menit yang aman sebelum menekan F10: game mungkin terlihat macet saat salinan ditulis, padahal tidak. Tunggu saja dan jangan menutupnya.\n\nTombol F10 ada di tata letak kontrol yang baru. Jika Anda tetap memakai tata letak sendiri dari versi sebelumnya, tambahkan tombol itu sendiri di editor kontrol: jenis input Keyboard &amp; mouse, binding F10.\n\nSatu salinan disimpan untuk setiap dunia; salinan baru menggantikan yang lama. Build 41 dan 42, hanya pemain tunggal.</string>
+    <string name="backup_restore_title">Sesi sebelumnya crash</string>
+    <string name="backup_restore_message">Ada salinan “%1$s” dari %2$s (%3$d MB), dibuat saat Anda menekan F10.\n\nKembali ke salinan itu akan menghapus semua yang terjadi setelahnya.</string>
+    <string name="backup_restore_continue">Lanjutkan apa adanya</string>
+    <string name="backup_restore_do">Kembali ke salinan</string>
+    <string name="backup_restoring">Memulihkan salinan…</string>
+    <string name="backup_restore_done">Salinan dipulihkan</string>
+    <string name="backup_restore_failed">Pemulihan gagal: %1$s</string>
+    <string name="backup_manual_restore_message">Ada salinan “%1$s” dari %2$s (%3$d MB).\n\nMemulihkannya akan mengganti progres Anda saat ini di dunia itu dengan kondisi saat salinan dibuat. Ini tidak bisa dibatalkan.</string>
+    <string name="backup_none_found">Tidak ada salinan untuk dunia yang terakhir dimainkan</string>
+    <string name="game_instance_delete">Hapus</string>
+
+    <string name="donate_message">Enjoying the app and want to support us? \n\nMaintained and Developed by: ko-fi.com/udarmolota, \ncreator: ko-fi.com/liamelui.  \n\nContributors: \nshimux0, Wakort, LeHiepDuy, deadgamer182, Liko, Willing-Run-8987, Willing-Upstairs-580.</string>
+
+    <string name="app_aborted">Aplikasi mengalami masalah tak terduga dan harus ditutup</string>
+    <string name="share_logs">Bagikan file log</string>
+
+    <string name="delete_game_instance">Semua file game dan data (simpanan, mod, server favorit, dll.) yang terkait dengan instans ini akan hilang secara permanen</string>
+    <string name="game_files_missing">Pastikan ProjectZomboid64 berada di level teratas arsip .zip yang digunakan untuk instalasi. Ikuti panduan di wiki untuk memastikan file dikemas dengan benar</string>
+    <string name="game_files_not_for_linux">Diperlukan versi Linux dari Project Zomboid. Ikuti panduan di wiki untuk memastikan file yang benar diunduh</string>
+
+    <!-- Gamepad Mapper Strings -->
+    <string name="gamepad_mapper_title">Pemetaan Tombol Gamepad</string>
+    <string name="gamepad_mapper_description">Tekan tombol pada gamepad Anda sesuai urutan yang diminta untuk menyesuaikan kontrol.</string>
+    <string name="gamepad_mapper_start">Mulai Pemetaan</string>
+    <string name="gamepad_mapper_reset">Reset ke Default</string>
+    <string name="gamepad_mapper_step">Tekan: %s</string>
+    <string name="gamepad_mapper_save">Pemetaan Selesai!</string>
+    <string name="gamepad_mapper_success">Pemetaan gamepad berhasil disimpan</string>
+    <string name="gamepad_mapper_reset_confirmation">Pemetaan gamepad direset ke default</string>
+
+    <!-- Gamepad Button Names -->
+    <string name="gamepad_mapper_button_a">Tombol A</string>
+    <string name="gamepad_mapper_button_b">Tombol B</string>
+    <string name="gamepad_mapper_button_x">Tombol X</string>
+    <string name="gamepad_mapper_button_y">Tombol Y</string>
+    <string name="gamepad_mapper_button_lb">Bumper Kiri</string>
+    <string name="gamepad_mapper_button_rb">Bumper Kanan</string>
+    <string name="gamepad_mapper_button_select">Select/Back</string>
+    <string name="gamepad_mapper_button_start">Start/Menu</string>
+    <string name="gamepad_mapper_button_guide">Guide/Home</string>
+    <string name="gamepad_mapper_button_lstk">Klik Stik Kiri</string>
+    <string name="gamepad_mapper_button_rstk">Klik Stik Kanan</string>
+    <string name="gamepad_mapper_button_dpad_up">D-Pad Atas</string>
+    <string name="gamepad_mapper_button_dpad_down">D-Pad Bawah</string>
+    <string name="gamepad_mapper_button_dpad_left">D-Pad Kiri</string>
+    <string name="gamepad_mapper_button_dpad_right">D-Pad Kanan</string>
+
+    <!-- Native Libraries -->
+    <string name="game_instance_native_libs_label">Library Native untuk B41 (.zip)</string>
+    <string name="game_instance_no_native_libs_selected">Pilih ZIP library native (opsional, untuk MP hanya di B41)</string>
+    <string name="game_instance_browse_native_libs">Cari ZIP library native (B41)</string>
+
+    <!-- Saves -->
+    <string name="game_instance_saves_label">File simpanan (.zip)</string>
+    <string name="game_instance_no_saves_selected">Pilih ZIP simpanan</string>
+    <string name="game_instance_browse_saves">Cari ZIP simpanan</string>
+
+    <!-- Mods -->
+    <string name="game_instance_mods_label">ZIP Mod (opsional)</string>
+
+    <!-- Onscreen controls -->
+    <string name="touch_controls_description">Mode kontrol sentuh menonaktifkan dukungan gamepad dan mengaktifkan hanya tombol layar.</string>
+    <string name="touch_controls_switch_label">Aktifkan kontrol sentuh layar</string>
+    <string name="touch_controls_enabled_toast">Kontrol sentuh diaktifkan</string>
+    <string name="touch_controls_disabled_toast">Kontrol sentuh dinonaktifkan</string>
+    <string name="fragment_label_touch_controls">Kontrol Sentuh</string>
+
+    <!-- Import Mod -->
+    <string name="install_mod_title">Impor Mod</string>
+    <string name="install_mod_instance_label">Instans game</string>
+    <string name="install_mod_zip_label">ZIP Mod</string>
+    <string name="install_mod_browse">Cari…</string>
+    <string name="install_mod_install">Impor</string>
+
+    <string name="install_mod_no_instances">Tidak ada instans game ditemukan</string>
+    <string name="install_mod_select_instance">Pilih instans game</string>
+    <string name="install_mod_select_zip">Pilih file ZIP</string>
+
+    <string name="dialog_title_installing_mods">Mengimpor mod</string>
+    <string name="dialog_title_failed_to_install_mods">Gagal mengimpor mod</string>
+    <string name="dialog_title_mods_installed">Mod terinstal</string>
+
+    <string name="dialog_title_installing_saves">Mengimpor simpanan</string>
+    <string name="dialog_title_failed_to_install_saves">Gagal mengimpor simpanan</string>
+    <string name="dialog_title_saves_installed">Simpanan diimpor</string>
+
+    <string name="install_mod_zip_warning">Beberapa mod lebih baik dipasang melalui menu optimasi.</string>
+
+    <string name="install_mod_zip_help_title">Struktur arsip mod</string>
+
+    <string name="install_mod_zip_help_message">
+        \u2705 Correct examples:\n\n
+
+        Single mod:\n
+        ModName/\n
+        \u00A0\u00A0mod.info\n
+        \u00A0\u00A0media/\n
+        \u00A0\u00A0scripts/\n\n
+
+        Multiple mods in one ZIP:\n
+        ModA/\n
+        \u00A0\u00A0mod.info\n
+        ModB/\n
+        \u00A0\u00A0mod.info\n\n
+
+        \u274C Incorrect examples:\n\n
+
+        Extra wrapper folder:\n
+        Downloads/\n
+        \u00A0\u00A0ModName/\n
+        \u00A0\u00A0\u00A0\u00A0mod.info\n\n
+
+        Missing mod root:\n
+        media/\n
+        scripts/\n
+        (no mod.info in root)
+    </string>
+
+
+    <!-- Controls layout -->
+    <string name="menu_install_controls">Impor/Ekspor Kontrol</string>
+
+    <string name="install_controls_instance_label">Instans game</string>
+    <string name="install_controls_zip_label">ZIP Kontrol</string>
+    <string name="install_controls_install">Impor</string>
+
+    <string name="dialog_title_installing_controls">Mengimpor kontrol…</string>
+    <string name="dialog_title_controls_installed">Kontrol diimpor</string>
+    <string name="dialog_title_failed_to_install_controls">Gagal mengimpor kontrol</string>
+
+    <string name="install_controls_zip_warning">ZIP harus berisi controls.json (di level teratas). Jika tidak, mungkin terinstal dengan salah.</string>
+
+    <string name="install_controls_zip_help_title">Format ZIP Kontrol</string>
+    <string name="install_controls_zip_help_message">✅ Correct:\n\ncontrols.json\n\n❌ Incorrect:\n\nSomeFolder/\n\u00A0\u00A0controls.json</string>
+
+    <string name="install_saves_instance_label">Pilih instans game</string>
+    <string name="install_saves_zip_label">Arsip ZIP simpanan</string>
+    <string name="install_saves_zip_warning">ZIP harus berisi folder simpanan langsung (Sandbox, Survival, dll.).</string>
+    <string name="install_saves_install">Impor</string>
+    <string name="install_saves_menu">Impor/Ekspor Simpanan</string>
+    <string name="install_saves_zip_help_title">Tampilan ZIP simpanan</string>
+    <string name="install_saves_zip_help_message">
+    \u2705 Example structure:
+    \u00A0\u00A0Sandbox/\n
+    \u00A0Survival/\n
+    \u00A0Builder/\n
+    \u00A0Apocalypse/\n\n
+
+    Do not pack the parent folder.
+    </string>
+
+    <string name="install_saves_export">Ekspor</string>
+    <string name="dialog_title_exporting_saves">Mengekspor simpanan</string>
+    <string name="dialog_title_saves_exported">Simpanan diekspor</string>
+    <string name="dialog_title_failed_to_export_saves">Gagal mengekspor simpanan</string>
+
+    <string name="install_controls_export">Ekspor</string>
+
+    <string name="dialog_title_exporting_controls">Mengekspor kontrol…</string>
+    <string name="dialog_title_controls_exported">Kontrol diekspor</string>
+    <string name="dialog_title_failed_to_export_controls">Gagal mengekspor kontrol</string>
+    <string name="dialog_title_controls_export_skipped_default">Kontrol default digunakan — tidak ada yang diekspor</string>
+    <string name="install_controls_global_hint">
+       Controls layout is global. Export saves controls.json only if you changed the layout.
+    </string>
+    <string name="controls_export_nothing_to_export">Tidak ada yang diekspor: tata letak kontrol default digunakan.</string>
+    <string name="settings_debug_mode">Mode debug (-debug)</string>
+    <string name="settings_memory_saver">Hemat memori (NG_GL4ES)</string>
+    <string name="settings_memory_saver_hint">Menurunkan detail tekstur saat memori hampir habis. Membantu menghindari crash pada perangkat dengan RAM 8 GB atau kurang; tidak diperlukan pada 12 GB. Berlaku untuk renderer NG_GL4ES di Build 42.</string>
+    <string name="select_instance">— Pilih instans game —</string>
+
+    <!-- Vulkan Driver dialogs -->
+    <string name="vulkan_driver_freedreno_8xx_title">Freedreno 8xx</string>
+    <string name="vulkan_driver_freedreno_8xx_message">Driver kustom untuk GPU Adreno 8xx (by whitebelyash).\n\nSnapdragon 8 Gen 3/4/5/Elite + 7 Gen 3.</string>
+    <string name="vulkan_driver_freedreno_840_title">Freedreno 830/840</string>
+    <string name="vulkan_driver_freedreno_840_message">Driver kustom yang dioptimalkan untuk GPU Adreno 830/840.\n\nSnapdragon 8 Gen 5/Elite.</string>
+    <string name="vulkan_driver_turnip_8gen2_title">TURNIP 740 (bbdd688)</string>
+    <string name="vulkan_driver_turnip_8gen2_message">Driver kustom untuk GPU Adreno 740.\n\nSnapdragon 8 Gen 2. Memperbaiki flickering setelah pembaruan HyperOS 3 / OneUI (by Weab-chan).</string>
+    <string name="vulkan_driver_turnip_bbdd688_title">TURNIP 7xx (bbdd688)</string>
+    <string name="vulkan_driver_turnip_bbdd688_message">Driver kustom untuk GPU Adreno 7xx (by Weab-chan).\n\nSnapdragon seri 7.</string>
+    <string name="vulkan_driver_turnip_gmem_title">TURNIP 710</string>
+    <string name="vulkan_driver_turnip_gmem_message">Driver kustom untuk GPU Adreno 710 (sebelumnya dikenal sebagai TURNIP 25.1.3 GMEM by duduproad).\n\nSnapdragon 7 Gen 1.</string>
+    <string name="vulkan_driver_turnip_a6xx_title">TURNIP Adreno 6xx</string>
+    <string name="vulkan_driver_turnip_a6xx_message">Driver kustom untuk GPU Adreno 6xx lama oleh K11MCH1.\n\nSnapdragon seri 600. Gunakan jika driver Freedreno default tidak berfungsi.</string>
+    <string name="vulkan_driver_freedreno">Freedreno</string>
+    <string name="vulkan_driver_freedreno_message">Driver default untuk GPU Adreno 7xx.\n\nSnapdragon seri 7. Mungkin juga berfungsi pada beberapa perangkat 6xx.</string>
+
+    <!-- JVM args dialog -->
+    <string name="jvm_args_dialog_title">Argumen JVM</string>
+    <string name="jvm_args_dialog_message">Argumen JVM tambahan, misalnya:\n\n• -Xmx2G - mengalokasikan 2GB memori\n• -Xms512M - proses dimulai dengan 512MB RAM\n• -XX:MaxGCPauseMillis=120 - mempersingkat jeda garbage collector\n\nSecara teori, ini dapat membantu jika RAM tidak mencukupi. Beberapa argumen sudah diatur melalui pengaturan.\nJika dikonfigurasi secara tidak tepat dan aplikasi tidak dapat dijalankan, instal ulang aplikasi atau cukup hapus cache aplikasi.</string>
+
+    <!-- Custom Driver import/export -->
+    <string name="install_driver_menu">Impor/Ekspor Driver Kustom</string>
+    <string name="install_driver_so_label">Driver Vulkan Kustom (file .so)</string>
+    <string name="install_driver_warning">Mengganti driver kustom yang sebelumnya dimuat. Gunakan dengan risiko sendiri.</string>
+    <string name="install_driver_import">Impor</string>
+    <string name="install_driver_export">Ekspor</string>
+    <string name="install_driver_wrong_extension">Pilih file .so</string>
+
+    <!-- InstallerService task titles -->
+    <string name="dialog_title_importing_driver">Mengimpor driver kustom…</string>
+    <string name="dialog_title_driver_imported">Driver kustom diimpor</string>
+    <string name="dialog_title_failed_to_import_driver">Gagal mengimpor driver</string>
+    <string name="dialog_title_exporting_driver">Mengekspor driver kustom…</string>
+    <string name="dialog_title_driver_exported">Driver kustom diekspor</string>
+    <string name="dialog_title_failed_to_export_driver">Gagal mengekspor driver</string>
+
+    <!-- Export log -->
+    <string name="export_log_menu">Ekspor Log Game</string>
+    <string name="export_log_export">Ekspor console.txt</string>
+    <string name="export_log_not_found">File log tidak ditemukan. Game mungkin belum pernah dijalankan, atau crash sebelum membuat folder Zomboid.</string>
+    <string name="dialog_title_exporting_log">Mengekspor log…</string>
+    <string name="dialog_title_log_exported">Log diekspor</string>
+    <string name="dialog_title_failed_to_export_log">Gagal mengekspor log</string>
+
+    <string name="nav_menu_reddit">Reddit</string>
+    <string name="reddit_dialog_title">Zomdroid di Reddit</string>
+    <string name="reddit_message">Gabung dengan komunitas kami di Reddit:\nhttps://www.reddit.com/r/zomdroid</string>
+
+    <string name="settings_env_vars">Variabel lingkungan</string>
+    <string name="settings_env_vars_hint">Misalnya: TU_DEBUG=nogmem</string>
+    <string name="settings_texture_shrink_title">Perkecil tekstur — GL4ES / NG_GL4ES</string>
+    <string name="settings_texture_shrink_desc">Nilai 1–11 bukan skala. Umum dipakai: 1 (ultra) dan 7 (seimbang); mode 1 bisa crash pada tekstur kosong. Sisanya lihat tabel.</string>
+    <string name="settings_texture_shrink_table">1. ⚠  semua setengah\n2. ⚠  di atas 512px setengah\n3. ⚠  di atas 256px setengah\n4. ⚠  di atas 256px, 1024px+ seperempat\n5.    di atas 256px → 256px\n6.    di atas 128px, 512px+ → 256px\n7.    di atas 512px setengah</string>
+    <string name="settings_texture_shrink_notes">⚠  juga memperkecil tekstur kosong — dari sinilah crash berasal.\n\n8–11 adalah mode kompatibilitas: melaporkan ukuran tekstur maksimum yang lebih besar dan tidak menghemat memori. Tidak perlu untuk PZ.\n\nSisi setengah = memori seperempat.</string>
+    <string name="settings_texture_shrink_none">Mati</string>
+    <string name="settings_texture_shrink_balanced">Seimbang (7)</string>
+    <string name="settings_texture_shrink_ultra">Ultra (1)</string>
+
+    <string name="settings_env_vars_dialog_message">Variabel lingkungan diteruskan langsung ke sistem sebelum game dimulai.\n\nDigunakan untuk mengonfigurasi renderer, driver, dan komponen lainnya, misalnya:\n\nTU_DEBUG=nogmem\nZINK_DEBUG=norp\n\nGunakan dengan hati-hati — nilai yang tidak tepat dapat menyebabkan crash.</string>
+
+    <!-- Controls Editor -->
+    <string name="controls_editor_layout_dialog_title">Tata letak</string>
+    <string name="controls_editor_load_vkbd">⌨️ Muat KB+Mouse Virtual</string>
+    <string name="controls_editor_reset_gamepad">🕹 Reset ke GAMEPAD default</string>
+    <string name="controls_editor_vkbd_loaded">Tata letak keyboard virtual dimuat</string>
+    <string name="controls_editor_layout_restored">Tata letak asli dipulihkan</string>
+
+    <!-- Version update -->
+    <string name="version_check_title">Zomdroid by udar_molota</string>
+    <string name="version_check_up_to_date">Anda memiliki versi terbaru: %1$s</string>
+    <string name="version_check_update_available">Installed: %1$s\nAvailable: %2$s\n%3$s</string>
+    <string name="version_check_error">Could not check for updates\nCurrent version: %1$s</string>
+    <string name="version_check_ahead_of_release">Terpasang: %1$s\nBuild ini lebih baru dari rilis terakhir yang dipublikasikan (%2$s)</string>
+    <string name="nav_menu_version">Periksa pembaruan</string>
+
+    <!-- Bug report -->
+    <string name="nav_bug_report">Laporkan bug</string>
+    <string name="bug_report_preparing">Menyiapkan laporan bug…</string>
+    <string name="bug_report_email" translatable="false">210478@mail.ru</string>
+    <string name="bug_report_subject" translatable="false">ZOMDROID REPORT %1$s</string>
+    <string name="bug_report_body">Halo, saya punya laporan bug baru.\n\nDeskripsi: \n\n\n---\n%1$s</string>
+    <string name="bug_report_no_mail">Tidak ada aplikasi email yang ditemukan di perangkat ini.</string>
+
+    <!-- New instance -->
+    <string name="native_libs_dialog_title">Library native untuk B41 (opsional)</string>
+    <string name="native_libs_dialog_message">Library native adalah file dari build 42.12. Ini terutama terdiri dari dua file:\n\n🌐 libRakNet64.so\n🌐 libZNetNoSteam64.so\n\nFile-file ini diperlukan untuk dukungan multiplayer pada build 41.78. Anda dapat membaca lebih lanjut tentangnya di Wiki.</string>
+    <string name="dialog_button_wiki">Wiki</string>
+
+    <string name="preset_dialog_title_b41">Build 41</string>
+    <string name="preset_dialog_title_b42">Build 42</string>
+    <string name="preset_dialog_title_b4212">Build 42.12+</string>
+
+    <string name="preset_dialog_message_b41">Build 41.78 — versi paling stabil saat ini. Berjalan di sebagian besar perangkat dengan RAM 4GB atau lebih.</string>
+    <string name="preset_dialog_message_b42">Build 42 (versi 42.0–42.11). Membutuhkan RAM 6GB+. Terutama berjalan di Snapdragon, dan juga di perangkat Dimensity yang powerful.</string>
+    <string name="preset_dialog_message_b4212">Build 42.12 ke atas. Membutuhkan pengaturan sedikit berbeda dan minimal 8GB RAM. Terutama berjalan di Snapdragon dan Dimensity baru yang powerful.</string>
+
+    <!-- Settings groups -->
+    <string name="settings_group_rendering">Rendering</string>
+    <string name="settings_group_texture">Kompresi tekstur</string>
+    <string name="settings_group_advanced">Lanjutan</string>
+    <string name="settings_group_controls">Kontrol</string>
+    <string name="settings_group_audio">Audio</string>
+
+    <!-- Game files zip help text -->
+    <string name="game_instance_files_help_message">
+        \u2705 Correct:\n\n
+        projectzomboid.zip/\n
+        \u00A0\u00A0ProjectZomboid64.json\n
+        \u00A0\u00A0java/\n
+        \u00A0\u00A0natives/\n
+        \u00A0\u00A0...\n\n
+        \u274C Incorrect:\n\n
+        projectzomboid.zip/\n
+        \u00A0\u00A0Project Zomboid/\n
+        \u00A0\u00A0\u00A0\u00A0ProjectZomboid64.json\n
+        \u00A0\u00A0\u00A0\u00A0java/\n
+        \u00A0\u00A0\u00A0\u00A0...\n\n
+        Installer Linux dari GOG (.sh) juga bisa: masukkan file itu sendirian ke dalam arsip .zip.
+    </string>
+    <string name="game_instance_files_help_title">Game files ZIP structure</string>
+
+    <!-- New instance layout names -->
+    <string name="new_game_instance_group_name">Nama instans</string>
+    <string name="new_game_instance_group_preset">Preset</string>
+    <string name="new_game_instance_group_files">File</string>
+
+    <string name="install_mod_group_instance">→ Instans</string>
+    <string name="install_mod_group_file">File mod</string>
+    <string name="install_controls_group_file">Tata letak kontrol</string>
+    <string name="install_saves_group_import">Impor simpanan</string>
+    <string name="install_saves_group_export">Ekspor simpanan</string>
+    <string name="install_saves_export_hint">Simpan simpanan Anda saat ini sebagai arsip ZIP.</string>
+    <string name="install_controls_group_export">Ekspor tata letak</string>
+    <string name="install_controls_export_hint">Simpan tata letak tombol Anda saat ini sebagai arsip ZIP.</string>
+    <string name="install_driver_group_import">Impor driver</string>
+    <string name="install_driver_group_export">Ekspor driver</string>
+    <string name="install_driver_export_hint">Simpan driver kustom yang terinstal sebagai file .so.</string>
+    <string name="export_log_group_export">Ekspor log</string>
+    <string name="export_log_hint">Mengekspor file log console.txt dari instans yang dipilih.</string>
+
+    <string name="new_game_instance_create">Buat</string>
+    <string name="new_game_instance_select_preset">Pilih preset…</string>
+    <string name="new_game_instance_no_preset_selected">Pilih preset. Harus sesuai dengan build game Anda: Build 41 memiliki satu preset, Build 42 dibagi menjadi dua — pilih dengan hati-hati.</string>
+    <string name="new_game_instance_no_preset_title">Pilih preset</string>
+
+    <string name="nav_menu_optimization">Optimasi</string>
+    <string name="nav_menu_mod_fixes">Perbaikan Mod</string>
+
+    <!-- Optimization page -->
+    <string name="optimization_group_jvm">Argumen JVM</string>
+    <string name="optimization_jvm_hint">Argumen bawaan hanya menyetel pengumpul sampah dan aman di perangkat apa pun — ukuran heap dan jumlah thread diserahkan ke JVM, yang menyesuaikannya dengan ponsel Anda. Build 42 mendapat manfaat dari set yang lebih kuat: terapkan dengan satu tombol di Pengaturan → Lanjutan → Argumen JVM.</string>
+    <string name="settings_jvm_args_reset">Kembalikan bawaan</string>
+    <string name="settings_jvm_args_clear">Hapus</string>
+    <string name="settings_jvm_args_b42_recommendation">Disarankan untuk Build 42: membatasi heap Java dan mengembalikan memori ke sistem, sehingga ada ruang untuk renderer. Dalam beberapa kasus, game bisa gagal dimulai tanpa beberapa parameter ini. Bukan untuk Build 41 — pada perangkat 4 GB lebih banyak merugikan daripada membantu.</string>
+    <string name="settings_jvm_args_b42_preset_title">Preset untuk Build 42 (disarankan)</string>
+    <string name="settings_jvm_args_apply">Terapkan</string>
+    <string name="renderer_ng_build42_only_title">NG_GL4ES hanya untuk Build 42</string>
+    <string name="renderer_ng_build42_only_message">Renderer ini dibuat untuk Build 42 dan tidak bekerja pada Build 41 — gamenya tidak akan berjalan.\n\nJika Anda memainkan Build 41, pilih ZINK atau GL4ES.\n\nBuild 42 juga memerlukan argumen JVM yang disarankan: Pengaturan → Lanjutan → Argumen JVM.</string>
+    <string name="new_game_instance_b42_jvm_hint">Build 42 memerlukan argumen JVM yang disetel — ada preset satu tombol untuk itu di pengaturan.</string>
+    <string name="new_game_instance_open_settings">Buka Pengaturan → Lanjutan → Argumen JVM →</string>
+    <string name="optimization_jvm_recommended_label">→ Bawaan saat ini:</string>
+    <string name="optimization_jvm_4gb_note">⚠️ Pada perangkat 4 GB RAM game tetap berjalan, tetapi tidak sempurna: Build 42 tidak disarankan — mainkan Build 41 dan gunakan mod optimasi di bawah (BetterFPS, Every Texture Optimized). Itu jauh lebih membantu daripada pengaturan JVM.</string>
+    <string name="optimization_copy">Salin</string>
+    <string name="optimization_open_settings">→ Buka Pengaturan</string>
+    <string name="optimization_group_betterfps">BetterFPS b41</string>
+    <string name="optimization_betterfps_hint">Mengurangi area render di sekitar pemain. \n\nSteam Workshop ID: 3022543997. Unduh mod, unggah file ZIP, dan pilih salah satu dari tiga mode yang paling populer.</string>
+    <string name="optimization_betterfps_file_label">Mod BetterFPS (zip)</string>
+    <string name="optimization_install">Instal</string>
+    <string name="optimization_betterfps_help_title">Cara kerja BetterFPS</string>
+    <string name="optimization_betterfps_help_message">Steam Workshop ID: 3022543997\n\n"Project Zomboid merender area 190×190 tile di sekitar pemain. Mod ini mengurangi ukuran area tersebut dan menghindari pemuatan chunk yang tidak diperlukan."\n— deskripsi mod\n\nVarian:\n• PotatoePC — performa maksimal\n• 1080 — seimbang\n• 4k — kualitas terbaik (masih lebih rendah dibandingkan aslinya)\n• All_Settings — ukuran area kustom dari 30×30 hingga 190×190; harus diinstal secara manual\n\nKami merekomendasikan mulai dengan PotatoePC. Jika perlu, Anda dapat memilih pengaturan yang lebih rendah secara manual.</string>
+    <string name="optimization_betterfps_installed">BetterFPS berhasil diinstal</string>
+    <string name="optimization_betterfps_installing">Menginstal BetterFPS…</string>
+    <string name="optimization_betterfps_mode_label">→ Mode</string>
+    <string name="optimization_betterfps_mode_potato">PotatoPC (recommended)</string>
+    <string name="optimization_betterfps_mode_1080p">1080p</string>
+    <string name="optimization_betterfps_mode_4k">4K</string>
+    <string name="optimization_betterfps_error_not_found">IsoChunkMap.class tidak ditemukan untuk mode: %1$s</string>
+
+    <!-- Render Less Zombie (B41) -->
+    <string name="optimization_group_rlz">Render Less Zombie b41</string>
+    <string name="optimization_rlz_hint">Merender zombi yang jauh sebagai animasi tekstur datar alih-alih model penuh — sangat membantu saat ada gerombolan di layar.\n\nSteam Workshop ID: 2970823607. Unduh mod-nya, unggah ZIP di sini dan pilih level — yaitu jumlah zombi yang masih digambar sebagai model penuh. Lebih kecil = lebih cepat.</string>
+    <string name="optimization_rlz_level_label">→ Level</string>
+    <string name="optimization_rlz_file_label">Mod RenderLessZombie (arsip zip)</string>
+    <string name="optimization_rlz_installing">Menginstal Render Less Zombie…</string>
+    <string name="optimization_rlz_installed">Render Less Zombie terinstal (level %1$s)</string>
+    <string name="optimization_rlz_error_not_found">Level %1$s tidak ditemukan dalam arsip ini. Pastikan Anda memilih ZIP mod RenderLessZombie.</string>
+    <string name="optimization_rlz_help_title">Cara kerja Render Less Zombie</string>
+    <string name="optimization_rlz_help_message">Steam Workshop ID: 2970823607\n\n"Ketika ada terlalu banyak zombi, mereka akan dirender sebagai animasi tekstur."\n— deskripsi mod\n\nLevel adalah berapa banyak zombi yang masih digambar sebagai model 3D penuh; selebihnya menjadi animasi datar yang ringan. Level yang tersedia: 1, 25, 50, 75, 100, 150 — pembuat mod menyarankan 50. Game aslinya punya batas keras 510.\n\nInstalasi mengganti kelas zombie/iso pada instans yang dipilih; file asli disimpan di sebelahnya dengan akhiran .bak, jadi Anda bisa mengembalikannya secara manual.\n\nHanya untuk Build 41.</string>
+
+    <!-- ===== Mods fix ===== -->
+    <string name="mod_fix_installing">Menginstal mod dengan perbaikan…</string>
+    <string name="mod_fix_installed">Mod berhasil diinstal</string>
+    <string name="mod_fix_error_no_mod_folder">Tidak ada folder mod ditemukan dalam arsip</string>
+    <string name="mod_fix_error_not_b42">Mod ini tampaknya bukan mod Build 42: %1$s</string>
+    <string name="mod_fix_group_double_path">Perbaikan jalur ganda</string>
+    <string name="mod_fix_double_path_hint">Perbaikan untuk mod Build 41/42 dengan kesalahan path di Android. Mod yang diketahui: Tsar\'s Common Library (ID: 3402491515), Simple Flashlight on Belt (ID: 3394588830).</string>
+    <string name="mod_fix_help_title">Apa perbaikan ini?</string>
+    <string name="mod_fix_help_message">Beberapa mod menggunakan struktur folder yang menyebabkan konflik path di Android. Akibatnya, game mencari file di path yang terduplikasi dan tidak dapat menemukannya.\n\nPerbaikan ini menginstal mod dua kali — sekali dengan nama folder asli, dan sekali lagi dengan semua nama dalam huruf kecil — sehingga game dapat menemukan file terlepas dari path yang digunakan.\n\nMod yang diketahui terdampak:\n• Tsar\'s Common Library — ID: 3402491515\n• [B42] Simple Flashlight on Belt — ID: 3394588830\n\nCara menggunakan: unduh mod dan muat di sini.</string>
+
+    <!-- CPU/GPU autodetect -->
+
+    <!-- Manual mods installation -->
+    <string name="install_mod_manual_group">Instalasi manual</string>
+    <string name="install_mod_manual_hint">Salin folder mod ke dalam folder mods di dalam folder Zomboid. Buat folder mods jika belum ada (huruf kecil "mods"). Folder mod tidak boleh berisi folder pembungkus tambahan.</string>
+    <string name="install_mod_open_folder">Buka folder mods</string>
+    <string name="install_mod_manual_help_title">Instalasi manual</string>
+    <string name="install_mod_manual_help_message">
+        \u2705 Correct structure:\n\n
+        ModName/\n
+        \u00A0\u00A0mod.info\n
+        \u00A0\u00A0media/\n
+        \u00A0\u00A0scripts/\n\n
+        \u274C Incorrect — extra wrapper folder:\n\n
+        Downloads/\n
+        \u00A0\u00A0ModName/\n
+        \u00A0\u00A0\u00A0\u00A0mod.info
+    </string>
+
+    <!-- ===== SMART IMPORT strings ===== -->
+    <string name="install_mod_smart_group">Impor Cerdas</string>
+    <string name="install_mod_smart_hint">Secara otomatis menemukan folder mod di dalam ZIP, bahkan jika dibungkus dalam folder tambahan (misalnya dari Skymods). Menerapkan perbaikan untuk mod dengan skrip atau model.</string>
+    <string name="install_mod_smart_help_title">Impor Cerdas</string>
+    <string name="install_mod_smart_help_message">Smart Import extracts the correct mod folder from any ZIP structure.\n\nIt detects the mod root by looking for mod.info, media/ or common/ folders — no matter how many wrapper folders surround it.\n\nFor mods with scripts/ or models_X/ folders, a lowercase copy is also installed automatically to fix Android path issues.</string>
+    <string name="install_mod_smart_install">Impor</string>
+    <string name="install_mod_smart_title">Impor cerdas…</string>
+    <string name="install_mod_smart_done">Mod berhasil diimpor</string>
+    <string name="install_mod_smart_no_root">Tidak dapat menemukan folder mod dalam ZIP ini. Pastikan arsip berisi mod.info, media/ atau common/.</string>
+    <string name="extracting">Mengekstrak…</string>
+
+    <!-- ===== CONTROLS EDITOR LAUNCH strings ===== -->
+    <string name="controls_editor_bg_group">Gambar Latar (opsional)</string>
+    <string name="controls_editor_bg_hint">Muat tangkapan layar dari game sebagai latar editor. Memudahkan menempatkan tombol tepat di tempat yang Anda inginkan.</string>
+    <string name="controls_editor_bg_clear">Hapus latar</string>
+    <string name="controls_editor_bg_saved">Gambar latar disimpan</string>
+    <string name="controls_editor_bg_cleared">Latar dihapus</string>
+    <string name="controls_editor_bg_error">Gagal menyimpan latar: %1$s</string>
+    <string name="controls_editor_open_group">Editor</string>
+    <string name="controls_editor_open_hint">Buka editor kontrol untuk menyeret, mengubah ukuran, dan mengonfigurasi tombol layar.</string>
+    <string name="controls_editor_open_btn">Buka editor</string>
+
+    <!-- ===== ETO + collapsible strings ===== -->
+    <string name="optimization_group_eto">Every Texture Optimized</string>
+    <string name="optimization_eto_hint">Menginstal tekstur yang dioptimalkan untuk performa lebih baik. \n⚠️ Dapat dipasang sebagai mod biasa melalui mod manager dalam game, tetapi untuk perangkat kelas bawah dengan RAM 4GB, sangat disarankan melakukan penggantian tekstur satu kali.\n\nPilih instans game Anda — versi tekstur yang benar (B41 atau B42) akan diterapkan secara otomatis.</string>
+    <string name="optimization_eto_help_title">Every Texture Optimized</string>
+    <string name="optimization_eto_help_message">Steam Workshop ID: 3119788162 [B42] dan ID: 2812026801 [B41]\n\nUnduh file ZIP mod dari Steam Workshop atau Skymods.\n\nPilih instance game dan file ZIP, lalu tekan Install. Launcher akan secara otomatis memilih folder tekstur yang sesuai dengan versi build Anda dan menyalin file ke direktori media/textures game, menggantikan file asli.\n\nFolder textures asli akan diubah namanya menjadi textures.bak. Untuk mengembalikan mod, hapus folder textures yang baru dan ubah nama textures.bak kembali menjadi textures.</string>
+    <string name="optimization_eto_installing">Menginstal tekstur…</string>
+    <string name="optimization_eto_installed">Tekstur berhasil diinstal</string>
+    <string name="optimization_eto_error_no_textures">Tidak dapat menemukan folder tekstur dalam ZIP ini.</string>
+
+    <!-- ===== ZombieBuddy + ZBBetterFPS strings ===== -->
+    <string name="optimization_group_zombiebuddy">ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_hint">Mod framework. \n⚠️ Mod yang menggunakan ZombieBuddy dapat tidak kompatibel dengan mod lain. Jika terjadi masalah, coba ubah urutan pemuatan atau gunakan versi mod yang berbeda.\n\nUntuk menonaktifkan: matikan sakelar di sini DAN nonaktifkan mod di dalam game, lalu restart.</string>
+    <string name="optimization_zombiebuddy_enabled">Aktifkan agen ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_help_title">ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_help_message">Framework yang memungkinkan mod Java tingkat lanjut untuk Project Zomboid.\n\nUnduh ZombieBuddy dari Steam, Workshop ID: 3619862853, unggah file ZIP di sini lalu tekan Install.</string>
+    <string name="optimization_zombiebuddy_installing">Menginstal ZombieBuddy…</string>
+    <string name="optimization_zombiebuddy_installed">ZombieBuddy terinstal</string>
+
+    <string name="optimization_group_zbbetterfps">ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_hint">Mod optimasi. Semua opsi dinonaktifkan secara default. Aktifkan di Opsi Mod setelah menginstal mod.\n\nMod ini dimodifikasi untuk Zomdroid agar kompatibel dengan Android.\n\n⚠️ ZBBetterFPS dan BetterFPS tidak kompatibel, gunakan hanya salah satu.</string>
+    <string name="optimization_zbbetterfps_enabled">Aktifkan ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_help_title">ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_help_message">Mod peningkatan performa yang komprehensif untuk Project Zomboid yang mengoptimalkan rendering, logika game, dan penggunaan CPU. Penulis: Zed.\n\nMemerlukan ZombieBuddy (serta ModOptions untuk B41) yang sudah dipasang dan diaktifkan.\n⚠️ Mod yang menggunakan ZombieBuddy dapat tidak kompatibel dengan mod lain. Jika terjadi masalah, coba ubah urutan pemuatan atau gunakan versi mod yang berbeda. \n\nUnduh ZBBetterFPS dari Steam Workshop atau Skymods (ID: 3622986450), unggah file ZIP di sini lalu tekan Install.</string>
+    <string name="optimization_zbbetterfps_installing">Menginstal ZBBetterFPS…</string>
+    <string name="optimization_zbbetterfps_installed">ZBBetterFPS terinstal</string>
+    <string name="optimization_zbbetterfps_gl4es_warning">⚠️ ZBBetterFPS hanya bekerja dengan renderer ZINK. Untuk GL4ES, gunakan mod BetterFPS biasa.</string>
+
+    <string name="control_element_sensitivity">Sensitivitas</string>
+
+    <!-- ===== Game Settings strings ===== -->
+    <string name="game_settings_menu">Impor/Ekspor Pengaturan Game</string>
+    <string name="game_settings_import_title">Impor</string>
+    <string name="game_settings_import_hint">Pilih .zip berisi options.ini (file options.ini saja juga bisa). File ini menggantikan pengaturan game pada instance yang dipilih.</string>
+    <string name="game_settings_export_title">Ekspor</string>
+    <string name="game_settings_export_hint">Menyimpan options.ini dari instance yang dipilih ke .zip dengan tanggal dan waktu saat ini pada namanya.</string>
+    <string name="game_settings_importing">Mengimpor pengaturan game…</string>
+    <string name="game_settings_imported">Pengaturan game diimpor</string>
+    <string name="game_settings_exporting">Mengekspor pengaturan game…</string>
+    <string name="game_settings_exported">Pengaturan game diekspor</string>
+    <string name="game_settings_not_found">options.ini tidak ditemukan. Game mungkin belum pernah dijalankan.</string>
+    <string name="game_settings_wrong_format">Pilih file .zip</string>
+    <string name="game_settings_tab_options">Pengaturan</string>
+    <string name="game_settings_tab_sandbox">Sandbox</string>
+    <string name="game_settings_tab_builds">Build</string>
+    <string name="game_settings_import_hint_sandbox">Pilih .zip berisi preset sandbox (file .cfg). Preset akan ditambahkan ke preset instance yang dipilih; preset dengan nama yang sama akan diganti.</string>
+    <string name="game_settings_export_hint_sandbox">Menyimpan semua preset sandbox dari instance yang dipilih ke satu .zip.</string>
+    <string name="game_settings_import_hint_builds">Pilih .zip berisi saved_builds.txt dan saved_outfits.txt. Build dan pakaian karakter di dalamnya akan ditambahkan ke milik instance yang dipilih; yang bernama sama akan diganti.</string>
+    <string name="game_settings_export_hint_builds">Menyimpan build dan pakaian karakter dari instance yang dipilih ke .zip.</string>
+    <string name="game_settings_zip_empty">Tidak ada yang diimpor: file tidak berisi %1$s.</string>
+    <string name="game_settings_sandbox_not_found">Preset sandbox tidak ditemukan. Simpan preset di game terlebih dahulu.</string>
+    <string name="game_settings_builds_not_found">Build atau pakaian karakter tersimpan tidak ditemukan. Simpan terlebih dahulu di game.</string>
+    <string name="import_label">Impor</string>
+    <string name="export_label">Ekspor</string>
+
+    <!-- ===== Workshop Download strings ===== -->
+    <string name="install_mod_workshop_section">Unduh dari Steam Workshop</string>
+    <string name="install_mod_workshop_disclaimer">Didukung oleh ggntw.com — layanan pihak ketiga, bisa berhenti berfungsi kapan saja.\nPenggunaan pertama kali mungkin menampilkan banyak iklan sebelum mengunduh.</string>
+    <string name="install_mod_workshop_btn">Unduh dari Workshop</string>
+    <string name="install_mod_workshop_dialog_title">Steam Workshop ID</string>
+    <string name="install_mod_workshop_dialog_message">Masukkan ID mod dari URL halaman mod.\n\nContoh: Workshop ID: 3619862853</string>
+    <string name="install_mod_workshop_download">Unduh</string>
+    <string name="install_mod_workshop_id_empty">Harap masukkan Workshop ID</string>
+    <string name="install_mod_workshop_requesting">Meminta tautan unduhan…</string>
+    <string name="install_mod_workshop_error">Tidak dapat memperoleh tautan. Coba lagi nanti.</string>
+    <string name="install_mod_workshop_webview_title">Selesaikan unduhan</string>
+    <string name="install_mod_workshop_downloading">Mengunduh mod…</string>
+    <string name="install_mod_workshop_downloaded">Mod diunduh. Ketuk Instal untuk melanjutkan.</string>
+    <string name="install_mod_workshop_download_failed">Unduhan gagal. Coba lagi.</string>
+
+    <!-- ===== Native Libs strings ===== -->
+    <string name="native_libs_menu">Impor library untuk MP (B41)</string>
+    <string name="native_libs_hint">🎮 Di sini Anda dapat menginstal library native tambahan libRakNet64.so dan libZNetNoSteam64.so untuk dukungan multiplayer di Build 41.\n\nLibrary ini pertama kali muncul di Build 42.12+. Untuk menggunakannya di Build 41, salin dari folder instans Build 42: game/android/arm64-v8a — ini bukan kesalahan.</string>
+    <string name="native_libs_group_file">Arsip ZIP dengan file .so</string>
+    <string name="native_libs_install">Instal</string>
+    <string name="native_libs_installing">Menginstal library native…</string>
+    <string name="native_libs_installed">Library native terinstal</string>
+
+    <string name="control_element_opacity_all">Ke semua</string>
+
+    <!-- Steam downloader -->
+    <string name="steam_dl_menu">Unduh dari Steam</string>
+    <string name="steam_dl_tab_game">Game</string>
+    <string name="steam_dl_tab_mods">Mod</string>
+    <string name="steam_dl_login_group">Login Steam</string>
+    <string name="steam_dl_login_note">Login kamu dikirim ke Steam (sama seperti DepotDownloader) dan TIDAK disimpan — tidak ada data atau kata sandi yang disimpan. Setujui masuk di aplikasi Steam Mobile, atau masukkan kode Steam Guard saat diminta.</string>
+    <string name="steam_dl_slow_warning">⚠️ Pengunduhan bisa lambat.</string>
+    <string name="steam_dl_build_42">Build 42</string>
+    <string name="steam_dl_build_41">Build 41</string>
+    <string name="steam_dl_manifest_hint_41">id manifest Build 41 (wajib)</string>
+    <string name="steam_dl_build41_needs_manifest">Build 41: masukkan id manifest-nya.</string>
+    <string name="steam_dl_cancel">Batalkan unduhan</string>
+    <string name="steam_dl_cancel_confirm">Batalkan unduhan? File yang sudah diunduh disimpan untuk dilanjutkan nanti.</string>
+    <string name="steam_dl_username">Nama pengguna Steam</string>
+    <string name="steam_dl_password">Kata sandi Steam</string>
+    <string name="steam_dl_version_note">Mengunduh versi Linux Project Zomboid ke Downloads/zomdroid — tanpa Termux, tanpa PC. Build 41 ~6–7 GB dan Build 42 ~10–11 GB (belum dikompres), jadi butuh waktu lama; kalau terputus, mulai lagi build yang sama dan akan dilanjutkan. Biarkan kolom manifest kosong untuk versi terbaru. Untuk mengunci versi lama, cari di https://steamdb.info/depot/108603/manifests/ dan salin baris "DepotDownloader" (bukan "Steam Console") — tempel seluruh barisnya di sini, termasuk branch-nya; toggle Build 41/42 di atas akan diabaikan.</string>
+    <string name="steam_dl_manifest_hint">Id manifest, atau baris DepotDownloader lengkap (kosong = terbaru)</string>
+    <string name="steam_dl_download_game">Unduh game</string>
+    <string name="steam_dl_mods_note">Unduh mod Workshop berdasarkan ID (angka di URL Workshop: …/sharedfiles/filedetails/?id=ANGKA). Tidak perlu login Steam. Beberapa ID dipisah spasi. Masing-masing disimpan sebagai .zip di Downloads/zomdroid.</string>
+    <string name="steam_dl_mods_hint">ID Workshop (dipisah spasi)</string>
+    <string name="steam_dl_download_mods">Unduh mod</string>
+    <string name="steam_dl_required">Wajib</string>
+    <string name="steam_dl_mods_empty">Masukkan ID Workshop (angka dari URL)</string>
+    <string name="steam_dl_storage_title">Perlu akses penyimpanan</string>
+    <string name="steam_dl_storage_message">Game dan mod disimpan ke folder publik Downloads/zomdroid agar bisa dilihat, dibagikan, dan diimpor. Berikan \"Akses ke semua file\" untuk Zomdroid, lalu ketuk Unduh lagi.</string>
+    <string name="steam_dl_grant">Izinkan</string>
+    <string name="steam_dl_guard_title">Masukkan kode Steam Guard</string>
+    <string name="steam_dl_guard_retry">Kode salah — coba lagi</string>
+    <string name="steam_dl_guard_hint">Kode Steam Guard</string>
+    <string name="steam_dl_guard_email">Kode dikirim ke %1$s</string>
+
+    <!-- Appearance / controls / detection -->
+    <string name="settings_group_appearance">Tampilan</string>
+    <string name="settings_theme">Tema launcher</string>
+    <string name="control_element_style">Gaya</string>
+    <string name="control_element_custom_icon">Ikon kustom…</string>
+    <string name="control_element_custom_icon_failed">Tidak dapat memuat gambar</string>
+    <string name="control_element_custom_icon_select_button">Pilih tombol terlebih dahulu</string>
+    <string name="control_element_icon_no_tint">Pertahankan warna asli</string>
+    <string name="vibrate_on_touch_switch_label">Getar saat menekan tombol</string>
+    <string name="new_game_instance_analyzing">Menganalisis file game, harap tunggu…</string>
+    <string name="new_game_instance_detect_failed">Tidak dapat membaca ZIP game. Pastikan itu arsip Project Zomboid yang valid dan coba lagi.</string>
+
+    <!-- NG_GL4ES renderer offer dialog -->
+    <!-- Appended to the Build 42 compatibility preset dialog. -->
+    <string name="preset_confirm_compat_note">\n\nMengatur renderer NG_GL4ES: tidak perlu memilih driver dan kompatibel dengan semua GPU yang diketahui.</string>
+    <string name="preset_confirm_title">Terapkan %1$s?</string>
+    <string name="preset_name_b42_compat">Build 42 — kompatibilitas</string>
+    <string name="preset_confirm_nothing_to_do">Pengaturan Anda sudah sesuai dengan preset ini.</string>
+    <string name="preset_change_renderer">Renderer: %1$s → %2$s</string>
+    <string name="preset_change_shrink">Pengecilan tekstur: %1$s → %2$s</string>
+    <string name="preset_change_jvm_args">Argumen Java: diatur ke set yang disarankan</string>
+    <string name="preset_change_render_scale">Skala resolusi: %1$s → %2$s</string>
+    <string name="preset_change_vulkan_driver">Driver Vulkan: %1$s → %2$s</string>
+    <string name="preset_change_memory_saver_on">Penghemat memori: aktif</string>
+    <string name="preset_change_memory_saver_off">Penghemat memori: nonaktif</string>
+    <string name="preset_applied">Preset diterapkan: %1$s</string>
+    <string name="preset_dialog_gpu_ng">%1$s terdeteksi. Renderer NG_GL4ES telah diatur — berjalan di GPU apa pun dan tidak perlu driver. Tekstur dikompresi dengan ETC2 pada resolusi penuh, sehingga memori tetap hemat tanpa mengurangi kualitas gambar.</string>
+    <string name="preset_dialog_gpu_ng_unnamed">Renderer NG_GL4ES telah diatur — berjalan di GPU apa pun dan tidak perlu driver. Tekstur dikompresi dengan ETC2 pada resolusi penuh, sehingga memori tetap hemat tanpa mengurangi kualitas gambar.</string>
+    <string name="preset_card_title">Preset yang disarankan</string>
+    <string name="preset_card_subtitle">Renderer, pengecilan tekstur, argumen Java, dan resolusi, diatur sekaligus untuk Anda</string>
+    <string name="preset_name_b41">Build 41</string>
+    <string name="preset_name_b42">Build 42</string>
+    <string name="settings_backup_switch">Simpan cepat (F10)</string>
+    <string name="settings_etc2_cache_clear">Bersihkan</string>
+    <string name="settings_etc2_cache_hint">Dipakai bersama oleh semua instance. Aman dibersihkan kapan saja: renderer akan mengompresi ulang yang diperlukan, memakan beberapa detik saat pemuatan berikutnya.</string>
+    <string name="settings_features_title">Fitur</string>
+    <string name="settings_texture_compression">Kompresi tekstur (ETC2)</string>
+    <string name="settings_texture_compression_short">Mengompresi tekstur besar dengan sedikit penurunan kualitas. Menyimpan cache yang bisa dibersihkan.</string>
+    <string name="settings_jvm_args_title">Argumen JVM</string>
+    <string name="launcher_empty_title">Cara memulai</string>
+    <string name="launcher_empty_body">Untuk mulai bermain, buat instance — salinan Project Zomboid yang terpasang. Tambahkan file game dengan tombol + di atas, atau unduh game dari Steam atau GOG lewat menu samping. Unduhan dari Steam harus dikemas dulu ke .zip; dari GOG, ketuk “Buat instance” setelah unduhan selesai.</string>
+    <string name="launcher_empty_quick_start">Mulai cepat</string>
+</resources>

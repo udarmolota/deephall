@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Zomdroid</string>
+
+    <string name="percentage_format" translatable="false">%d%%</string>
+
+    <string name="legal_notice_title">法律声明</string>
+    <string name="legal_notice_message">此启动器是一个第三方工具，需要原版《Project Zomboid》文件才能运行。您必须拥有合法授权的游戏副本才能使用本软件。本启动器的开发者与原游戏创作者无任何关联，且不对因使用本软件而产生的任何法律后果承担责任。</string>
+
+    <string name="fragment_label_launcher">启动器</string>
+    <string name="fragment_label_new_game_instance">新建游戏实例</string>
+    <string name="fragment_label_settings">设置</string>
+    <string name="fragment_label_controls_editor">控制编辑器</string>
+    <string name="fragment_label_wiki">维基</string>
+    <string name="fragment_label_onscreen">仅屏幕按钮</string>
+    <string name="nav_menu_install_mod">导入模组</string>
+
+    <string name="controls_editor_instructions">长按空白区域打开上下文菜单。完成后更改将自动保存。</string>
+    <string name="controls_editor_add_element">添加控制元素</string>
+    <string name="control_element_scale">缩放</string>
+    <string name="control_element_text">文本</string>
+    <string name="control_element_text_empty">空</string>
+    <string name="control_element_bindings">绑定</string>
+    <string name="control_element_select_binding">选择绑定</string>
+    <string name="control_element_binding_invalid">无效绑定</string>
+    <string name="control_element_opacity">不透明度</string>
+    <string name="control_element_tap_click">轻点 = 左键点击</string>
+    <string name="control_element_binding_left">绑定左</string>
+    <string name="control_element_binding_up">绑定上</string>
+    <string name="control_element_binding_right">绑定右</string>
+    <string name="control_element_binding_down">绑定下</string>
+    <string name="control_element_input_type_mnk">鼠标和键盘</string>
+    <string name="control_element_input_type_gamepad">游戏手柄</string>
+    <string name="gamepad_mapper_button_lt">LT（左扳机）</string>
+    <string name="gamepad_mapper_button_rt">RT（右扳机）</string>
+
+    <string name="game_instance_name">名称</string>
+    <string name="game_instance_preset">预设</string>
+    <string name="game_instance_files">游戏文件（.zip）</string>
+    <string name="game_instance_browse_files_hint">浏览文件…</string>
+    <string name="game_instance_no_file_selected">未选择文件</string>
+    <string name="game_instance_name_invalid">名称无效</string>
+    <string name="game_instance_name_already_exists">已存在</string>
+    <string name="game_instance_unsupported_extension">仅支持 .zip 压缩包</string>
+
+    <string name="dialog_button_ok">确定</string>
+    <string name="dialog_button_accept">接受</string>
+    <string name="dialog_button_quit">退出</string>
+    <string name="dialog_button_view_guide">查看指南</string>
+    <string name="dialog_button_close">关闭</string>
+    <string name="dialog_button_confirm">确认</string>
+    <string name="dialog_button_cancel">取消</string>
+    <string name="dialog_title_delete_game_instance">删除游戏实例？</string>
+    <string name="dialog_title_info">信息</string>
+    <string name="dialog_title_fatal_error">致命错误</string>
+    <string name="dialog_title_creating_instance">正在创建游戏实例…</string>
+    <string name="dialog_title_instance_created">实例创建成功</string>
+    <string name="dialog_title_failed_to_create_instance">创建实例失败</string>
+    <string name="dialog_title_deleting_game_instance">正在删除游戏实例…</string>
+    <string name="dialog_title_instance_deleted">实例删除成功</string>
+    <string name="dialog_title_failed_to_delete_instance">删除实例失败</string>
+    <string name="dialog_title_installing_dependencies">正在安装依赖项…</string>
+    <string name="dialog_title_dependencies_installed">依赖项安装成功</string>
+    <string name="dialog_title_failed_to_install_dependencies">安装依赖项失败</string>
+    <string name="dialog_title_donate">支持开发</string>
+    <string name="dialog_title_game_files_missing">游戏文件缺失</string>
+    <string name="dialog_title_game_files_not_for_linux">安装的文件不受支持</string>
+
+    <string name="installation_not_finished">安装未完成</string>
+    <string name="dependencies_not_installed">Zomdroid 依赖项未安装</string>
+
+    <string name="settings_renderer">渲染器</string>
+    <string name="settings_vulkan_driver">Vulkan 驱动程序</string>
+    <string name="settings_resolution_scale">分辨率缩放</string>
+    <string name="settings_hud">游戏内显示</string>
+    <string name="settings_hud_off">关闭</string>
+    <string name="settings_hud_fps">仅 FPS</string>
+    <string name="settings_hud_full">完整信息</string>
+    <string name="settings_hud_hint">“完整信息”会在顶部显示一条信息栏：GPU 和 CPU 占用、内存、功耗、温度以及 FPS 曲线，便于找出拖慢游戏的原因。</string>
+    <string name="settings_audio_api">音频 API</string>
+    <string name="settings_render_hint">Build 41 → GL4ES, Build 42 → ZINK (天玑处理器：开启 ANGLE)</string>
+
+    <string name="nav_menu_controls_editor">控制编辑器</string>
+    <string name="nav_menu_gamepad_mapper">手柄映射器</string>
+    <string name="nav_menu_manage_storage">管理存储</string>
+    <string name="nav_menu_donate">捐赠</string>
+    <string name="control_element_delete">删除元素</string>
+    <string name="control_element_input_type">输入类型</string>
+    <string name="control_element_stick_binding">摇杆绑定</string>
+    <string name="control_element_icon">图标</string>
+
+    <string name="game_instance_manage_storage">管理存储</string>
+    <string name="game_instance_delete">删除</string>
+
+    <string name="donate_message">喜欢这个应用并想支持我们吗？\n\n现由 ko-fi.com/udarmolota 维护和开发，\n由 ko-fi.com/liamelui 创建。\n\n其他贡献者：\nshimux0, Wakort, LeHiepDuy, deadgamer182, Liko, Willing-Run-8987, Willing-Upstairs-580。</string>
+
+    <string name="app_aborted">应用遇到意外问题，必须关闭。</string>
+    <string name="share_logs">分享日志文件</string>
+
+    <string name="delete_game_instance">与此实例关联的所有游戏文件和数据（存档、模组、收藏的服务器等）将永久丢失。</string>
+    <string name="game_files_missing">确保 ProjectZomboid64 位于用于安装的 .zip 压缩包的根目录。您可以按照维基上的指南操作，确保文件打包正确。</string>
+    <string name="game_files_not_for_linux">需要适用于 Linux 的《Project Zomboid》版本。您可以按照维基上的指南操作，确保下载正确的文件。</string>
+
+    <!-- Gamepad Mapper Strings -->
+    <string name="gamepad_mapper_title">手柄按钮映射</string>
+    <string name="gamepad_mapper_description">按请求的顺序按下手柄上的按钮以自定义您的控制。</string>
+    <string name="gamepad_mapper_start">开始映射</string>
+    <string name="gamepad_mapper_reset">重置为默认</string>
+    <string name="gamepad_mapper_step">按下：%s</string>
+    <string name="gamepad_mapper_save">映射完成！</string>
+    <string name="gamepad_mapper_success">手柄映射保存成功</string>
+    <string name="gamepad_mapper_reset_confirmation">手柄映射已重置为默认</string>
+
+    <!-- Gamepad Button Names -->
+    <string name="gamepad_mapper_button_a">A 键</string>
+    <string name="gamepad_mapper_button_b">B 键</string>
+    <string name="gamepad_mapper_button_x">X 键</string>
+    <string name="gamepad_mapper_button_y">Y 键</string>
+    <string name="gamepad_mapper_button_lb">左肩键</string>
+    <string name="gamepad_mapper_button_rb">右肩键</string>
+    <string name="gamepad_mapper_button_select">选择/返回</string>
+    <string name="gamepad_mapper_button_start">开始/菜单</string>
+    <string name="gamepad_mapper_button_guide">指南/主页</string>
+    <string name="gamepad_mapper_button_lstk">左摇杆按下</string>
+    <string name="gamepad_mapper_button_rstk">右摇杆按下</string>
+    <string name="gamepad_mapper_button_dpad_up">方向键上</string>
+    <string name="gamepad_mapper_button_dpad_down">方向键下</string>
+    <string name="gamepad_mapper_button_dpad_left">方向键左</string>
+    <string name="gamepad_mapper_button_dpad_right">方向键右</string>
+
+    <!-- Native Libraries -->
+    <string name="game_instance_native_libs_label">B41 原生库 (.zip)</string>
+    <string name="game_instance_no_native_libs_selected">请选择原生库 ZIP（可选，仅用于 B41 多人游戏）</string>
+    <string name="game_instance_browse_native_libs">浏览原生库 ZIP（B41）</string>
+
+    <!-- Saves -->
+    <string name="game_instance_saves_label">存档文件 (.zip)</string>
+    <string name="game_instance_no_saves_selected">请选择存档 ZIP</string>
+    <string name="game_instance_browse_saves">浏览存档 ZIP</string>
+
+    <!-- Mods -->
+    <string name="game_instance_mods_label">模组 ZIP（可选）</string>
+
+    <!-- Onscreen controls -->
+    <string name="touch_controls_description">触摸控制模式将禁用游戏手柄支持，仅启用屏幕按钮。</string>
+    <string name="touch_controls_switch_label">启用屏幕触摸控制</string>
+    <string name="touch_controls_enabled_toast">触摸控制已启用</string>
+    <string name="touch_controls_disabled_toast">触摸控制已禁用</string>
+    <string name="fragment_label_touch_controls">触摸控制</string>
+
+    <!-- Import Mod -->
+    <string name="install_mod_title">导入模组</string>
+    <string name="install_mod_instance_label">游戏实例</string>
+    <string name="install_mod_zip_label">模组 ZIP</string>
+    <string name="install_mod_browse">浏览…</string>
+    <string name="install_mod_install">导入</string>
+
+    <string name="install_mod_no_instances">未找到游戏实例</string>
+    <string name="install_mod_select_instance">选择一个游戏实例</string>
+    <string name="install_mod_select_zip">选择一个 ZIP 文件</string>
+
+    <string name="dialog_title_installing_mods">正在导入模组</string>
+    <string name="dialog_title_failed_to_install_mods">导入模组失败</string>
+    <string name="dialog_title_mods_installed">模组已安装</string>
+
+    <string name="dialog_title_installing_saves">正在导入存档</string>
+    <string name="dialog_title_failed_to_install_saves">导入存档失败</string>
+    <string name="dialog_title_saves_installed">存档已导入</string>
+
+    <string name="install_mod_zip_warning">某些模组更适合通过优化菜单安装。</string>
+
+    <string name="install_mod_zip_help_title">模组压缩包结构</string>
+
+    <string name="install_mod_zip_help_message">
+        ✅ 正确示例：\n\n
+        单个模组：\n
+        ModName/\n
+        \u00A0\u00A0mod.info\n
+        \u00A0\u00A0media/\n
+        \u00A0\u00A0scripts/\n\n
+        单个 ZIP 中包含多个模组：\n
+        ModA/\n
+        \u00A0\u00A0mod.info\n
+        ModB/\n
+        \u00A0\u00A0mod.info\n\n
+        ❌ 错误示例：\n\n
+        多余的外层文件夹：\n
+        Downloads/\n
+        \u00A0\u00A0ModName/\n
+        \u00A0\u00A0\u00A0\u00A0mod.info\n\n
+        缺少模组根目录：\n
+        media/\n
+        scripts/\n
+        （根目录无 mod.info）
+    </string>
+
+    <!-- Controls layout -->
+    <string name="menu_install_controls">导入/导出按键布局</string>
+
+    <string name="install_controls_instance_label">游戏实例</string>
+    <string name="install_controls_zip_label">按键布局 ZIP</string>
+    <string name="install_controls_install">导入按键布局</string>
+
+    <string name="dialog_title_installing_controls">正在导入按键布局…</string>
+    <string name="dialog_title_controls_installed">按键布局已导入</string>
+    <string name="dialog_title_failed_to_install_controls">导入按键布局失败</string>
+
+    <string name="install_controls_zip_warning">ZIP 文件必须在根目录包含 controls.json。否则可能安装不正确。</string>
+
+    <string name="install_controls_zip_help_title">按键布局 ZIP 格式</string>
+    <string name="install_controls_zip_help_message">✅ 正确：\n\ncontrols.json\n\n❌ 错误：\n\nSomeFolder/\n\u00A0\u00A0controls.json</string>
+
+    <string name="install_saves_instance_label">选择游戏实例</string>
+    <string name="install_saves_zip_label">存档 ZIP 压缩包</string>
+    <string name="install_saves_zip_warning">ZIP 文件必须直接包含存档文件夹（Sandbox、Survival 等）。</string>
+    <string name="install_saves_install">导入</string>
+    <string name="install_saves_menu">导入/导出存档</string>
+    <string name="install_saves_zip_help_title">存档 ZIP 应有的结构</string>
+    <string name="install_saves_zip_help_message">
+        ✅ 示例结构：
+        \u00A0\u00A0Sandbox/\n
+        \u00A0Survival/\n
+        \u00A0Builder/\n
+        \u00A0Apocalypse/\n\n
+        不要打包父文件夹。
+    </string>
+
+    <string name="install_saves_export">导出</string>
+    <string name="dialog_title_exporting_saves">正在导出存档</string>
+    <string name="dialog_title_saves_exported">存档已导出</string>
+    <string name="dialog_title_failed_to_export_saves">导出存档失败</string>
+
+    <string name="install_controls_export">导出按键布局</string>
+
+    <string name="dialog_title_exporting_controls">正在导出按键布局…</string>
+    <string name="dialog_title_controls_exported">按键布局已导出</string>
+    <string name="dialog_title_failed_to_export_controls">导出按键布局失败</string>
+    <string name="dialog_title_controls_export_skipped_default">使用默认按键布局 — 无内容可导出</string>
+    <string name="install_controls_global_hint">
+        按键布局是全局的。仅当您更改了布局时，导出保存的 controls.json。
+    </string>
+    <string name="controls_export_nothing_to_export">无内容可导出：使用默认按键布局。</string>
+    <string name="settings_debug_mode">调试模式 (-debug)</string>
+    <string name="settings_memory_saver">内存节省 (NG_GL4ES)</string>
+    <string name="settings_memory_saver_hint">内存不足时降低纹理细节。有助于避免 8 GB 内存及以下设备的闪退；12 GB 设备无需开启。适用于 Build 42 的 NG_GL4ES 渲染器。</string>
+    <string name="select_instance">— 选择游戏实例 —</string>
+
+    <!-- Vulkan Driver dialogs -->
+    <string name="vulkan_driver_freedreno_8xx_title">Freedreno 8xx</string>
+    <string name="vulkan_driver_freedreno_8xx_message">适用于Adreno 8xx GPU的自定义驱动 (by whitebelyash)。\n\nSnapdragon 8 Gen 3/4/5/Elite + 7 Gen 3。</string>
+    <string name="vulkan_driver_freedreno_840_title">Freedreno 830/840</string>
+    <string name="vulkan_driver_freedreno_840_message">针对Adreno 830/840 GPU优化的自定义驱动。\n\nSnapdragon 8 Gen 5/Elite。</string>
+    <string name="vulkan_driver_turnip_8gen2_title">TURNIP 740 (bbdd688)</string>
+    <string name="vulkan_driver_turnip_8gen2_message">适用于Adreno 740 GPU的自定义驱动。\n\nSnapdragon 8 Gen 2。修复HyperOS 3 / OneUI更新后的屏幕闪烁问题 (by Weab-chan)。</string>
+    <string name="vulkan_driver_turnip_bbdd688_title">TURNIP 7xx (bbdd688)</string>
+    <string name="vulkan_driver_turnip_bbdd688_message">适用于Adreno 7xx GPU的自定义驱动 (by Weab-chan)。\n\nSnapdragon 7系列。</string>
+    <string name="vulkan_driver_turnip_gmem_title">TURNIP 710</string>
+    <string name="vulkan_driver_turnip_gmem_message">适用于Adreno 710 GPU的自定义驱动（原名TURNIP 25.1.3 GMEM by duduproad）。\n\nSnapdragon 7 Gen 1。</string>
+    <string name="vulkan_driver_turnip_a6xx_title">TURNIP Adreno 6xx</string>
+    <string name="vulkan_driver_turnip_a6xx_message">由K11MCH1制作的适用于旧款Adreno 6xx GPU的自定义驱动。\n\nSnapdragon 600系列。如果默认Freedreno驱动不可用，请使用此驱动。</string>
+    <string name="vulkan_driver_freedreno">Freedreno</string>
+    <string name="vulkan_driver_freedreno_message">适用于Adreno 7xx GPU的默认驱动。\n\nSnapdragon 7系列。部分6xx设备也可使用。</string>
+
+    <!-- JVM args dialog -->
+    <string name="jvm_args_dialog_title">JVM 参数</string>
+    <string name="jvm_args_dialog_message">额外的 JVM 参数，例如：\n\n• -Xmx2G — 分配 2GB 内存\n• -Xms512M — 进程以 512MB RAM 启动\n• -XX:MaxGCPauseMillis=120 — 缩短垃圾回收暂停时间\n\n理论上在内存不足时有帮助。部分参数已由设置项自动配置。\n如果设置错误导致应用无法运行，请重新安装或清除应用缓存。</string>
+
+    <!-- Custom Driver import/export -->
+    <string name="install_driver_menu">导入/导出自定义驱动</string>
+    <string name="install_driver_so_label">自定义 Vulkan 驱动（.so 文件）</string>
+    <string name="install_driver_warning">将替换之前加载的自定义驱动，风险自负。</string>
+    <string name="install_driver_import">导入</string>
+    <string name="install_driver_export">导出</string>
+    <string name="install_driver_wrong_extension">请选择 .so 文件</string>
+
+    <!-- InstallerService task titles -->
+    <string name="dialog_title_importing_driver">正在导入自定义驱动…</string>
+    <string name="dialog_title_driver_imported">自定义驱动已导入</string>
+    <string name="dialog_title_failed_to_import_driver">驱动导入失败</string>
+    <string name="dialog_title_exporting_driver">正在导出自定义驱动…</string>
+    <string name="dialog_title_driver_exported">自定义驱动已导出</string>
+    <string name="dialog_title_failed_to_export_driver">驱动导出失败</string>
+
+    <string name="export_log_menu">导出游戏日志</string>
+    <string name="export_log_export">导出 console.txt</string>
+    <string name="export_log_not_found">未找到日志文件。游戏可能尚未运行，或在创建 Zomboid 文件夹之前已崩溃。</string>
+    <string name="dialog_title_exporting_log">正在导出日志…</string>
+    <string name="dialog_title_log_exported">日志已导出</string>
+    <string name="dialog_title_failed_to_export_log">日志导出失败</string>
+
+    <string name="nav_menu_reddit">Reddit</string>
+    <string name="reddit_dialog_title">Zomdroid Reddit 社区</string>
+    <string name="reddit_message">加入我们的 Reddit 社区：\nhttps://www.reddit.com/r/zomdroid</string>
+
+    <string name="settings_env_vars">环境变量</string>
+    <string name="settings_env_vars_hint">例如：TU_DEBUG=nogmem</string>
+    <string name="settings_texture_shrink_title">纹理缩小 — GL4ES / NG_GL4ES</string>
+    <string name="settings_texture_shrink_desc">数值 1–11 并非等级。常用：1（极限）和 7（均衡）；模式 1 可能在空纹理上崩溃。其余见表格。</string>
+    <string name="settings_texture_shrink_table">1. ⚠  全部减半\n2. ⚠  大于 512px 减半\n3. ⚠  大于 256px 减半\n4. ⚠  大于 256px 减半，1024px+ 四分之一\n5.    大于 256px → 256px\n6.    大于 128px 减半，512px+ → 256px\n7.    大于 512px 减半</string>
+    <string name="settings_texture_shrink_notes">⚠  也会缩小空纹理 — 崩溃即源于此。\n\n8–11 为兼容模式：向游戏报告更大的最大纹理尺寸，并不节省内存。PZ 不需要。\n\n边长减半 = 内存降为四分之一。</string>
+    <string name="settings_texture_shrink_none">关闭</string>
+    <string name="settings_texture_shrink_balanced">均衡 (7)</string>
+    <string name="settings_texture_shrink_ultra">极限 (1)</string>
+
+    <string name="settings_env_vars_dialog_message">在游戏启动前直接传递给系统的环境变量。\n\n用于配置渲染器、驱动及其他组件，例如：\n\nTU_DEBUG=nogmem\nZINK_DEBUG=norp\n\n请谨慎使用——错误的值可能导致崩溃。</string>
+
+    <!-- Controls Editor -->
+    <string name="controls_editor_layout_dialog_title">布局</string>
+    <string name="controls_editor_load_vkbd">⌨️ 加载虚拟键鼠布局</string>
+    <string name="controls_editor_reset_gamepad">🕹 重置为默认手柄布局</string>
+    <string name="controls_editor_vkbd_loaded">已加载虚拟键盘布局</string>
+    <string name="controls_editor_layout_restored">已恢复原始布局</string>
+
+    <!-- Version update -->
+    <string name="version_check_title">Zomdroid by udar_molota</string>
+    <string name="version_check_up_to_date">当前已是最新版本：%1$s</string>
+    <string name="version_check_update_available">已安装：%1$s\n可用更新：%2$s\n%3$s</string>
+    <string name="version_check_error">无法检查更新\n当前版本：%1$s</string>
+    <string name="version_check_ahead_of_release">已安装：%1$s\n此版本比最新发布版本（%2$s）更新</string>
+    <string name="nav_menu_version">检查更新</string>
+
+    <!-- Bug report -->
+    <string name="nav_bug_report">报告错误</string>
+    <string name="bug_report_preparing">正在准备错误报告…</string>
+    <string name="bug_report_email" translatable="false">210478@mail.ru</string>
+    <string name="bug_report_subject" translatable="false">ZOMDROID REPORT %1$s</string>
+    <string name="bug_report_body">您好，我有一个新的错误报告。\n\n描述：\n\n\n---\n%1$s</string>
+    <string name="bug_report_no_mail">此设备上未找到邮件应用。</string>
+
+    <!-- New instance -->
+    <string name="native_libs_dialog_title">B41 原生库（可选）</string>
+    <string name="native_libs_dialog_message">原生库是来自42.12版本的文件，主要包含两个文件：\n\n🌐 libRakNet64.so\n🌐 libZNetNoSteam64.so\n\n这些文件是41.78版本多人游戏支持所必需的。详情请查阅Wiki。</string>
+    <string name="dialog_button_wiki">Wiki</string>
+
+    <string name="preset_dialog_title_b41">Build 41</string>
+    <string name="preset_dialog_title_b42">Build 42</string>
+    <string name="preset_dialog_title_b4212">Build 42.12+</string>
+
+    <string name="preset_dialog_message_b41">Build 41.78——目前最稳定的版本。可在大多数4GB及以上内存的设备上运行。</string>
+    <string name="preset_dialog_message_b42">Build 42（版本42.0–42.11）。需要6GB以上内存。主要在骁龙设备上运行，部分强力天玑设备也支持。</string>
+    <string name="preset_dialog_message_b4212">Build 42.12及以上版本。需要略有不同的设置，至少8GB内存。主要在骁龙和新款强力天玑设备上运行。</string>
+
+    <!-- Settings groups -->
+    <string name="settings_group_rendering">渲染</string>
+    <string name="settings_group_texture">纹理压缩</string>
+    <string name="settings_group_advanced">高级</string>
+    <string name="settings_group_controls">控制</string>
+    <string name="settings_group_audio">音频</string>
+
+    <!-- Game files zip help text -->
+    <string name="game_instance_files_help_message">
+        \u2705 正确:\n\n
+        projectzomboid.zip/\n
+        \u00A0\u00A0ProjectZomboid64.json\n
+        \u00A0\u00A0java/\n
+        \u00A0\u00A0natives/\n
+        \u00A0\u00A0...\n\n
+        \u274C 错误:\n\n
+        projectzomboid.zip/\n
+        \u00A0\u00A0Project Zomboid/\n
+        \u00A0\u00A0\u00A0\u00A0ProjectZomboid64.json\n
+        \u00A0\u00A0\u00A0\u00A0java/\n
+        \u00A0\u00A0\u00A0\u00A0...\n\n
+        GOG 的 Linux 安装程序 (.sh) 也可以：把它单独放进一个 .zip 压缩包。
+    </string>
+    <string name="game_instance_files_help_title">游戏文件ZIP结构</string>
+
+    <!-- New instance layout names -->
+    <string name="new_game_instance_group_name">实例名称</string>
+    <string name="new_game_instance_group_preset">预设</string>
+    <string name="new_game_instance_group_files">文件</string>
+
+    <string name="install_mod_group_instance">实例</string>
+    <string name="install_mod_group_file">Mod文件</string>
+    <string name="install_controls_group_file">按键布局文件</string>
+    <string name="install_saves_group_import">导入存档</string>
+    <string name="install_saves_group_export">导出存档</string>
+    <string name="install_saves_export_hint">将当前存档保存为ZIP压缩包。</string>
+    <string name="install_controls_group_export">导出按键布局</string>
+    <string name="install_controls_export_hint">将当前按键布局保存为ZIP压缩包。</string>
+    <string name="install_driver_group_import">导入驱动</string>
+    <string name="install_driver_group_export">导出驱动</string>
+    <string name="install_driver_export_hint">将已安装的自定义驱动保存为.so文件。</string>
+    <string name="export_log_group_export">导出日志</string>
+    <string name="export_log_hint">从所选实例导出console.txt日志文件。</string>
+
+    <string name="new_game_instance_create">→ 创建</string>
+    <string name="new_game_instance_select_preset">选择预设…</string>
+    <string name="new_game_instance_no_preset_selected">请选择预设。它必须与您的游戏版本匹配：Build 41 有一个预设，Build 42 分为两个——请仔细选择。</string>
+    <string name="new_game_instance_no_preset_title">选择预设</string>
+
+    <string name="nav_menu_optimization">优化</string>
+    <string name="nav_menu_mod_fixes">修复模组</string>
+
+    <!-- Optimization page -->
+    <string name="optimization_group_jvm">JVM 参数</string>
+    <string name="optimization_jvm_hint">默认参数只调整垃圾回收器，在任何设备上都安全——堆大小和线程数交由 JVM 决定，它会按你的手机来调整。Build 42 适合更强的一组参数：在设置 → 高级 → JVM 参数中一键应用。</string>
+    <string name="settings_jvm_args_reset">恢复默认</string>
+    <string name="settings_jvm_args_clear">清空</string>
+    <string name="settings_jvm_args_b42_recommendation">推荐用于 Build 42：限制 Java 堆并把内存交还系统，为渲染器留出空间。在某些情况下，缺少其中一些参数游戏可能无法启动。不适用于 Build 41——在 4 GB 设备上得不偿失。</string>
+    <string name="settings_jvm_args_b42_preset_title">Build 42 预设（推荐）</string>
+    <string name="settings_jvm_args_apply">应用</string>
+    <string name="renderer_ng_build42_only_title">NG_GL4ES 仅适用于 Build 42</string>
+    <string name="renderer_ng_build42_only_message">该渲染器是为 Build 42 编写的，在 Build 41 上无法工作——游戏不会启动。\n\n如果你玩 Build 41，请选择 ZINK 或 GL4ES。\n\nBuild 42 还需要推荐的 JVM 参数：设置 → 高级 → JVM 参数。</string>
+    <string name="new_game_instance_b42_jvm_hint">Build 42 需要调整过的 JVM 参数——设置里有一键预设。</string>
+    <string name="new_game_instance_open_settings">打开设置 → 高级 → JVM 参数 →</string>
+    <string name="optimization_jvm_recommended_label">→ 当前默认值：</string>
+    <string name="optimization_jvm_4gb_note">⚠️ 在 4 GB 内存的设备上游戏可以运行，但并不理想：不建议玩 Build 42 — 请玩 Build 41 并使用下方的优化模组（BetterFPS、Every Texture Optimized）。它们比 JVM 设置有效得多。</string>
+    <string name="optimization_copy">复制</string>
+    <string name="optimization_open_settings">→ 打开设置</string>
+    <string name="optimization_group_betterfps">BetterFPS b41</string>
+    <string name="optimization_betterfps_hint">减少玩家周围的渲染区域。 \n\nSteam Workshop ID: 3022543997。下载模组，上传 ZIP 文件，并选择三种最常用模式之一。</string>
+    <string name="optimization_betterfps_file_label">BetterFPS 模组（zip 压缩包）</string>
+    <string name="optimization_install">安装</string>
+    <string name="optimization_betterfps_help_title">BetterFPS 原理</string>
+    <string name="optimization_betterfps_help_message">Steam Workshop ID：3022543997\n\n“Project Zomboid 会渲染玩家周围 190×190 格的区域。这个模组会缩小该区域的大小，并避免加载不必要的区块。”\n— 模组说明\n\n选项：\n• PotatoePC — 最高性能\n• 1080 — 平衡模式\n• 4k — 最佳画质（仍然低于原版）\n• All_Settings — 可自定义区域大小，从 30×30 到 190×190；必须手动安装\n\n建议从 PotatoePC 开始。如有需要，可以手动选择更低的设置。</string>
+    <string name="optimization_betterfps_installed">BetterFPS 安装成功</string>
+    <string name="optimization_betterfps_installing">正在安装 BetterFPS…</string>
+    <string name="optimization_betterfps_mode_label">模式</string>
+    <string name="optimization_betterfps_mode_potato">PotatoPC（推荐）</string>
+    <string name="optimization_betterfps_mode_1080p">1080p</string>
+    <string name="optimization_betterfps_mode_4k">4K</string>
+    <string name="optimization_betterfps_error_not_found">未找到模式 %1$s 的 IsoChunkMap.class</string>
+
+    <!-- Render Less Zombie (B41) -->
+    <string name="optimization_group_rlz">Render Less Zombie b41</string>
+    <string name="optimization_rlz_hint">将远处的僵尸渲染为平面贴图动画而非完整模型，在屏幕上出现尸潮时帮助很大。\n\nSteam 创意工坊 ID：2970823607。下载该模组，在此上传 ZIP 文件并选择等级 — 即仍以完整模型绘制的僵尸数量。数值越小越流畅。</string>
+    <string name="optimization_rlz_level_label">→ 等级</string>
+    <string name="optimization_rlz_file_label">RenderLessZombie 模组（zip 压缩包）</string>
+    <string name="optimization_rlz_installing">正在安装 Render Less Zombie…</string>
+    <string name="optimization_rlz_installed">Render Less Zombie 安装完成（等级 %1$s）</string>
+    <string name="optimization_rlz_error_not_found">此压缩包中未找到等级 %1$s。请确认选择的是 RenderLessZombie 模组的 ZIP 文件。</string>
+    <string name="optimization_rlz_help_title">Render Less Zombie 的工作原理</string>
+    <string name="optimization_rlz_help_message">Steam 创意工坊 ID：2970823607\n\n“当僵尸过多时，它们将被渲染为贴图动画。”\n— 模组说明\n\n等级表示仍以完整 3D 模型绘制的僵尸数量；超出的部分会变成开销很低的平面动画。可选等级：1、25、50、75、100、150 — 模组作者推荐 50。原版游戏的硬性上限为 510。\n\n安装会替换所选实例的 zombie/iso 类文件；原始文件会以 .bak 后缀保留在旁边，需要时可手动还原。\n\n仅适用于 Build 41。</string>
+
+    <!-- ===== Mods fix ===== -->
+    <string name="mod_fix_installing">正在安装修复版模组…</string>
+    <string name="mod_fix_installed">模组安装成功</string>
+    <string name="mod_fix_error_no_mod_folder">压缩包中未找到模组文件夹</string>
+    <string name="mod_fix_error_not_b42">此模组似乎不是 Build 42 模组：%1$s</string>
+    <string name="mod_fix_group_double_path">双路径修复</string>
+    <string name="mod_fix_double_path_hint">修复 Build 41/42 模组在 Android 上的路径错误。已知问题模组：Tsar\'s Common Library（ID：3402491515）、Simple Flashlight on Belt（ID：3394588830）。</string>
+    <string name="mod_fix_help_title">这是什么修复？</string>
+    <string name="mod_fix_help_message">部分 mod 使用的文件夹结构会在 Android 上引发路径冲突。游戏会在重复路径中查找文件，从而导致找不到。\n\n此修复会将 mod 安装两次——一次使用原始文件夹名称，一次使用全小写名称——使游戏无论使用哪个路径都能找到文件。\n\n已知受影响的 mod：\n• Tsar\'s Common Library — ID: 3402491515\n• [B42] Simple Flashlight on Belt — ID: 3394588830\n\n使用方法：下载 mod，在此处加载。</string>
+
+    <!-- CPU/GPU autodetect -->
+
+    <!-- Manual mods installation -->
+    <string name="install_mod_manual_group">手动安装</string>
+    <string name="install_mod_manual_hint">将模组文件夹复制到 Zomboid 文件夹内的 mods 文件夹中。如果 mods 文件夹不存在，请创建它（小写）。模组文件夹不应包含多余的外层文件夹。</string>
+    <string name="install_mod_open_folder">打开模组文件夹</string>
+    <string name="install_mod_manual_help_title">手动安装</string>
+    <string name="install_mod_manual_help_message">
+        \u2705 正确的结构：\n\n
+        ModName/\n
+        \u00A0\u00A0mod.info\n
+        \u00A0\u00A0media/\n
+        \u00A0\u00A0scripts/\n\n
+        \u274C 错误 — 多余的外层文件夹：\n\n
+        Downloads/\n
+        \u00A0\u00A0ModName/\n
+        \u00A0\u00A0\u00A0\u00A0mod.info
+    </string>
+
+    <!-- ===== SMART IMPORT strings ===== -->
+    <string name="install_mod_smart_group">智能导入</string>
+    <string name="install_mod_smart_hint">自动从 ZIP 中找到 mod 文件夹，即使它被多余的文件夹包裹（例如来自 Skymods）。自动为含有脚本或模型的 mod 应用修复。</string>
+    <string name="install_mod_smart_help_title">智能导入</string>
+    <string name="install_mod_smart_help_message">智能导入可从任意 ZIP 结构中提取正确的 mod 文件夹。\n\n通过查找 mod.info、media/ 或 common/ 文件夹来定位 mod 根目录，无论外层有多少包装文件夹。\n\n对于含有 scripts/ 或 models_X/ 文件夹的 mod，系统还会自动安装小写副本，以修复 Android 上的路径问题。</string>
+    <string name="install_mod_smart_install">导入</string>
+    <string name="install_mod_smart_title">智能导入中…</string>
+    <string name="install_mod_smart_done">Mod 导入成功</string>
+    <string name="install_mod_smart_no_root">在此 ZIP 中找不到 mod 文件夹。请确认压缩包中包含 mod.info、media/ 或 common/ 文件夹。</string>
+    <string name="extracting">正在解压…</string>
+
+    <!-- ===== CONTROLS EDITOR LAUNCH strings ===== -->
+    <string name="controls_editor_bg_group">背景图片（可选）</string>
+    <string name="controls_editor_bg_hint">从游戏中加载截图作为编辑器背景，方便将按钮放置在合适的位置。</string>
+    <string name="controls_editor_bg_clear">移除背景</string>
+    <string name="controls_editor_bg_saved">背景图片已保存</string>
+    <string name="controls_editor_bg_cleared">背景已移除</string>
+    <string name="controls_editor_bg_error">保存背景失败：%1$s</string>
+    <string name="controls_editor_open_group">编辑器</string>
+    <string name="controls_editor_open_hint">打开控制编辑器，拖动、缩放并配置屏幕上的按钮。</string>
+    <string name="controls_editor_open_btn">打开编辑器</string>
+
+    <!-- ===== ETO + collapsible strings ===== -->
+    <string name="optimization_group_eto">Every Texture Optimized</string>
+    <string name="optimization_eto_hint">安装优化纹理以提升性能。 \n⚠️ 可以通过游戏内模组管理器作为普通模组安装，但对于只有 4GB 内存的低端设备，强烈建议进行一次性纹理替换。 \n\n选择游戏实例，系统将自动应用正确的纹理版本（B41 或 B42）。</string>
+    <string name="optimization_eto_help_title">Every Texture Optimized</string>
+    <string name="optimization_eto_help_message">Steam Workshop ID：3119788162 [B42] 和 ID：2812026801 [B41]\n\n从 Steam Workshop 或 Skymods 下载该模组的 ZIP 文件。\n\n选择游戏实例和 ZIP 文件，然后点击 Install。启动器会自动选择适用于你版本的纹理文件夹，并将文件复制到游戏的 media/textures 目录中，替换原始文件。\n\n原始的 textures 文件夹将被重命名为 textures.bak。若需回滚模组，请删除新的 textures 文件夹，并将 textures.bak 重命名回 textures。</string>
+    <string name="optimization_eto_installing">正在安装纹理…</string>
+    <string name="optimization_eto_installed">纹理安装成功</string>
+    <string name="optimization_eto_error_no_textures">在此 ZIP 中找不到纹理文件夹。</string>
+
+    <!-- ===== ZombieBuddy + ZBBetterFPS strings ===== -->
+    <string name="optimization_group_zombiebuddy">ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_hint">框架模组。 \n⚠️ 使用 ZombieBuddy 的模组可能与其他模组不兼容。如出现问题，请尝试调整加载顺序或更换模组版本。\n\n要禁用：在此关闭开关，并在游戏中禁用该模组，然后重启。</string>
+    <string name="optimization_zombiebuddy_enabled">启用 ZombieBuddy 代理</string>
+    <string name="optimization_zombiebuddy_help_title">ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_help_message">一个支持 Project Zomboid 高级 Java mod 的框架。\n\n从 Steam 下载 ZombieBuddy，Workshop ID：3619862853，在此上传 ZIP 文件并点击安装。</string>
+    <string name="optimization_zombiebuddy_installing">正在安装 ZombieBuddy…</string>
+    <string name="optimization_zombiebuddy_installed">ZombieBuddy 安装成功</string>
+     
+    <string name="optimization_group_zbbetterfps">ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_hint">优化 mod。所有选项默认关闭。安装 mod 后在 Mod 选项中启用。\n\n此 mod 已为 Zomdroid 修改以兼容 Android。\n\n⚠️ ZBBetterFPS 与 BetterFPS 不兼容，只能使用其中一个。</string>
+    <string name="optimization_zbbetterfps_enabled">启用 ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_help_title">ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_help_message">一个全面的性能优化模组，用于优化 Project Zomboid 的渲染、游戏逻辑和 CPU 使用。作者：Zed。\n\n需要已安装并启用 ZombieBuddy（B41 还需 ModOptions）。\n⚠️ 使用 ZombieBuddy 的模组可能与其他模组不兼容。如出现问题，请尝试调整加载顺序或更换模组版本。 \n\n从 Steam Workshop 或 Skymods 下载 ZBBetterFPS（ID：3622986450），上传 ZIP 文件并点击 Install。</string>
+    <string name="optimization_zbbetterfps_installing">正在安装 ZBBetterFPS…</string>
+    <string name="optimization_zbbetterfps_installed">ZBBetterFPS 安装成功</string>
+    <string name="optimization_zbbetterfps_gl4es_warning">⚠️ ZBBetterFPS 仅支持 ZINK 渲染器。如使用 GL4ES，请改用普通的 BetterFPS mod。</string>
+
+    <string name="control_element_sensitivity">灵敏度</string>
+
+    <!-- ===== Game Settings strings ===== -->
+    <string name="game_settings_menu">导入/导出游戏设置</string>
+    <string name="game_settings_import_title">导入</string>
+    <string name="game_settings_import_hint">选择包含 options.ini 的 .zip（单独的 options.ini 也可以）。它会替换所选实例的游戏设置。</string>
+    <string name="game_settings_export_title">导出</string>
+    <string name="game_settings_export_hint">将所选实例的 options.ini 保存为 .zip，文件名包含当前日期和时间。</string>
+    <string name="game_settings_importing">正在导入游戏设置…</string>
+    <string name="game_settings_imported">游戏设置已导入</string>
+    <string name="game_settings_exporting">正在导出游戏设置…</string>
+    <string name="game_settings_exported">游戏设置已导出</string>
+    <string name="game_settings_not_found">未找到 options.ini。游戏可能尚未运行过。</string>
+    <string name="game_settings_wrong_format">请选择 .zip 文件</string>
+    <string name="game_settings_tab_options">设置</string>
+    <string name="game_settings_tab_sandbox">沙盒</string>
+    <string name="game_settings_tab_builds">角色构建</string>
+    <string name="game_settings_import_hint_sandbox">选择包含沙盒预设（.cfg 文件）的 .zip。它们会添加到所选实例的预设中；同名预设将被替换。</string>
+    <string name="game_settings_export_hint_sandbox">将所选实例的所有沙盒预设保存到一个 .zip 中。</string>
+    <string name="game_settings_import_hint_builds">选择包含 saved_builds.txt 和 saved_outfits.txt 的 .zip。其中的角色构建和服装会添加到所选实例中；同名的将被替换。</string>
+    <string name="game_settings_export_hint_builds">将所选实例的角色构建和服装保存为 .zip。</string>
+    <string name="game_settings_zip_empty">没有可导入的内容：文件中没有 %1$s。</string>
+    <string name="game_settings_sandbox_not_found">未找到沙盒预设。请先在游戏中保存一个预设。</string>
+    <string name="game_settings_builds_not_found">未找到已保存的角色构建或服装。请先在游戏中保存。</string>
+    <string name="import_label">导入</string>
+    <string name="export_label">导出</string>
+
+    <!-- ===== Workshop Download strings ===== -->
+    <string name="install_mod_workshop_section">从 Steam Workshop 下载</string>
+    <string name="install_mod_workshop_disclaimer">由 ggntw.com 提供 — 第三方服务，随时可能停止运行。\n首次使用时，下载前可能会显示大量广告。</string>
+    <string name="install_mod_workshop_btn">从 Workshop 下载</string>
+    <string name="install_mod_workshop_dialog_title">Steam Workshop ID</string>
+    <string name="install_mod_workshop_dialog_message">从 mod 页面 URL 中输入 Workshop ID。\n\n示例：Workshop ID：3619862853</string>
+    <string name="install_mod_workshop_download">下载</string>
+    <string name="install_mod_workshop_id_empty">请输入 Workshop ID</string>
+    <string name="install_mod_workshop_requesting">正在请求下载链接…</string>
+    <string name="install_mod_workshop_error">无法获取下载链接，请稍后重试。</string>
+    <string name="install_mod_workshop_webview_title">完成下载</string>
+    <string name="install_mod_workshop_downloading">正在下载 mod…</string>
+    <string name="install_mod_workshop_downloaded">Mod 已下载，点击安装。</string>
+    <string name="install_mod_workshop_download_failed">下载失败，请重试。</string>
+
+    <!-- ===== Native Libs strings ===== -->
+    <string name="native_libs_menu">导入多人游戏库 (B41)</string>
+    <string name="native_libs_hint">🎮 在这里可以安装额外的本机库 libRakNet64.so 和 libZNetNoSteam64.so，用于 Build 41 的多人游戏支持。\n\n这些库最早出现在 Build 42.12+ 中。如需在 Build 41 上使用，请从 Build 42 实例文件夹复制：game/android/arm64-v8a — 这不是错误。</string>
+    <string name="native_libs_group_file">包含 .so 文件的 ZIP 压缩包</string>
+    <string name="native_libs_install">安装</string>
+    <string name="native_libs_installing">正在安装本机库…</string>
+    <string name="native_libs_installed">本机库已安装</string>
+
+    <string name="control_element_opacity_all">全部</string>
+
+    <!-- Steam downloader -->
+    <string name="steam_dl_menu">从 Steam 下载</string>
+    <string name="steam_dl_tab_game">游戏</string>
+    <string name="steam_dl_tab_mods">模组</string>
+    <string name="steam_dl_login_group">Steam 登录</string>
+    <string name="steam_dl_login_note">你的登录信息会发送给 Steam（与 DepotDownloader 相同方式），不会被保存——不存储任何数据或密码。请在 Steam 手机版中确认登录，或在提示时输入 Steam 令牌（Steam Guard）验证码。</string>
+    <string name="steam_dl_slow_warning">⚠️ 下载可能很慢。</string>
+    <string name="steam_dl_build_42">Build 42</string>
+    <string name="steam_dl_build_41">Build 41</string>
+    <string name="steam_dl_manifest_hint_41">Build 41 清单 id（必填）</string>
+    <string name="steam_dl_build41_needs_manifest">Build 41：请输入其清单 id。</string>
+    <string name="steam_dl_cancel">取消下载</string>
+    <string name="steam_dl_cancel_confirm">取消下载？已下载的文件会保留，以便稍后续传。</string>
+    <string name="steam_dl_username">Steam 用户名</string>
+    <string name="steam_dl_password">Steam 密码</string>
+    <string name="steam_dl_version_note">将 Project Zomboid 的 Linux 版本下载到 Downloads/zomdroid——无需 Termux，无需电脑。Build 41 约 6–7 GB，Build 42 约 10–11 GB（未压缩），所以会很久；如果中断，重新下载同一版本即可断点续传。清单字段留空即下载最新版本。若要锁定旧版本，请在 https://steamdb.info/depot/108603/manifests/ 找到对应行，复制其中的 "DepotDownloader" 格式（不是 "Steam Console"）——将整行粘贴到此处（包含分支信息）；此时上方的 Build 41/42 切换将被忽略。</string>
+    <string name="steam_dl_manifest_hint">清单 id，或完整的 DepotDownloader 行（留空 = 最新版本）</string>
+    <string name="steam_dl_download_game">下载游戏</string>
+    <string name="steam_dl_mods_note">按 ID 下载创意工坊模组（创意工坊 URL 中的数字：…/sharedfiles/filedetails/?id=数字）。无需 Steam 登录。多个 ID 用空格分隔。每个保存为 Downloads/zomdroid 中的 .zip。</string>
+    <string name="steam_dl_mods_hint">创意工坊 ID（用空格分隔）</string>
+    <string name="steam_dl_download_mods">下载模组</string>
+    <string name="steam_dl_required">必填</string>
+    <string name="steam_dl_mods_empty">请输入创意工坊 ID（URL 中的数字）</string>
+    <string name="steam_dl_storage_title">需要存储访问权限</string>
+    <string name="steam_dl_storage_message">游戏和模组会保存到公共的 Downloads/zomdroid 文件夹，方便查看、分享和导入。请授予 Zomdroid「所有文件访问权限」，然后再次点击下载。</string>
+    <string name="steam_dl_grant">授予</string>
+    <string name="steam_dl_guard_title">输入 Steam 令牌验证码</string>
+    <string name="steam_dl_guard_retry">验证码错误 — 请重试</string>
+    <string name="steam_dl_guard_hint">Steam 令牌验证码</string>
+    <string name="steam_dl_guard_email">验证码已发送至 %1$s</string>
+
+    <!-- Appearance / controls / detection -->
+    <string name="settings_group_appearance">外观</string>
+    <string name="settings_theme">启动器主题</string>
+    <string name="control_element_style">样式</string>
+    <string name="control_element_custom_icon">自定义图标…</string>
+    <string name="control_element_custom_icon_failed">无法加载图片</string>
+    <string name="control_element_custom_icon_select_button">请先选择一个按钮</string>
+    <string name="control_element_icon_no_tint">保留原始颜色</string>
+    <string name="vibrate_on_touch_switch_label">按下按钮时振动</string>
+    <string name="new_game_instance_analyzing">正在分析游戏文件，请稍候…</string>
+    <string name="new_game_instance_detect_failed">无法读取游戏 ZIP。请确认它是有效的 Project Zomboid 压缩包后重试。</string>
+
+    <!-- NG_GL4ES renderer offer dialog -->
+    <string name="settings_features_title">功能</string>
+    <string name="settings_backup_switch">快速存档（F10）</string>
+    <string name="game_instance_restore_backup">恢复 F10 备份</string>
+    <string name="backup_warning_title">开启前请注意</string>
+    <string name="backup_warning_message">按下 F10 会完整备份你的世界，作为崩溃或死亡后可以返回的节点。\n\n存档越大，也就是角色存活越久，备份所需的时间越长。按 F10 前请留出几分钟安全的时间：写入备份时游戏可能看起来像卡住了，其实没有。请耐心等待，不要关闭游戏。\n\nF10 按钮已包含在新的操作布局中。如果你沿用旧版本的自定义布局，请在操作编辑器中自行添加该按钮：输入类型“键盘和鼠标”，绑定 F10。\n\n每个世界只保留一份备份，新的备份会替换旧的。适用于 Build 41 和 42，仅限单人游戏。</string>
+    <string name="backup_restore_title">上次会话崩溃了</string>
+    <string name="backup_restore_message">有一份“%1$s”的备份，时间为 %2$s（%3$d MB），即你按下 F10 的时刻。\n\n返回该备份将清除之后发生的一切。</string>
+    <string name="backup_restore_continue">按原样继续</string>
+    <string name="backup_restore_do">返回备份</string>
+    <string name="backup_restoring">正在恢复备份…</string>
+    <string name="backup_restore_done">备份已恢复</string>
+    <string name="backup_restore_failed">恢复失败：%1$s</string>
+    <string name="backup_manual_restore_message">有一份“%1$s”的备份，时间为 %2$s（%3$d MB）。\n\n恢复后，该世界的当前进度将被替换为备份创建时的状态。此操作无法撤销。</string>
+    <string name="backup_none_found">未找到最近游玩世界的备份</string>
+    <!-- Appended to the Build 42 compatibility preset dialog. -->
+    <string name="preset_confirm_compat_note">\n\n将渲染器设置为 NG_GL4ES：无需挑选驱动，兼容所有已知的 GPU。</string>
+    <string name="preset_confirm_title">应用 %1$s？</string>
+    <string name="preset_name_b42_compat">Build 42 — 兼容模式</string>
+    <string name="preset_confirm_nothing_to_do">你的设置已经与此预设一致。</string>
+    <string name="preset_change_renderer">渲染器：%1$s → %2$s</string>
+    <string name="preset_change_shrink">纹理缩小：%1$s → %2$s</string>
+    <string name="preset_change_jvm_args">Java 参数：已设为推荐值</string>
+    <string name="preset_change_render_scale">分辨率缩放：%1$s → %2$s</string>
+    <string name="preset_change_vulkan_driver">Vulkan 驱动：%1$s → %2$s</string>
+    <string name="preset_change_memory_saver_on">内存节省：开启</string>
+    <string name="preset_change_memory_saver_off">内存节省：关闭</string>
+    <string name="preset_applied">已应用预设：%1$s</string>
+    <string name="preset_dialog_gpu_ng">检测到 %1$s。已设置 NG_GL4ES 渲染器——它可在任何 GPU 上运行，无需驱动。纹理以 ETC2 全分辨率压缩，因此在不损失画质的情况下节省内存。</string>
+    <string name="preset_dialog_gpu_ng_unnamed">已设置 NG_GL4ES 渲染器——它可在任何 GPU 上运行，无需驱动。纹理以 ETC2 全分辨率压缩，因此在不损失画质的情况下节省内存。</string>
+    <string name="preset_card_title">推荐预设</string>
+    <string name="preset_card_subtitle">渲染器、纹理缩小、Java 参数和分辨率，一次为你设好</string>
+    <string name="preset_name_b41">Build 41</string>
+    <string name="preset_name_b42">Build 42</string>
+    <string name="settings_etc2_cache_clear">清除</string>
+    <string name="settings_etc2_cache_hint">所有实例共用。随时可以清除：渲染器会重新压缩所需内容，下次加载多花几秒。</string>
+    <string name="settings_texture_compression">纹理压缩 (ETC2)</string>
+    <string name="settings_texture_compression_short">以极小的画质损失压缩大纹理。会保留一个可清除的缓存。</string>
+    <string name="settings_jvm_args_title">JVM 参数</string>
+    <string name="launcher_empty_title">如何开始</string>
+    <string name="launcher_empty_body">要开始游戏，请先创建一个实例——也就是已安装的一份 Project Zomboid。用顶部的 + 添加游戏文件，或在侧边菜单中从 Steam 或 GOG 下载游戏。Steam 的下载需要先打包成 .zip；GOG 的下载完成后，点击“创建实例”即可。</string>
+    <string name="launcher_empty_quick_start">快速开始</string>
+</resources>

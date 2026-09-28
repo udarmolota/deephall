@@ -1,0 +1,461 @@
+package com.zomdroid.fragments;
+
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.zomdroid.C;
+import com.zomdroid.InstallerService;
+import com.zomdroid.R;
+import com.zomdroid.databinding.FragmentInstallModBinding;
+import com.zomdroid.databinding.TaskProgressDialogBinding;
+import com.zomdroid.game.GameInstance;
+import com.zomdroid.game.GameInstanceManager;
+
+import android.graphics.Typeface;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+public class InstallModFragment extends Fragment {
+
+    private static final String LOG_TAG = InstallModFragment.class.getName();
+
+    private FragmentInstallModBinding binding;
+    private TaskProgressDialogBinding taskProgressDialogBinding;
+    private AlertDialog taskProgressDialog;
+    private boolean isInstallerServiceBound = false;
+    // Kept so a finished task stops the service it ran in, not whatever is started later.
+    private InstallerService installerService;
+
+    private final String ZIP_MIME = "application/zip";
+
+    private Uri modZipUri = null;
+    private List<GameInstance> instances;
+
+    private final ServiceConnection installerServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            InstallerService.LocalBinder binder = (InstallerService.LocalBinder) service;
+            installerService = binder.getService();
+            isInstallerServiceBound = true;
+
+            handleTaskState(installerService.getTaskState().getValue());
+            installerService.getTaskState().observe(InstallModFragment.this, InstallModFragment.this::handleTaskState);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            Log.e(LOG_TAG, "Connection to installer service has been lost");
+            isInstallerServiceBound = false;
+            if (taskProgressDialog != null) taskProgressDialog.dismiss();
+        }
+    };
+
+    private void handleTaskState(InstallerService.TaskState state) {
+        if (state == null) return;
+        if (state.isFinished) {
+            taskProgressDialog.dismiss();
+            unbindInstallerService();
+            if (installerService != null) installerService.stopUnlessRestarted();
+            Toast.makeText(requireContext(),
+                    getString(R.string.dialog_title_mods_installed),
+                    Toast.LENGTH_SHORT).show();
+        } else if (state.isFinishedWithError) {
+            showTaskFinishedWithErrorDialog(state.title, state.message);
+            unbindInstallerService();
+            if (installerService != null) installerService.stopUnlessRestarted();
+        } else {
+            showTaskProgressDialog(state.title, state.message, state.progress, state.progressMax);
+        }
+    }
+
+    // ZIP picker
+    private final ActivityResultLauncher<String> actionOpenModsLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri == null) return;
+
+                ContentResolver cr = requireContext().getContentResolver();
+
+                if (Objects.equals(cr.getType(uri), ZIP_MIME)) {
+                    modZipUri = uri;
+                    binding.installModZipPathEt.setText(extractFileName(uri));
+                } else {
+                    Toast.makeText(requireContext(),
+                            getString(R.string.game_instance_unsupported_extension),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
+        binding = FragmentInstallModBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Setup progress dialog
+        taskProgressDialogBinding = TaskProgressDialogBinding.inflate(getLayoutInflater());
+        taskProgressDialog = new MaterialAlertDialogBuilder(requireContext())
+                .setView(taskProgressDialogBinding.getRoot())
+                .setCancelable(false)
+                .create();
+        taskProgressDialogBinding.progressDialogOkMb.setOnClickListener(v ->
+                taskProgressDialog.dismiss()
+        );
+
+        // Default banner — always show before any early return
+        binding.installModBannerIv.setImageResource(R.drawable.banner_default);
+
+        instances = GameInstanceManager.requireSingleton().getInstances();
+
+        // Spinner population
+        List<String> names = new ArrayList<>();
+        if (instances == null || instances.isEmpty()) {
+            instances = new ArrayList<>();
+            names.add(getString(R.string.select_instance));
+            binding.installModInstallBtn.setEnabled(false);
+        } else {
+            if (instances.size() > 1) {
+                names.add(getString(R.string.select_instance));
+            }
+            for (GameInstance gi : instances) {
+                names.add(gi.getName());
+            }
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                R.layout.spinner_item,
+                names
+        );
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        binding.installModInstanceSpinner.setAdapter(adapter);
+        binding.installModInstanceSpinner.setOnItemSelectedListener(
+                new android.widget.AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(android.widget.AdapterView<?> parent,
+                                               View view, int position, long id) {
+                        int instanceIndex = instances.size() > 1 ? position - 1 : position;
+                        if (instanceIndex < 0 || instanceIndex >= instances.size()) {
+                            binding.installModBannerIv.setImageResource(R.drawable.banner_default);
+                            binding.installModBannerOverlay.setVisibility(View.INVISIBLE);
+                            return;
+                        }
+                        GameInstance selected = instances.get(instanceIndex);
+                        int bannerRes;
+                        switch (selected.getPresetName()) {
+                            case "Build 42.12+":
+                                bannerRes = R.drawable.banner_build42_12;
+                                break;
+                            case "Build 42":
+                                bannerRes = R.drawable.banner_build42;
+                                break;
+                            default:
+                                bannerRes = R.drawable.banner_build41;
+                                break;
+                        }
+                        binding.installModBannerIv.setImageResource(bannerRes);
+                        binding.installModBannerOverlay.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                        binding.installModBannerIv.setImageResource(R.drawable.banner_default);
+                        binding.installModBannerOverlay.setVisibility(View.INVISIBLE);
+                    }
+                });
+
+        if (instances.size() == 1) {
+            binding.installModInstanceSpinner.setSelection(0);
+        }
+
+        // Browse button (ZIP)
+        binding.installModBrowseIb.setOnClickListener(v ->
+                actionOpenModsLauncher.launch(ZIP_MIME)
+        );
+
+        // Download from Workshop button
+        binding.installModDownloadWorkshopBtn.setOnClickListener(v ->
+                showWorkshopDownloadDialog()
+        );
+
+        // Install button (ZIP)
+        binding.installModInstallBtn.setOnClickListener(v -> {
+            if (modZipUri == null) {
+                Toast.makeText(requireContext(),
+                        R.string.game_instance_no_file_selected,
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int position = binding.installModInstanceSpinner.getSelectedItemPosition();
+            int instanceIndex = instances.size() > 1 ? position - 1 : position;
+
+            if (instanceIndex < 0 || instanceIndex >= instances.size()) {
+                Toast.makeText(requireContext(),
+                        getString(R.string.select_instance),
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            GameInstance selectedInstance = instances.get(instanceIndex);
+
+            Intent installerIntent = new Intent(requireContext(), InstallerService.class);
+            installerIntent.putExtra(
+                    InstallerService.EXTRA_COMMAND,
+                    InstallerService.Task.INSTALL_MOD_WITH_FIX.ordinal()
+            );
+            installerIntent.putExtra(
+                    InstallerService.EXTRA_GAME_INSTANCE_NAME,
+                    selectedInstance.getName()
+            );
+            installerIntent.putExtra(
+                    InstallerService.EXTRA_BUILD_VERSION,
+                    selectedInstance.getBuildVersion()
+            );
+            installerIntent.putExtra(
+                    InstallerService.EXTRA_MODS_URI,
+                    modZipUri
+            );
+
+            clearSelectedModZip();
+
+            requireContext().startForegroundService(installerIntent);
+            bindInstallerService();
+        });
+
+    }
+
+    private void showWorkshopDownloadDialog() {
+        // Input dialog for Workshop ID
+        EditText input = new EditText(requireContext());
+        //input.setHint("3619862853");
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setPadding(48, 24, 48, 24);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.install_mod_workshop_dialog_title)
+                .setMessage(R.string.install_mod_workshop_dialog_message)
+                .setView(input)
+                .setPositiveButton(R.string.install_mod_workshop_download, (dialog, which) -> {
+                    String workshopId = input.getText().toString().trim();
+                    if (workshopId.isEmpty()) {
+                        Toast.makeText(requireContext(),
+                                R.string.install_mod_workshop_id_empty,
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    requestGgntw(workshopId);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void requestGgntw(String workshopId) {
+        String workshopUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshopId;
+        Toast.makeText(requireContext(), R.string.install_mod_workshop_requesting, Toast.LENGTH_SHORT).show();
+
+        new Thread(() -> {
+            try {
+                URL url = new URL("https://api.ggntw.com/steam.request");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept", "application/json, text/plain, */*");
+                conn.setRequestProperty("Origin", "https://ggntw.com");
+                conn.setRequestProperty("Referer", "https://ggntw.com/");
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+                conn.setDoOutput(true);
+
+                String body = new JSONObject().put("url", workshopUrl).toString();
+                conn.getOutputStream().write(body.getBytes("UTF-8"));
+
+                int code = conn.getResponseCode();
+                InputStream is = code == 200 ? conn.getInputStream() : conn.getErrorStream();
+                java.util.Scanner scanner = new java.util.Scanner(is).useDelimiter("\\A");
+                String response = scanner.hasNext() ? scanner.next() : "";
+                Log.d(LOG_TAG, "ggntw response: " + response);
+
+                // Response может быть прямой URL строкой или JSON
+                String downloadUrl = null;
+                if (response.startsWith("http")) {
+                    downloadUrl = response.trim();
+                } else {
+                    try {
+                        JSONObject json = new JSONObject(response);
+                        downloadUrl = json.optString("url", json.optString("link", null));
+                    } catch (Exception ignored) {}
+                }
+
+                final String finalUrl = downloadUrl;
+                requireActivity().runOnUiThread(() -> {
+                    if (finalUrl == null || finalUrl.isEmpty()) {
+                        Toast.makeText(requireContext(),
+                                "ggntw error: " + response,
+                                Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    // Show URL for debugging
+                    //Toast.makeText(requireContext(),
+                    //         "URL: " + finalUrl,
+                    //         Toast.LENGTH_LONG).show();
+                    openWebViewForDownload(finalUrl);
+                });
+
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "ggntw request failed", e);
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(),
+                                R.string.install_mod_workshop_error,
+                                Toast.LENGTH_LONG).show()
+                );
+            }
+        }).start();
+    }
+
+    private void openWebViewForDownload(String url) {
+        try {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url));
+            startActivity(browserIntent);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to open URL in browser", e);
+            Toast.makeText(requireContext(),
+                    R.string.install_mod_workshop_error,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbindInstallerService();
+        binding = null;
+    }
+
+    private void bindInstallerService() {
+        Intent intent = new Intent(requireContext(), InstallerService.class);
+        requireContext().bindService(intent, installerServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void unbindInstallerService() {
+        if (isInstallerServiceBound) {
+            requireContext().unbindService(installerServiceConnection);
+            isInstallerServiceBound = false;
+        }
+    }
+
+    private void showTaskProgressDialog(String title, String message, int progress, int progressMax) {
+        if (title != null) {
+            taskProgressDialogBinding.progressDialogTitleTv.setText(title);
+            taskProgressDialogBinding.progressDialogTitleTv.setVisibility(View.VISIBLE);
+        } else {
+            taskProgressDialogBinding.progressDialogTitleTv.setVisibility(View.GONE);
+        }
+
+        if (message != null) {
+            taskProgressDialogBinding.progressDialogMessageTv.setText(message);
+            taskProgressDialogBinding.progressDialogMessageTv.setVisibility(View.VISIBLE);
+        } else {
+            taskProgressDialogBinding.progressDialogMessageTv.setVisibility(View.GONE);
+        }
+
+        taskProgressDialogBinding.progressDialogProgressLpi.setVisibility(View.VISIBLE);
+        if (progress < 0)
+            taskProgressDialogBinding.progressDialogProgressLpi.setIndeterminate(true);
+        else {
+            taskProgressDialogBinding.progressDialogProgressLpi.setIndeterminate(false);
+            taskProgressDialogBinding.progressDialogProgressLpi.setMax(progressMax);
+            taskProgressDialogBinding.progressDialogProgressLpi.setProgress(progress);
+        }
+
+        taskProgressDialogBinding.progressDialogOkMb.setVisibility(View.GONE);
+        taskProgressDialog.show();
+    }
+
+    private void showTaskFinishedWithErrorDialog(String title, String message) {
+        if (title != null) {
+            taskProgressDialogBinding.progressDialogTitleTv.setText(title);
+            taskProgressDialogBinding.progressDialogTitleTv.setVisibility(View.VISIBLE);
+        } else {
+            taskProgressDialogBinding.progressDialogTitleTv.setVisibility(View.GONE);
+        }
+
+        if (message != null) {
+            taskProgressDialogBinding.progressDialogMessageTv.setText(message);
+            taskProgressDialogBinding.progressDialogMessageTv.setVisibility(View.VISIBLE);
+        } else {
+            taskProgressDialogBinding.progressDialogMessageTv.setVisibility(View.GONE);
+        }
+
+        taskProgressDialogBinding.progressDialogProgressLpi.setVisibility(View.GONE);
+        taskProgressDialogBinding.progressDialogOkMb.setVisibility(View.VISIBLE);
+        taskProgressDialog.show();
+    }
+
+    private void clearSelectedModZip() {
+        modZipUri = null;
+        if (binding != null) {
+            binding.installModZipPathEt.setText(getString(R.string.game_instance_no_file_selected));
+        }
+    }
+
+    private String extractFileName(Uri uri) {
+        String fileName = null;
+
+        Cursor cursor = requireContext().getContentResolver().query(
+                uri,
+                new String[]{MediaStore.MediaColumns.DISPLAY_NAME},
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+            if (nameIndex != -1) {
+                fileName = cursor.getString(nameIndex);
+            }
+            cursor.close();
+        }
+
+        return fileName;
+    }
+}

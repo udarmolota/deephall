@@ -1,0 +1,3245 @@
+package com.zomdroid;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Binder;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.util.Log;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.zomdroid.game.GameInstance;
+import com.zomdroid.game.GameInstanceManager;
+import com.zomdroid.game.InstallationPreset;
+import com.zomdroid.game.PresetManager;
+import com.zomdroid.game.SuggestedPreset;
+import com.zomdroid.gog.GogInstallerExtractor;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+public class InstallerService extends Service implements TaskProgressListener {
+    private static final String LOG_TAG = InstallerService.class.getName();
+    private static final String CHANNEL_ID = "com.zomdroid.InstallerService.NOTIFICATION_CHANNEL";
+    private static final int NOTIFICATION_ID = 1;
+
+    // Intent action broadcast when service starts
+    public static final String ACTION_STARTED = "com.zomdroid.InstallerService.ACTION_STARTED";
+
+    // Intent extras
+    public static final String EXTRA_COMMAND = "com.zomdroid.InstallerService.EXTRA_COMMAND";
+    public static final String EXTRA_GAME_INSTANCE_NAME = "com.zomdroid.InstallerService.EXTRA_GAME_INSTANCE_NAME";
+    public static final String EXTRA_ARCHIVE_URI = "com.zomdroid.InstallerService.EXTRA_ARCHIVE_URI";
+    public static final String EXTRA_NATIVE_LIBS_URI = "com.zomdroid.InstallerService.EXTRA_NATIVE_LIBS_URI";
+    public static final String EXTRA_SAVES_URI = "com.zomdroid.InstallerService.EXTRA_SAVES_URI";
+    public static final String EXTRA_MODS_URI = "com.zomdroid.InstallerService.EXTRA_MODS_URI";
+    public static final String EXTRA_CONTROLS_URI = "com.zomdroid.InstallerService.EXTRA_CONTROLS_URI";
+    public static final String EXTRA_OUTPUT_URI = "com.zomdroid.InstallerService.EXTRA_OUTPUT_URI";
+    public static final String EXTRA_DRIVER_URI = "com.zomdroid.InstallerService.EXTRA_DRIVER_URI";
+    // Build version of the target instance ("41" or "42"), used by mod fix to choose install strategy
+    public static final String EXTRA_BUILD_VERSION = "com.zomdroid.InstallerService.EXTRA_BUILD_VERSION";
+    public static final String EXTRA_BETTERFPS_MODE = "com.zomdroid.InstallerService.EXTRA_BETTERFPS_MODE";
+    public static final String EXTRA_RLZ_LEVEL = "com.zomdroid.InstallerService.EXTRA_RLZ_LEVEL";
+    /** Which game files IMPORT/EXPORT_GAME_SETTINGS carry: one of the GAME_FILES_* kinds. */
+    public static final String EXTRA_GAME_FILES_KIND = "com.zomdroid.InstallerService.EXTRA_GAME_FILES_KIND";
+    public static final int GAME_FILES_OPTIONS = 0;
+    public static final int GAME_FILES_SANDBOX = 1;
+    public static final int GAME_FILES_BUILDS = 2;
+    public static final String EXTRA_INSTALL_PRESET_NAME = "com.zomdroid.InstallerService.EXTRA_INSTALL_PRESET_NAME";
+    public static final String EXTRA_GPU_VENDOR = "com.zomdroid.InstallerService.EXTRA_GPU_VENDOR";
+    /** One of the GogInstallerExtractor.KIND_* values; a missing extra means the usual game ZIP. */
+    public static final String EXTRA_ARCHIVE_KIND = "com.zomdroid.InstallerService.EXTRA_ARCHIVE_KIND";
+
+    private final IBinder binder = new LocalBinder();
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private NotificationManagerCompat notificationManager;
+    private NotificationCompat.Builder notificationBuilder;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private long lastProgressUpdateMs;
+    private final MutableLiveData<TaskState> taskState = new MutableLiveData<>();
+    private Task currentTask;
+    private String currentInstallPresetName;
+    private String currentGpuVendor;
+    // Name of the instance the current CREATE_GAME_INSTANCE task is building. The post-install
+    // setup dialog applies a preset, and presets are per-instance now, so it has to know which.
+    private String currentInstanceName;
+    // True between the start of a user-initiated task and its finish/error state. Guards against
+    // the launch-time dependency re-check taking the service over mid-install; see onStartCommand.
+    private volatile boolean userTaskRunning;
+    private static volatile boolean taskRunning;
+    public static boolean isTaskRunning() { return taskRunning; }
+    private volatile int lastStartId;
+
+    /**
+     * Stops the service unless it has been started again since its last task began. The screens call
+     * this when they see a task finish, instead of Context.stopService(): a screen coming back to the
+     * front can still hold an observer of an earlier task, and its stale "finished" used to stop a
+     * service that had been started again a moment before - LauncherFragment re-runs the dependency
+     * check every time it is shown - before that start reached startForeground(). Android then kills
+     * the whole app with ForegroundServiceDidNotStartInTimeException (S25, 2026-09-17, after two
+     * exports in a row and a return to the home screen). stopSelfResult() compares the start ID with
+     * the newest one the system has handed out, so a pending start keeps the service alive.
+     */
+    public void stopUnlessRestarted() {
+        stopSelfResult(lastStartId);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        lastStartId = startId;
+        NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID, "GameInstallerServiceChannel", NotificationManager.IMPORTANCE_LOW);
+
+        notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.createNotificationChannel(channel);
+
+        Task task = Task.values()[intent.getIntExtra(EXTRA_COMMAND, 0)];
+        if (DedicatedServerService.active(this) && task != Task.EXPORT_LOG) {
+            startForeground(NOTIFICATION_ID, buildNotification(getString(R.string.ds_busy)));
+            if (task == Task.INSTALL_DEPENDENCIES) {
+                // Opening the launcher while hosting triggers this automatically; defer it.
+                finish(getString(R.string.ds_title), getString(R.string.ds_busy));
+            } else finishWithError(getString(R.string.ds_title), getString(R.string.ds_busy));
+            return START_NOT_STICKY;
+        }
+
+        // The dependency re-check runs on every launcher start, including the moment we navigate
+        // back from instance creation — right while CREATE_GAME_INSTANCE is still working. Letting
+        // it through would reassign currentTask and make the launcher miss the create-instance
+        // finish (that is how the post-install renderer/GPU dialog silently stopped appearing).
+        // The check is cheap and repeats next launch, so skipping this one occasion is free.
+        if (task == Task.INSTALL_DEPENDENCIES && userTaskRunning) {
+            // The skip must still keep the promise startForegroundService() made, or the system
+            // kills the whole process ten seconds later (ForegroundServiceDidNotStartInTime) -
+            // mid-install, taking the running task with it. Shipped broken since 1.4.7v2; the
+            // window is narrow (the fragment has to be recreated - rotation, minimize, a trip to
+            // Settings - while a task runs), which is why it took three weeks to be reported.
+            // The running task's OWN notification is re-posted so nothing visibly changes; the
+            // fallback exists only for the freak case where none was built yet. No stopSelf: the
+            // service is mid-task and must keep living.
+            startForeground(NOTIFICATION_ID, notificationBuilder != null
+                    ? notificationBuilder.build()
+                    : buildNotification(getString(R.string.dialog_title_installing_dependencies)));
+            Log.i(LOG_TAG, "Dependency re-check skipped: " + currentTask + " is still running");
+            return START_NOT_STICKY;
+        }
+
+        currentTask = task;
+        taskRunning = true;
+        userTaskRunning = task != Task.INSTALL_DEPENDENCIES;
+        // Only overwrite when the intent actually carries them. Every task shares this service,
+        // and returning to the launcher fires updateDependencies() — an INSTALL_DEPENDENCIES
+        // intent without these extras used to null them out mid-install, so by the time
+        // CREATE_GAME_INSTANCE finished the post-install setup dialog had no preset/GPU left to
+        // show (and currentTask no longer said CREATE_GAME_INSTANCE either).
+        if (intent.hasExtra(EXTRA_INSTALL_PRESET_NAME)) {
+            currentInstallPresetName = intent.getStringExtra(EXTRA_INSTALL_PRESET_NAME);
+        }
+        if (intent.hasExtra(EXTRA_GPU_VENDOR)) {
+            currentGpuVendor = intent.getStringExtra(EXTRA_GPU_VENDOR);
+        }
+        if (intent.hasExtra(EXTRA_GAME_INSTANCE_NAME)) {
+            currentInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        }
+
+        Intent serviceStartedBroadcast = new Intent(ACTION_STARTED);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(serviceStartedBroadcast);
+
+        switch (task) {
+            case CREATE_GAME_INSTANCE:
+                doCreateGameInstance(intent);
+                break;
+            case DELETE_GAME_INSTANCE:
+                doDeleteGameInstance(intent);
+                break;
+            case INSTALL_DEPENDENCIES:
+                doInstallDependencies(intent);
+                break;
+            case INSTALL_MOD_TO_INSTANCE:
+                doInstallModToInstance(intent);
+                break;
+            case INSTALL_CONTROLS_TO_INSTANCE:
+                doInstallControlsToInstance(intent);
+                break;
+            case INSTALL_SAVES_TO_INSTANCE:
+                doInstallSavesToInstance(intent);
+                break;
+            case EXPORT_SAVES_FROM_INSTANCE:
+                doExportSavesFromInstance(intent);
+                break;
+            case EXPORT_CONTROLS_FROM_INSTANCE:
+                doExportControlsFromInstance(intent);
+                break;
+            case IMPORT_CUSTOM_DRIVER:
+                doImportCustomDriver(intent);
+                break;
+            case EXPORT_CUSTOM_DRIVER:
+                doExportCustomDriver(intent);
+                break;
+            case EXPORT_LOG:
+                doExportLog(intent);
+                break;
+            case INSTALL_BETTERFPS:
+                doInstallBetterFps(intent);
+                break;
+            case INSTALL_RENDER_LESS_ZOMBIE:
+                doInstallRenderLessZombie(intent);
+                break;
+            case INSTALL_MOD_WITH_FIX:
+                doInstallModWithFix(intent);
+                break;
+            case INSTALL_MOD_SMART:
+                doInstallModSmart(intent);
+                break;
+            case INSTALL_ETO:
+                doInstallEto(intent);
+                break;
+            case INSTALL_ZOMBIEBUDDY:
+                doInstallZombieBuddy(intent);
+                break;
+            case INSTALL_ZBBETTERFPS:
+                doInstallZbBetterFps(intent);
+                break;
+            case IMPORT_GAME_SETTINGS:
+                doImportGameSettings(intent);
+                break;
+            case EXPORT_GAME_SETTINGS:
+                doExportGameSettings(intent);
+                break;
+            case INSTALL_NATIVE_LIBS:
+                doInstallNativeLibs(intent);
+                break;
+            case INSTALL_MACOS_LIBS:
+                doInstallMacosLibs(intent);
+                break;
+        }
+
+        return START_NOT_STICKY;
+    }
+
+    // -------------------- CREATE GAME INSTANCE --------------------
+
+    private void doCreateGameInstance(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_creating_instance);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) {
+            finishWithError(getString(R.string.dialog_title_failed_to_create_instance),
+                    "Game instance name intent extra is missing");
+            return;
+        }
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) {
+            finishWithError(getString(R.string.dialog_title_failed_to_create_instance),
+                    "Game instance with name " + gameInstanceName + " not found");
+            return;
+        }
+
+        Uri gameFilesArchiveUri = intent.getParcelableExtra(EXTRA_ARCHIVE_URI);
+        if (gameFilesArchiveUri == null) {
+            finishWithError(getString(R.string.dialog_title_failed_to_create_instance),
+                    "Game files archive URI intent extra is missing");
+            return;
+        }
+
+        String archiveKind = intent.getStringExtra(EXTRA_ARCHIVE_KIND);
+        executorService.submit(() -> {
+            try {
+                installGameFiles(gameInstance, gameFilesArchiveUri, archiveKind);
+                // Users often zip the game inside one or more wrapper folders. Drill down to the
+                // real game root (folder holding ProjectZomboid64/projectzomboid.jar/zombie) and
+                // lift it up to gamePath, so nothing downstream cares about the extra nesting.
+                flattenGameRootIfWrapped(new File(gameInstance.getGamePath()));
+                // The preset was chosen from the archive index before anything was unpacked, and
+                // a GOG installer hides the game behind a shell script. The files are on disk now:
+                // let them have the last word.
+                reconcilePresetWithGameFiles(gameInstance);
+                // Build 42.20+ moved all Linux libraries under natives/ and the bundled Android
+                // libraries under natives/android/arm64-v8a/. Normalize that layout back to the
+                // structure Zomdroid uses so the existing Java, box64 and linker paths stay valid.
+                normalizeNativeLayoutFor4220(gameInstance);
+                // 42.13+: extract projectzomboid.jar if present
+                extractProjectZomboidJarSimple(gameInstance);
+                // 42.20+ redundantly loads Android FMOD from the HotSpot VM. Zomdroid has
+                // already loaded and initialized it on ART; keep only fmodintegration64 here.
+                com.zomdroid.patch.FmodLoadPatchApplier.applyIfNeeded(gameInstance);
+                // Bink has no ARM64 library. Make getVideo() return the already-supported
+                // "unavailable" result instead of throwing and logging every UI frame.
+                com.zomdroid.patch.BinkVideoPatchApplier.applyIfNeeded(gameInstance);
+                // The Lighting stub is retired (the ARM64 library turned out stale wholesale —
+                // circle light instead of cones); on a fresh install the class is never stubbed,
+                // this only heals a leftover stub if the instance dir survived from before.
+                com.zomdroid.patch.LightingTransmissionPatchApplier.restoreOriginalIfStubbed(gameInstance);
+
+                // Added in 1.3.2 for native game libs
+                File androidDirFromGame = new File(gameInstance.getGamePath() + "/android");
+                boolean gameHasAndroid = androidDirFromGame.exists();
+
+                String nativeLibsPath = gameInstance.getGamePath() + "/android/arm64-v8a";
+                File nativeLibsDir = new File(nativeLibsPath);
+
+                if (!gameHasAndroid) {
+                    if (nativeLibsDir.exists()) FileUtils.deleteDirectory(nativeLibsDir);
+                    nativeLibsDir.mkdirs();
+                } else {
+                    if (!nativeLibsDir.exists()) nativeLibsDir.mkdirs();
+                }
+
+                Uri nativeLibsArchiveUri = intent.getParcelableExtra(EXTRA_NATIVE_LIBS_URI);
+                if (nativeLibsArchiveUri != null) {
+                    try (InputStream nativeLibsStream = getContentResolver().openInputStream(nativeLibsArchiveUri)) {
+                        announceExtraction();
+                        FileUtils.extractZipToDisk(nativeLibsStream, nativeLibsPath, this,
+                                FileUtils.queryFileSize(getContentResolver(), nativeLibsArchiveUri));
+                    } catch (IOException e) {
+                        System.out.println("Native libraries not installed: " + e.getMessage());
+                        // Still can work without MP
+                    }
+                } else {
+                    System.out.println("No native libraries provided — skipping multiplayer setup");
+                }
+
+                // 42.13: rename problematic native libs
+                maybeDisableLibFor42(gameInstance);
+                // B42: patch ShaderUnit to enable combineShaderSources (required for NG_GL4ES)
+                maybePatchShaderUnitCombine(gameInstance);
+                // The printSpecs() and ZNetStatistics class patches used to run here from bundled
+                // replacement classes. Both are now constant-pool surgery on the installed class,
+                // applied by GameLauncher at every launch — which also covers instances created
+                // by an older launcher, something a one-shot install-time swap never did.
+
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_create_instance), e.toString());
+                return;
+            }
+
+            GameInstanceManager.requireSingleton().markInstallationFinished(gameInstance);
+            finish(getString(R.string.dialog_title_instance_created), null);
+        });
+    }
+
+    // -------------------- DELETE GAME INSTANCE --------------------
+
+    private void doDeleteGameInstance(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_deleting_game_instance);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) {
+            finishWithError(getString(R.string.dialog_title_failed_to_delete_instance),
+                    "Game instance name intent extra is missing");
+            return;
+        }
+
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) {
+            finishWithError(getString(R.string.dialog_title_failed_to_delete_instance),
+                    "Game instance with name " + gameInstanceName + " not found");
+            return;
+        }
+
+        executorService.submit(() -> {
+            try {
+                FileUtils.deleteDirectory(new File(gameInstance.getHomePath()));
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_delete_instance), e.toString());
+                return;
+            }
+
+            GameInstanceManager.requireSingleton().unregisterInstance(gameInstance);
+            // Drop this instance's stored launch settings too. They are keyed by name, and names
+            // are reusable, so leaving them behind would silently hand a dead instance's renderer
+            // and JVM arguments to whatever is created next under the same name.
+            com.zomdroid.game.InstanceSettings.forget(gameInstanceName);
+            finish(getString(R.string.dialog_title_instance_deleted), null);
+        });
+    }
+
+    // -------------------- INSTALL DEPENDENCIES --------------------
+
+    // Called on every app launch (see LauncherFragment#updateDependencies), not just the first
+    // one, so an APK update whose bundled libs.tar.xz/jre/jars changed can pick that up without
+    // a full app reinstall. To keep that cheap and silent on the common case (nothing changed),
+    // we CRC-check all bundles up front and only show the install notification/dialog and touch
+    // disk for the ones that actually differ.
+    private void doInstallDependencies(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_installing_dependencies);
+
+        // startForeground() must be called promptly regardless of whether anything turns out to
+        // have changed — Android requires it soon after startForegroundService().
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+
+        executorService.submit(() -> {
+            SharedPreferences prefs = getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE);
+            Gson gson = new Gson();
+
+            String bundlesJson = prefs.getString(C.shprefs.keys.INSTALLED_BUNDLES, "[]");
+
+            Type mapType = new TypeToken<HashMap<String, Long>>() {}.getType();
+            HashMap<String, Long> oldBundlesHashesMap = gson.fromJson(bundlesJson, mapType);
+            HashMap<String, Long> newBundlesHashesMap = new HashMap<>();
+
+            // --- Pass 1: CRC32 every bundle against its last-installed hash. Quiet and cheap —
+            // reads the (already-compressed) asset bytes straight out of the APK, no extraction.
+            boolean jre21Changed, jre25Changed, libsChanged, jarsChanged;
+            try {
+                Long jre21HashNew = FileUtils.generateCRC32ForAsset(this, C.assets.BUNDLES_JRE21);
+                newBundlesHashesMap.put(C.assets.BUNDLES_JRE21, jre21HashNew);
+                jre21Changed = !jre21HashNew.equals(oldBundlesHashesMap.get(C.assets.BUNDLES_JRE21));
+
+                Long jre25HashNew = FileUtils.generateCRC32ForAsset(this, C.assets.BUNDLES_JRE25);
+                newBundlesHashesMap.put(C.assets.BUNDLES_JRE25, jre25HashNew);
+                jre25Changed = !jre25HashNew.equals(oldBundlesHashesMap.get(C.assets.BUNDLES_JRE25));
+
+                Long libsHashNew = FileUtils.generateCRC32ForAsset(this, C.assets.BUNDLES_LIBS);
+                newBundlesHashesMap.put(C.assets.BUNDLES_LIBS, libsHashNew);
+                libsChanged = !libsHashNew.equals(oldBundlesHashesMap.get(C.assets.BUNDLES_LIBS));
+
+                Long jarsHashNew = FileUtils.generateCRC32ForAsset(this, C.assets.BUNDLES_JARS);
+                newBundlesHashesMap.put(C.assets.BUNDLES_JARS, jarsHashNew);
+                jarsChanged = !jarsHashNew.equals(oldBundlesHashesMap.get(C.assets.BUNDLES_JARS));
+            } catch (IOException e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_install_dependencies), e.toString());
+                return;
+            }
+
+            boolean anyChanged = jre21Changed || jre25Changed || libsChanged || jarsChanged;
+            if (!anyChanged) {
+                // Nothing to extract — but still record that the dependencies ARE installed:
+                // every bundle just passed a CRC32 check against the APK's own copy, which is a
+                // stronger statement than the flag itself makes.
+                //
+                // Skipping this write used to strand the launcher permanently. ZomdroidApplication
+                // clears ARE_DEPENDENCIES_INSTALLED on any versionCode change, and before this
+                // check existed a cleared flag always meant a full re-extract that set it again.
+                // Now a release that touches only code (not the asset bundles) leaves every bundle
+                // identical, so we land here, return without the flag, and LauncherFragment refuses
+                // to start the game - on this launch and on every launch after it, with no manual
+                // way out. Hit on 2026-08-01 going 1.4.7 -> 1.4.8; it would have hit every user of
+                // any code-only release.
+                prefs.edit().putBoolean(C.shprefs.keys.ARE_DEPENDENCIES_INSTALLED, true).apply();
+                // Never posted an "in progress" state, so no dialog ever showed.
+                finish(null, null);
+                return;
+            }
+
+            // --- Pass 2: only now announce the install, and only extract what changed ---
+            this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+            if (jre21Changed) {
+                try {
+                    String jre21Path = AppStorage.requireSingleton().getHomePath() + "/" + C.deps.JRE_21;
+                    File jre21Dir = new File(jre21Path);
+                    if (jre21Dir.exists()) FileUtils.deleteDirectory(jre21Dir);
+
+                    InputStream jreBundleInStream = getAssets().open(C.assets.BUNDLES_JRE21);
+                    announceExtraction();
+                    FileUtils.extractTarXzToDisk(jreBundleInStream, jre21Path, this, 0);
+                    jreBundleInStream.close();
+                } catch (IOException e) {
+                    finishWithError(getString(R.string.dialog_title_failed_to_install_dependencies), e.toString());
+                    return;
+                }
+            }
+
+            if (jre25Changed) {
+                try {
+                    String jre25Path = AppStorage.requireSingleton().getHomePath() + "/" + C.deps.JRE_25;
+                    File jre25Dir = new File(jre25Path);
+                    if (jre25Dir.exists()) FileUtils.deleteDirectory(jre25Dir);
+
+                    InputStream jreBundleInStream = getAssets().open(C.assets.BUNDLES_JRE25);
+                    announceExtraction();
+                    FileUtils.extractTarXzToDisk(jreBundleInStream, jre25Path, this, 0);
+                    jreBundleInStream.close();
+                } catch (IOException e) {
+                    finishWithError(getString(R.string.dialog_title_failed_to_install_dependencies), e.toString());
+                    return;
+                }
+            }
+
+            if (libsChanged) {
+                try {
+                    String libsPath = AppStorage.requireSingleton().getHomePath() + "/" + C.deps.LIBS;
+                    File libsDir = new File(libsPath);
+                    if (libsDir.exists()) FileUtils.deleteDirectory(libsDir);
+
+                    InputStream libsBundleInStream = getAssets().open(C.assets.BUNDLES_LIBS);
+                    announceExtraction();
+                    FileUtils.extractTarXzToDisk(libsBundleInStream, libsPath, this, 0);
+                } catch (IOException e) {
+                    finishWithError(getString(R.string.dialog_title_failed_to_install_dependencies), e.toString());
+                    return;
+                }
+            }
+
+            if (jarsChanged) {
+                try {
+                    String jarsPath = AppStorage.requireSingleton().getHomePath() + "/" + C.deps.JARS;
+                    File jarsDir = new File(jarsPath);
+                    if (jarsDir.exists()) FileUtils.deleteDirectory(jarsDir);
+
+                    InputStream jarsBundleInStream = getAssets().open(C.assets.BUNDLES_JARS);
+                    announceExtraction();
+                    FileUtils.extractTarToDisk(jarsBundleInStream, jarsPath, this, 0);
+                } catch (IOException e) {
+                    finishWithError(getString(R.string.dialog_title_failed_to_install_dependencies), e.toString());
+                    return;
+                }
+            }
+
+            bundlesJson = gson.toJson(newBundlesHashesMap);
+            prefs.edit()
+                    .putString(C.shprefs.keys.INSTALLED_BUNDLES, bundlesJson)
+                    .putBoolean(C.shprefs.keys.ARE_DEPENDENCIES_INSTALLED, true)
+                    .apply();
+
+            finish(getString(R.string.dialog_title_dependencies_installed), null);
+        });
+    }
+
+    // -------------------- INSTALL MOD TO INSTANCE --------------------
+
+    private void doInstallModToInstance(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_installing_mods);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String instanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (instanceName == null) {
+            finishWithError(taskTitle, "Game instance name is missing");
+            return;
+        }
+
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
+        if (gameInstance == null) {
+            finishWithError(taskTitle, "Game instance not found: " + instanceName);
+            return;
+        }
+
+        Uri modsArchiveUri = intent.getParcelableExtra(EXTRA_MODS_URI);
+        if (modsArchiveUri == null) {
+            finishWithError(taskTitle, "Mods archive URI is missing");
+            return;
+        }
+
+        executorService.submit(() -> {
+            try {
+                String modsRootPath = gameInstance.getHomePath() + "/Zomboid/mods";
+                File modsRootDir = new File(modsRootPath);
+                if (!modsRootDir.exists()) modsRootDir.mkdirs();
+
+                // Temp dir next to mods folder for faster atomic move
+                File tempDir = new File(gameInstance.getHomePath(), "tmp_mods_import_" + System.currentTimeMillis());
+                if (!tempDir.mkdirs()) {
+                    throw new RuntimeException("Failed to create temp dir: " + tempDir.getAbsolutePath());
+                }
+
+                try {
+                    // 1) Extract ZIP to temp dir
+                    try (InputStream modsStream = getContentResolver().openInputStream(modsArchiveUri)) {
+                        announceExtraction();
+                        FileUtils.extractZipToDisk(
+                                modsStream,
+                                tempDir.getAbsolutePath(),
+                                this,
+                                FileUtils.queryFileSize(getContentResolver(), modsArchiveUri)
+                        );
+                    }
+
+                    // 2) Find all mod roots using smart recursive detection (handles any wrapper depth)
+                    java.util.List<File> mods = new java.util.ArrayList<>();
+                    collectModRoots(tempDir, mods);
+
+                    if (mods.isEmpty()) {
+                        throw new IllegalArgumentException("No valid mods found in ZIP (mod.info missing).");
+                    }
+
+                    // 3) Install each mod folder
+                    for (File modDir : mods) {
+                        File target = new File(modsRootDir, modDir.getName());
+                        moveOrReplace(modDir, target);
+                    }
+
+                } finally {
+                    // Cleanup temp dir
+                    FileUtils.deleteDirectory(tempDir);
+                }
+
+                finish(getString(R.string.dialog_title_mods_installed), null);
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_install_mods), e.toString());
+            }
+        });
+    }
+
+    // -------------------- INSTALL SAVES TO INSTANCE --------------------
+
+    private void doInstallSavesToInstance(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_installing_saves);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String instanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (instanceName == null) {
+            finishWithError(taskTitle, "Game instance name is missing");
+            return;
+        }
+
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
+        if (gameInstance == null) {
+            finishWithError(taskTitle, "Game instance not found: " + instanceName);
+            return;
+        }
+
+        Uri savesArchiveUri = intent.getParcelableExtra(EXTRA_SAVES_URI);
+        if (savesArchiveUri == null) {
+            finishWithError(taskTitle, "Saves archive URI is missing");
+            return;
+        }
+
+        executorService.submit(() -> {
+            try {
+                String savesRootPath = gameInstance.getHomePath() + "/Zomboid/Saves";
+                File savesRootDir = new File(savesRootPath);
+                if (!savesRootDir.exists()) savesRootDir.mkdirs();
+
+                try (InputStream savesStream = getContentResolver().openInputStream(savesArchiveUri)) {
+                    announceExtraction();
+                    FileUtils.extractZipToDisk(
+                            savesStream,
+                            savesRootPath,
+                            this,
+                            FileUtils.queryFileSize(getContentResolver(), savesArchiveUri)
+                    );
+                }
+
+                finish(getString(R.string.dialog_title_saves_installed), null);
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_install_saves), e.toString());
+            }
+        });
+    }
+
+    // -------------------- INSTALL CONTROLS TO INSTANCE --------------------
+
+    private void doInstallControlsToInstance(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_installing_controls);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String instanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (instanceName == null) {
+            finishWithError(taskTitle, "Game instance name is missing");
+            return;
+        }
+
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
+        if (gameInstance == null) {
+            finishWithError(taskTitle, "Game instance not found: " + instanceName);
+            return;
+        }
+
+        Uri controlsArchiveUri = intent.getParcelableExtra(EXTRA_CONTROLS_URI);
+        if (controlsArchiveUri == null) {
+            finishWithError(taskTitle, "Controls archive URI is missing");
+            return;
+        }
+
+        executorService.submit(() -> {
+            try {
+                String controlsDirPath = gameInstance.getGamePath() + "/controls";
+                File controlsDir = new File(controlsDirPath);
+                if (!controlsDir.exists()) controlsDir.mkdirs();
+
+                File outFile = new File(controlsDir, "controls.json");
+                File iconsDir = new File(controlsDir, "icons");
+                boolean found = false;
+
+                try (InputStream is = getContentResolver().openInputStream(controlsArchiveUri)) {
+                    if (is == null) throw new IllegalStateException("openInputStream returned null");
+                    try (ZipInputStream zis = new ZipInputStream(is)) {
+                        ZipEntry e;
+                        byte[] buf = new byte[64 * 1024];
+
+                        // Process every entry (do NOT stop at controls.json): we also extract the
+                        // icons/ folder so user-supplied button/radial images travel with the layout.
+                        while ((e = zis.getNextEntry()) != null) {
+                            if (e.isDirectory()) continue;
+
+                            String name = e.getName();
+                            if (name == null) continue;
+                            String lower = name.toLowerCase();
+
+                            // Accept both "controls.json" and "something/controls.json"
+                            if (lower.endsWith("controls.json")) {
+                                try (OutputStream os = new FileOutputStream(outFile, false)) {
+                                    int r;
+                                    while ((r = zis.read(buf)) != -1) {
+                                        os.write(buf, 0, r);
+                                    }
+                                    os.flush();
+                                }
+                                found = true;
+                            } else if (lower.contains("icons/")) {
+                                // Custom button/radial image. Use only the file name (no directory
+                                // components) to guard against zip-slip path traversal.
+                                String norm = name.replace('\\', '/');
+                                String base = norm.substring(norm.lastIndexOf('/') + 1);
+                                if (!base.isEmpty() && !base.contains("..")) {
+                                    if (!iconsDir.exists()) iconsDir.mkdirs();
+                                    File iconOut = new File(iconsDir, base);
+                                    try (OutputStream os = new FileOutputStream(iconOut, false)) {
+                                        int r;
+                                        while ((r = zis.read(buf)) != -1) {
+                                            os.write(buf, 0, r);
+                                        }
+                                        os.flush();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!found) {
+                    finishWithError(getString(R.string.dialog_title_failed_to_install_controls),
+                            "controls.json not found in the ZIP");
+                    return;
+                }
+
+                finish(getString(R.string.dialog_title_controls_installed), null);
+
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_install_controls), e.toString());
+            }
+        });
+    }
+
+    // -------------------- EXPORT CONTROLS FROM INSTANCE --------------------
+
+    private void doExportControlsFromInstance(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_exporting_controls);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String instanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        Uri outUri = intent.getParcelableExtra(EXTRA_OUTPUT_URI);
+
+        if (instanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+        if (outUri == null) { finishWithError(taskTitle, "Output URI is missing"); return; }
+
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
+        if (gameInstance == null) { finishWithError(taskTitle, "Game instance not found: " + instanceName); return; }
+
+        executorService.submit(() -> {
+            try {
+                File controlsDir = new File(gameInstance.getGamePath(), "controls");
+
+                if (!controlsDir.exists()) {
+                    // Nothing to export — default layout, controls/ was never created
+                    finish(getString(R.string.dialog_title_controls_export_skipped_default), null);
+                    return;
+                }
+
+                try (OutputStream os = getContentResolver().openOutputStream(outUri)) {
+                    if (os == null) throw new IllegalStateException("openOutputStream returned null");
+                    ZipUtils.zipDirectoryToStream(controlsDir, os);
+                }
+
+                finish(getString(R.string.dialog_title_controls_exported), null);
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_export_controls), e.toString());
+            }
+        });
+    }
+
+    // -------------------- EXPORT SAVES FROM INSTANCE --------------------
+
+    private void doExportSavesFromInstance(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_exporting_saves);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String instanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        Uri outUri = intent.getParcelableExtra(EXTRA_OUTPUT_URI);
+
+        if (instanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+        if (outUri == null) { finishWithError(taskTitle, "Output URI is missing"); return; }
+
+        GameInstance gi = GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
+        if (gi == null) { finishWithError(taskTitle, "Game instance not found: " + instanceName); return; }
+
+        executorService.submit(() -> {
+            try {
+                File savesDir = new File(gi.getHomePath() + "/Zomboid/Saves");
+                if (!savesDir.exists() || !savesDir.isDirectory()) {
+                    throw new IllegalArgumentException("Saves folder not found: " + savesDir);
+                }
+
+                try (OutputStream os = getContentResolver().openOutputStream(outUri)) {
+                    if (os == null) throw new IllegalStateException("openOutputStream returned null");
+                    ZipUtils.zipDirectoryToStream(savesDir, os);
+                }
+
+                finish(getString(R.string.dialog_title_saves_exported), null);
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_export_saves), e.toString());
+            }
+        });
+    }
+
+    // -------------------- IMPORT CUSTOM DRIVER --------------------
+
+    private void doImportCustomDriver(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_importing_driver);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        Uri driverUri = intent.getParcelableExtra(EXTRA_DRIVER_URI);
+        if (driverUri == null) {
+            finishWithError(taskTitle, "Driver URI is missing");
+            return;
+        }
+
+        executorService.submit(() -> {
+            try {
+                String destPath = AppStorage.requireSingleton().getHomePath()
+                        + "/" + C.deps.CUSTOM_DRIVER;
+                File destFile = new File(destPath);
+
+                File parent = destFile.getParentFile();
+                if (parent != null && !parent.exists()) {
+                    parent.mkdirs();
+                }
+
+                try (InputStream is = getContentResolver().openInputStream(driverUri);
+                     OutputStream os = new java.io.FileOutputStream(destFile, false)) {
+                    if (is == null) throw new IllegalStateException("openInputStream returned null");
+                    byte[] buf = new byte[64 * 1024];
+                    int r;
+                    while ((r = is.read(buf)) != -1) {
+                        os.write(buf, 0, r);
+                    }
+                }
+
+                finish(getString(R.string.dialog_title_driver_imported), null);
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_import_driver), e.toString());
+            }
+        });
+    }
+
+    // -------------------- EXPORT CUSTOM DRIVER --------------------
+
+    private void doExportCustomDriver(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_exporting_driver);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        Uri outUri = intent.getParcelableExtra(EXTRA_OUTPUT_URI);
+        if (outUri == null) {
+            finishWithError(taskTitle, "Output URI is missing");
+            return;
+        }
+
+        executorService.submit(() -> {
+            try {
+                String srcPath = AppStorage.requireSingleton().getHomePath()
+                        + "/" + C.deps.CUSTOM_DRIVER;
+                File srcFile = new File(srcPath);
+
+                if (!srcFile.exists()) {
+                    finishWithError(taskTitle, "Custom driver file not found: " + srcPath);
+                    return;
+                }
+
+                try (InputStream is = new java.io.FileInputStream(srcFile);
+                     OutputStream os = getContentResolver().openOutputStream(outUri)) {
+                    if (os == null) throw new IllegalStateException("openOutputStream returned null");
+                    byte[] buf = new byte[64 * 1024];
+                    int r;
+                    while ((r = is.read(buf)) != -1) {
+                        os.write(buf, 0, r);
+                    }
+                }
+
+                finish(getString(R.string.dialog_title_driver_exported), null);
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_export_driver), e.toString());
+            }
+        });
+    }
+
+    // -------------------- EXPORT LOG --------------------
+
+    private void doExportLog(Intent intent) {
+        String taskTitle = getString(R.string.dialog_title_exporting_log);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String instanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        Uri outUri = intent.getParcelableExtra(EXTRA_OUTPUT_URI);
+
+        if (instanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+        if (outUri == null) { finishWithError(taskTitle, "Output URI is missing"); return; }
+
+        GameInstance gi = GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
+        if (gi == null) { finishWithError(taskTitle, "Game instance not found: " + instanceName); return; }
+
+        executorService.submit(() -> {
+            try {
+                if (!hasAnyLogFiles(gi)) {
+                    finishWithError(taskTitle, "No log files found");
+                    return;
+                }
+
+                try (OutputStream os = getContentResolver().openOutputStream(outUri)) {
+                    if (os == null) throw new IllegalStateException("openOutputStream returned null");
+                    writeLogReportZip(gi, os);
+                }
+
+                finish(getString(R.string.dialog_title_log_exported), null);
+            } catch (Exception e) {
+                finishWithError(getString(R.string.dialog_title_failed_to_export_log), e.toString());
+            }
+        });
+    }
+
+    private static boolean hasAnyLogFiles(GameInstance gi) {
+        File consoleFile = new File(gi.getHomePath() + "/Zomboid/console.txt");
+        File launcherLog = new File(AppStorage.requireSingleton().getHomePath() + "/" + CrashHandler.LOG_FILE_NAME);
+        File lastLauncherLog = new File(AppStorage.requireSingleton().getHomePath() + "/" + CrashHandler.LAST_LOG_FILE_NAME);
+        return consoleFile.exists() || launcherLog.exists() || lastLauncherLog.exists();
+    }
+
+    // Builds the same diagnostic zip (report.txt + crash/native/shader/console/launcher logs) used
+    // by both "Export logs" (SAF-picked destination) and the "Report a bug" email attachment, so
+    // there is one definition of what a Zomdroid bug report contains. Caller owns/closes `os`.
+    /** gi may be null - no instance installed yet. That is not the empty case but the hottest one:
+     *  the user whose dependency install or instance creation is failing has no instance BY
+     *  DEFINITION, and the launcher-level logcat capture is exactly where that failure is written.
+     *  The zip is built from whatever exists instead of not at all. */
+    public static void writeLogReportZip(GameInstance gi, OutputStream os) throws IOException {
+        File consoleFile = gi == null ? null : new File(gi.getHomePath() + "/Zomboid/console.txt");
+        File launcherLog = new File(AppStorage.requireSingleton().getHomePath() + "/" + CrashHandler.LOG_FILE_NAME);
+        // Crash session's logcat lives in lastlog.txt: after a native game crash the process
+        // dies and the app restarts, which rotates log.txt -> lastlog.txt.
+        File lastLauncherLog = new File(AppStorage.requireSingleton().getHomePath() + "/" + CrashHandler.LAST_LOG_FILE_NAME);
+        // Native crash handler dump (SIGSEGV/SIGBUS/SIGILL/SIGFPE) written into the game dir.
+        File crashFile = gi == null ? null : new File(gi.getGamePath() + "/crash.txt");
+        // Persistent mirror of native stdout/stderr (box64 SEGV/BT reports, NG probes) —
+        // survives crashes/restarts, unlike the rotating logcat.
+        File nativeLog = gi == null ? null : new File(gi.getGamePath() + "/native.log");
+        // NG_GL4ES shader diagnostics: full source + driver log of shaders that failed to
+        // compile/link (up to 10 programs) + GL trace. Written by libng_gl4es into files/.
+        File failedShaders = new File(AppStorage.requireSingleton().getHomePath() + "/failed_shaders.txt");
+        File glTrace = new File(AppStorage.requireSingleton().getHomePath() + "/gl_trace.txt");
+        // PZ's own per-session debug log. It is the ONLY place Java-side link/load failures are
+        // recorded — an UnsatisfiedLinkError for a native game method never reaches console.txt,
+        // which is why a broken game lib could go unnoticed across every report we ever received.
+        // The live session writes straight into Zomboid/Logs/; on the next launch PZ rotates that
+        // file into Logs/logs_<date>/, so after a crash-and-relaunch the interesting one is the
+        // newest file in the newest archive folder. Collect both.
+        File pzLogsDir = gi == null ? null : new File(gi.getHomePath() + "/Zomboid/Logs");
+        File debugLog = pzLogsDir == null ? null : newestDebugLog(pzLogsDir);
+        File prevDebugLog = pzLogsDir == null ? null : newestDebugLog(newestLogArchiveDir(pzLogsDir));
+
+        // Everything below is added by NAME, never by walking a directory, and that is a property
+        // worth keeping: the app's home holds NG_GL4ES's ETC2 texture cache
+        // (C.NGG_ETC2_CACHE_DIR), which is hundreds of megabytes - 879 MB on one device. A report
+        // assembled by sweeping files/ would be unsendable. Add new files one by one.
+        try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(os, 256 * 1024))) {
+            // report.txt — device / build metadata
+            // The report must describe the instance it is about, not the app-wide defaults.
+            // gi is null when no instance is installed yet; a null name reads the global values,
+            // which is exactly what the report used to print in that case.
+            com.zomdroid.game.InstanceSettings settings =
+                    new com.zomdroid.game.InstanceSettings(gi != null ? gi.getName() : null);
+            LauncherPreferences.VulkanDriver driver = settings.getVulkanDriver();
+            String driverStr = driver.libName != null
+                    ? driver.name() + " (" + driver.libName + ")"
+                    : "system default";
+
+            zos.putNextEntry(new ZipEntry("report.txt"));
+            writeLogUtf8(zos, "=== Zomdroid Bug Report ===\n");
+            writeLogUtf8(zos, "Device   : " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
+            writeLogUtf8(zos, "Android  : " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")\n");
+            // The git id is what actually identifies the build: versionName/versionCode repeat
+            // across test builds (1.4.7 and 1.4.7v4 both reported as "1.4.7 (147)"), so without it
+            // a report cannot say which binary produced it. "+" means the tree had uncommitted work.
+            writeLogUtf8(zos, "Zomdroid : " + BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE
+                    + ", " + BuildConfig.GIT_BUILD_ID + ")\n");
+            // Which instance this report is even about, and the flag half our trigger handling
+            // keys on. A player exported a Build 41 report for a Build 42 bug and it took two
+            // assistants a day to establish from java.library.path what one header line would
+            // have said outright: the instance, its build, and build4220Plus.
+            writeLogUtf8(zos, gi == null
+                    ? "Instance : (none installed)\n"
+                    : "Instance : " + gi.getName()
+                        + " (" + gi.getPresetName() + ", build " + gi.getBuildVersion()
+                        + ", 4220plus=" + gi.isBuild4220Plus() + ")\n");
+            writeLogUtf8(zos, "Renderer : " + settings.getRenderer().name() + "\n");
+            writeLogUtf8(zos, "Driver   : " + driverStr + "\n");
+            // The two questions every NG_GL4ES "it just closes" report starts with: how much RAM
+            // does the device have, and did the player ever apply the Build 42 JVM preset. Both
+            // used to require digging through lastlog.txt, which is not always in the archive.
+            writeLogUtf8(zos, "RAM      : " + readRamSummary() + "\n");
+            // The rest of the memory treatment, in the same place as the RAM figure: the texture
+            // budget toggle and the resolution the renderer actually draws at.
+            writeLogUtf8(zos, "Memory   : saver " + (settings.isMemorySaver() ? "ON" : "off")
+                    + ", render scale " + String.format(Locale.US, "%.2f", settings.getRenderScale()) + "\n");
+            String jvmArgs = LauncherPreferences.squashWhitespace(settings.getJvmArgs());
+            writeLogUtf8(zos, "JVM args : " + (jvmArgs.isEmpty() ? "(none)" : jvmArgs)
+                    + "  [" + LauncherPreferences.describeJvmArgsPreset(jvmArgs) + "]\n");
+            // Env vars matter as much as the JVM args: knobs like LIBGL_SHRINK, LIBGL_TEXBUDGET and
+            // ZINK_DEBUG travel around chats as folklore, and without this line a report gives no
+            // way to tell an actual finding from something the player pasted in on someone's advice.
+            String envVars = LauncherPreferences.squashWhitespace(settings.getEnvVars());
+            writeLogUtf8(zos, "Env vars : " + (envVars.isEmpty() ? "(none)" : envVars) + "\n");
+            // Since 1.4.8 each build loads the game's OWN jassimp/Lighting/PZBullet from
+            // android/arm64-v8a instead of ours, so the health of that folder now decides whether
+            // the game starts at all - and a copy truncated during install is invisible in every
+            // other file we collect. One player's game stopped starting because that jassimp was
+            // shorter on disk than the game's zip says it should be; the sizes below make that a
+            // glance instead of a two-day investigation.
+            writeLogUtf8(zos, nativeLibInventory(gi));
+            writeLogUtf8(zos, "===========================\n");
+            zos.closeEntry();
+
+            // Original log files, verbatim — each kept whole in its own entry
+            addFileToZip(zos, crashFile, "crash.txt");
+            addFileToZip(zos, nativeLog, "native.log");
+            if (gi != null) {
+                addFileToZip(zos, new File(gi.getGamePath(), "server-native.log"), "server-native.log");
+                addFileToZip(zos, new File(gi.getGamePath(), "server-crash.txt"), "server-crash.txt");
+                addFileToZip(zos, new File(gi.getHomePath(), "server-probe/server-console.txt"), "server-console.txt");
+                addFileToZip(zos, new File(gi.getHomePath(), "server-probe/server-exception.txt"), "server-exception.txt");
+                addFileToZip(zos, new File(gi.getHomePath(), "client-probe/console.txt"), "client-probe-console.txt");
+                addFileToZip(zos, new File(gi.getHomePath(), "coop-probe/coop-console.txt"), "coop-console.txt");
+                addFileToZip(zos, new File(gi.getHomePath(), "coop-probe/server-exception.txt"), "coop-server-exception.txt");
+                addFileToZip(zos, new File(gi.getHomePath(), "coop-probe/hosting-internet.properties"), "hosting-internet.properties");
+                // Server heap per garbage collection, current file and the rotated one before it.
+                addFileToZip(zos, new File(gi.getHomePath(), "coop-probe/server-gc.log"), "server-gc.log");
+                addFileToZip(zos, new File(gi.getHomePath(), "coop-probe/server-gc.log.0"), "server-gc.log.0");
+                addFileToZip(zos, new File(gi.getHomePath(), "coop-probe/dedicated-state"), "dedicated-state.txt");
+                addFileToZip(zos, new File(gi.getHomePath(), "coop-probe/dedicated-error.txt"), "dedicated-error.txt");
+                addFileToZip(zos, new File(gi.getHomePath(), "coop-probe/dedicated-telemetry.properties"), "dedicated-telemetry.properties");
+                File[] coopJvmCrashes = new File(gi.getHomePath(), "coop-probe")
+                        .listFiles((dir, name) -> name.startsWith("hs_err_pid") && name.endsWith(".log"));
+                if (coopJvmCrashes != null) {
+                    for (File file : coopJvmCrashes) addFileToZip(zos, file, "coop/" + file.getName());
+                }
+                File[] serverJvmCrashes = new File(gi.getHomePath(), "server-probe")
+                        .listFiles((dir, name) -> name.startsWith("hs_err_pid") && name.endsWith(".log"));
+                if (serverJvmCrashes != null) {
+                    for (File file : serverJvmCrashes) addFileToZip(zos, file, "server/" + file.getName());
+                }
+            }
+            addFileToZip(zos, failedShaders, "failed_shaders.txt");
+            addFileToZip(zos, glTrace, "gl_trace.txt");
+            addFileToZip(zos, consoleFile, "console.txt");
+            addFileToZip(zos, launcherLog, "log.txt");
+            addFileToZip(zos, lastLauncherLog, "lastlog.txt");
+            addFileToZip(zos, debugLog, "debuglog.txt");
+            addFileToZip(zos, prevDebugLog, "debuglog_prev.txt");
+            // The game's own graphics options (texture filter, upscaling, shadow quality...) live
+            // only here; without it every "bad FPS" report meant asking the player what they set.
+            addFileToZip(zos, gi == null ? null : new File(gi.getHomePath() + "/Zomboid/options.ini"), "options.ini");
+            // Hosting runs the game on its own profile (coop-probe) with its own options.ini. Without
+            // it a hosting session showed the normal profile's options - the vivo cursor report
+            // (2026-09-17) said lockCursorToWindow=false while that game had it on.
+            addFileToZip(zos, gi == null ? null : new File(gi.getHomePath() + "/coop-probe/options.ini"), "coop-options.ini");
+        }
+    }
+
+    /**
+     * One line per file in the instance's {@code game/android/arm64-v8a} folder, the macOS
+     * libraries in {@code game/macos}, plus the state of our own bundled jassimp. Build 41 has no
+     * android/arm64-v8a folder - TIS ships x86_64 only there - so the
+     * "no android/arm64-v8a folder" line is the normal answer for it, not a fault. Sizes are raw
+     * bytes: compare a suspicious one against the same entry in the game's own zip.
+     */
+    private static String nativeLibInventory(GameInstance gi) {
+        StringBuilder sb = new StringBuilder("Game libs: ");
+        File nativeDir = gi == null ? null : new File(gi.getGamePath() + "/android/arm64-v8a");
+        File[] libs = nativeDir == null ? null : nativeDir.listFiles();
+        if (libs == null || libs.length == 0) {
+            sb.append("no android/arm64-v8a folder - box64 loads the x86_64 build\n");
+        } else {
+            java.util.Arrays.sort(libs, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+            sb.append(libs.length).append(" file(s) in android/arm64-v8a\n");
+            for (File lib : libs) {
+                if (!lib.isFile()) continue;
+                sb.append("           ").append(lib.getName()).append(' ').append(lib.length()).append('\n');
+            }
+        }
+        sb.append(macosLibInventory(gi));
+        // ACTIVE means the retire in GameLauncher did not run or failed, and our 5.4.3 is shadowing
+        // whatever importer the build expects - the exact state 1.4.8 set out to end.
+        File bundledDir = new File(AppStorage.requireSingleton().getHomePath(), C.deps.LIBS_ANDROID_ARM64_v8a);
+        String jassimpState = new File(bundledDir, "libjassimp64.so").isFile()
+                ? "ACTIVE - shadows the game's own importer"
+                : new File(bundledDir, "libjassimp64.so.zomdroid-543-off").isFile() ? "retired" : "absent";
+        sb.append("Our jassimp: ").append(jassimpState).append('\n');
+        return sb.toString();
+    }
+
+    /**
+     * The three macOS libraries of a 42.20+ instance, one line each: size, and whether the launch
+     * hands it to the loader ("on"), the player turned it off, or it is missing or unverified.
+     * Without this block a "with macOS" report could not be checked from its header - in the first
+     * one we got, the libraries were installed and never used. Whether the loader actually took a
+     * library that is "on" is in native.log ("[macho] ... loaded natively" or "... rejected").
+     */
+    private static String macosLibInventory(GameInstance gi) {
+        if (gi == null || !gi.isBuild4220Plus()) return "";
+        File game = new File(gi.getGamePath());
+        File folder = new File(game, "macos");
+        java.util.Set<String> installed = com.zomdroid.steam.MacosLibraries.installed(game);
+        com.zomdroid.game.InstanceSettings settings = gi.settings();
+        StringBuilder sb = new StringBuilder("macOS libs: ").append(installed.size()).append(" of ")
+                .append(com.zomdroid.steam.MacosLibraries.NAMES.size()).append(" installed in game/macos\n");
+        for (String name : com.zomdroid.steam.MacosLibraries.NAMES) {
+            File file = new File(folder, name);
+            String state;
+            if (installed.contains(name)) {
+                state = settings.isMacosModuleEnabled(com.zomdroid.steam.MacosLibraries.MODULE_KEYS.get(name))
+                        ? "on" : "turned off in settings";
+            } else {
+                state = file.isFile() ? "present but not verified (manifest)" : "not installed";
+            }
+            sb.append("           ").append(name);
+            if (file.isFile()) sb.append(' ').append(file.length());
+            sb.append(" - ").append(state).append('\n');
+        }
+        return sb.toString();
+    }
+
+    // Total/available RAM straight from /proc/meminfo. ActivityManager.MemoryInfo would give the
+    // same two numbers plus lowMemory, but writeLogReportZip is static and has no Context, and
+    // these two are what separates "killed for memory" from "crashed on its own". Note MemTotal is
+    // what the kernel manages, so an 8 GB device reports ~7.4 GB — treat it as the marketing size
+    // rounded up, not as an exact figure.
+    private static String readRamSummary() {
+        long totalKb = -1, availKb = -1;
+        try (BufferedReader r = new BufferedReader(new FileReader("/proc/meminfo"))) {
+            String line;
+            while ((line = r.readLine()) != null) {
+                if (line.startsWith("MemTotal:")) totalKb = parseMeminfoKb(line);
+                else if (line.startsWith("MemAvailable:")) availKb = parseMeminfoKb(line);
+                if (totalKb >= 0 && availKb >= 0) break;
+            }
+        } catch (Exception e) {
+            Log.w(LOG_TAG, "Failed to read /proc/meminfo: " + e);
+        }
+        if (totalKb < 0) return "unavailable";
+        String s = formatGb(totalKb) + " total";
+        if (availKb >= 0) s += ", " + formatGb(availKb) + " available";
+        return s;
+    }
+
+    // "MemTotal:        7654321 kB" -> 7654321, or -1 if the line is not shaped as expected.
+    private static long parseMeminfoKb(String line) {
+        try {
+            return Long.parseLong(line.split("\\s+")[1]);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    private static String formatGb(long kb) {
+        return String.format(Locale.US, "%.1f GB", kb / 1048576.0);
+    }
+
+    // Newest "<date>_<time>_DebugLog.txt" directly inside `dir`, or null if there is none.
+    private static File newestDebugLog(File dir) {
+        if (dir == null || !dir.isDirectory()) return null;
+        return newestOf(dir.listFiles((d, name) -> name.endsWith("_DebugLog.txt")));
+    }
+
+    // Newest "logs_<date>" folder that PZ rotates finished sessions into, or null.
+    private static File newestLogArchiveDir(File logsDir) {
+        if (logsDir == null || !logsDir.isDirectory()) return null;
+        return newestOf(logsDir.listFiles(f -> f.isDirectory() && f.getName().startsWith("logs_")));
+    }
+
+    private static File newestOf(File[] candidates) {
+        if (candidates == null) return null;
+        File newest = null;
+        for (File f : candidates) {
+            if (newest == null || f.lastModified() > newest.lastModified()) newest = f;
+        }
+        return newest;
+    }
+
+    // Adds a file to the zip under entryName. No-op if the file is missing.
+    private static void addFileToZip(ZipOutputStream zos, File file, String entryName) throws IOException {
+        if (file == null || !file.exists()) return;
+        zos.putNextEntry(new ZipEntry(entryName));
+        try (InputStream is = new FileInputStream(file)) {
+            byte[] buf = new byte[64 * 1024];
+            int r;
+            while ((r = is.read(buf)) != -1) zos.write(buf, 0, r);
+        }
+        zos.closeEntry();
+    }
+
+    private static void writeLogUtf8(OutputStream os, String s) throws IOException {
+        os.write(s.getBytes("UTF-8"));
+    }
+
+    private static void appendFileToStream(OutputStream os, File file) throws IOException {
+        try (InputStream is = new FileInputStream(file)) {
+            byte[] buf = new byte[64 * 1024];
+            int r;
+            while ((r = is.read(buf)) != -1) {
+                os.write(buf, 0, r);
+            }
+        }
+    }
+
+    // -------------------- INSTALL BETTERFPS --------------------
+
+    private void doInstallBetterFps(Intent intent) {
+        String taskTitle = getString(R.string.optimization_betterfps_installing);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) { finishWithError(taskTitle, "Game instance not found: " + gameInstanceName); return; }
+
+        Uri archiveUri = intent.getParcelableExtra(EXTRA_ARCHIVE_URI);
+        if (archiveUri == null) { finishWithError(taskTitle, "Archive URI is missing"); return; }
+
+        // Mode is one of: "PotatoePC", "1080p", "4k" — maps to subfolder inside media/
+        String mode = intent.getStringExtra(EXTRA_BETTERFPS_MODE);
+        if (mode == null) mode = "PotatoePC";
+        final String selectedMode = mode;
+
+        executorService.submit(() -> {
+            File tmpDir = new File(getCacheDir(), "betterfps_tmp_" + System.currentTimeMillis());
+            try {
+                tmpDir.mkdirs();
+
+                // Step 1: Extract ZIP to temp (smart — handles double-wrapped archives)
+                try (InputStream is = getContentResolver().openInputStream(archiveUri);
+                     ZipInputStream zis = new ZipInputStream(is)) {
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        File outFile = new File(tmpDir, entry.getName());
+                        if (entry.isDirectory()) {
+                            outFile.mkdirs();
+                        } else {
+                            outFile.getParentFile().mkdirs();
+                            try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                byte[] buf = new byte[8192];
+                                int len;
+                                while ((len = zis.read(buf)) > 0) fos.write(buf, 0, len);
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+
+                // Step 2: Find IsoChunkMap.class for the selected mode.
+                // Expected path inside mod: media/<mode>/zombie/iso/IsoChunkMap.class
+                // We search recursively so double-wrapped ZIPs are handled automatically.
+                File classFile = findBetterFpsClass(tmpDir, selectedMode);
+                if (classFile == null) {
+                    finishWithError(taskTitle,
+                            getString(R.string.optimization_betterfps_error_not_found, selectedMode));
+                    return;
+                }
+                Log.d("BetterFPS", "Found class for mode=" + selectedMode + ": " + classFile.getAbsolutePath());
+
+                // Step 3: Backup original IsoChunkMap.class if not already backed up
+                String targetDir = gameInstance.getGamePath() + "/zombie/iso";
+                File targetFile = new File(targetDir, "IsoChunkMap.class");
+                File backupFile = new File(targetDir, "IsoChunkMap.class.original");
+                new File(targetDir).mkdirs();
+
+                if (targetFile.exists() && !backupFile.exists()) {
+                    copyFile(targetFile, backupFile);
+                    Log.d("BetterFPS", "Backup created: " + backupFile.getAbsolutePath());
+                }
+
+                // Step 4: Copy selected IsoChunkMap.class into game
+                copyFile(classFile, targetFile);
+                Log.d("BetterFPS", "Installed: " + targetFile.getAbsolutePath());
+
+                finish(getString(R.string.optimization_betterfps_installed), null);
+
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            } finally {
+                try { FileUtils.deleteDirectory(tmpDir); } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    // Find IsoChunkMap.class for the given mode inside the extracted BetterFPS mod.
+    // Looks for a path ending with: media/<mode>/zombie/iso/IsoChunkMap.class
+    // Case-insensitive mode matching to handle any capitalisation differences.
+    private File findBetterFpsClass(File dir, String mode) {
+        File[] files = dir.listFiles();
+        if (files == null) return null;
+        for (File f : files) {
+            if (f.isDirectory()) {
+                File found = findBetterFpsClass(f, mode);
+                if (found != null) return found;
+            } else if (f.getName().equals("IsoChunkMap.class")) {
+                if (f.getAbsolutePath().toLowerCase().contains(mode.toLowerCase())) {
+                    return f;
+                }
+            }
+        }
+        return null;
+    }
+
+    // -------------------- INSTALL RENDER LESS ZOMBIE (B41) --------------------
+    //
+    // "(Reduce Lag) RenderLessZombie" (Workshop 2970823607) ships patched zombie/iso classes in
+    // media/<level>/zombie/iso/, one folder per zombie-count level (1/25/50/75/100/150). Unlike
+    // BetterFPS this is a whole SET of files (IsoWorld.class + its inner classes), so every file
+    // of the chosen level is copied and every original it replaces is kept as <name>.bak.
+
+    private void doInstallRenderLessZombie(Intent intent) {
+        String taskTitle = getString(R.string.optimization_rlz_installing);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) { finishWithError(taskTitle, "Game instance not found: " + gameInstanceName); return; }
+
+        Uri archiveUri = intent.getParcelableExtra(EXTRA_ARCHIVE_URI);
+        if (archiveUri == null) { finishWithError(taskTitle, "Archive URI is missing"); return; }
+
+        String level = intent.getStringExtra(EXTRA_RLZ_LEVEL);
+        if (level == null || level.isEmpty()) level = "50";
+        final String selectedLevel = level;
+
+        executorService.submit(() -> {
+            File tmpDir = new File(getCacheDir(), "rlz_tmp_" + System.currentTimeMillis());
+            try {
+                tmpDir.mkdirs();
+
+                try (InputStream is = getContentResolver().openInputStream(archiveUri);
+                     ZipInputStream zis = new ZipInputStream(is)) {
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        File outFile = new File(tmpDir, entry.getName());
+                        if (entry.isDirectory()) {
+                            outFile.mkdirs();
+                        } else {
+                            outFile.getParentFile().mkdirs();
+                            try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                byte[] buf = new byte[8192];
+                                int len;
+                                while ((len = zis.read(buf)) > 0) fos.write(buf, 0, len);
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+
+                File srcDir = findRenderLessZombieLevelDir(tmpDir, selectedLevel);
+                if (srcDir == null) {
+                    finishWithError(taskTitle,
+                            getString(R.string.optimization_rlz_error_not_found, selectedLevel));
+                    return;
+                }
+                File[] srcFiles = srcDir.listFiles(File::isFile);
+                if (srcFiles == null || srcFiles.length == 0) {
+                    finishWithError(taskTitle,
+                            getString(R.string.optimization_rlz_error_not_found, selectedLevel));
+                    return;
+                }
+                Log.d("RenderLessZombie", "Level " + selectedLevel + " dir: " + srcDir.getAbsolutePath()
+                        + " (" + srcFiles.length + " files)");
+
+                File targetDir = new File(gameInstance.getGamePath(), "zombie/iso");
+                targetDir.mkdirs();
+
+                int copied = 0;
+                for (File src : srcFiles) {
+                    File target = new File(targetDir, src.getName());
+                    File backup = new File(targetDir, src.getName() + ".bak");
+                    // Back up the pristine original only once: re-installing another level must not
+                    // overwrite the backup with already-patched classes.
+                    if (target.exists() && !backup.exists()) {
+                        copyFile(target, backup);
+                        Log.d("RenderLessZombie", "Backup: " + backup.getName());
+                    }
+                    copyFile(src, target);
+                    copied++;
+                }
+                Log.d("RenderLessZombie", "Installed " + copied + " file(s) into " + targetDir);
+
+                finish(getString(R.string.optimization_rlz_installed, selectedLevel), null);
+
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            } finally {
+                try { FileUtils.deleteDirectory(tmpDir); } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    // Locate <any>/media/<level>/zombie/iso inside the extracted mod. The level is matched as a
+    // whole path SEGMENT, never as a substring — "50" must not match the "150" folder.
+    private File findRenderLessZombieLevelDir(File dir, String level) {
+        File[] files = dir.listFiles();
+        if (files == null) return null;
+        for (File f : files) {
+            if (!f.isDirectory()) continue;
+            if (f.getName().equals(level)) {
+                File iso = new File(f, "zombie/iso");
+                if (iso.isDirectory()) return iso;
+            }
+            File found = findRenderLessZombieLevelDir(f, level);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
+    // ================================================
+    // INSTALL_MOD_WITH_FIX
+    //
+    // Smart mod root detection (same as INSTALL_MOD_SMART) + forced inception copy for scripts/.
+    // For Build 42: also merges 42.x version folders.
+    // For Build 41: no merging, root files preserved.
+    // ================================================
+
+    private void doInstallModWithFix(Intent intent) {
+        String taskTitle = getString(R.string.mod_fix_installing);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) {
+            finishWithError(taskTitle, "Game instance name is missing");
+            return;
+        }
+
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) {
+            finishWithError(taskTitle, "Game instance not found: " + gameInstanceName);
+            return;
+        }
+
+        Uri archiveUri = intent.getParcelableExtra(EXTRA_MODS_URI);
+        if (archiveUri == null) {
+            finishWithError(taskTitle, "Archive URI is missing");
+            return;
+        }
+
+        // Determine install strategy based on instance build version
+        String buildVersion = intent.getStringExtra(EXTRA_BUILD_VERSION);
+        boolean isBuild42 = "42".equals(buildVersion);
+        Log.d("ModFix", "Install strategy: build=" + buildVersion + ", isBuild42=" + isBuild42);
+        Log.d("ModFix", "=== doInstallModWithFix START ===");
+        Log.d("ModFix", "buildVersion=" + buildVersion + ", isBuild42=" + isBuild42);
+        Log.d("ModFix", "archiveUri=" + archiveUri);
+
+        executorService.submit(() -> {
+            File tmpDir = new File(getCacheDir(), "mod_fix_tmp_" + System.currentTimeMillis());
+            try {
+                // Step 1: Extract ZIP to temp dir
+                tmpDir.mkdirs();
+                try (InputStream is = getContentResolver().openInputStream(archiveUri);
+                     ZipInputStream zis = new ZipInputStream(is)) {
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        File outFile = new File(tmpDir, entry.getName());
+                        if (entry.isDirectory()) {
+                            outFile.mkdirs();
+                        } else {
+                            outFile.getParentFile().mkdirs();
+                            try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                byte[] buf = new byte[64 * 1024];
+                                int r;
+                                while ((r = zis.read(buf)) != -1) fos.write(buf, 0, r);
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+                Log.d("ModFix", "Step 1 done. tmpDir contents:");
+                File[] tmpContents = tmpDir.listFiles();
+                if (tmpContents != null) {
+                    for (File f : tmpContents) {
+                        Log.d("ModFix", "  " + f.getName() + (f.isDirectory() ? "/" : " [file]"));
+                    }
+                } else {
+                    Log.d("ModFix", "  tmpDir is empty or null!");
+                }
+
+                // Step 2: Find all mod roots using smart detection
+                List<File> modRoots = new ArrayList<>();
+                collectModRoots(tmpDir, modRoots);
+                if (modRoots.isEmpty()) {
+                    finishWithError(taskTitle, getString(R.string.install_mod_smart_no_root));
+                    return;
+                }
+                Log.d("ModFix", "Found " + modRoots.size() + " mod root(s)");
+
+                String modsPath = gameInstance.getHomePath() + "/Zomboid/mods";
+                new File(modsPath).mkdirs();
+                String instanceNameLower = gameInstance.getName().toLowerCase();
+                String inceptionRelPath = "data/user/0/com.zomdroid/files/instances/"
+                        + instanceNameLower + "/zomboid/mods";
+                File inceptionDir = new File(modsPath, inceptionRelPath);
+
+                for (File modRoot : modRoots) {
+                    // Step 3: Determine mod name
+                    String modName = modRoot.getName();
+                    if (modName.equals(tmpDir.getName())) {
+                        modName = extractZipName(archiveUri);
+                        if (modName != null && modName.endsWith(".zip"))
+                            modName = modName.substring(0, modName.length() - 4);
+                    }
+                    Log.d("ModFix", "Processing mod: " + modName + " (isBuild42=" + isBuild42 + ")");
+
+                    // Step 4: the case workaround is applied unconditionally now. Gating it on a
+                    // scripts/ folder left every mod that only overrides fbx/xml/lua broken, and
+                    // aliases are free, so there is nothing left to gate on.
+
+                    // Step 5: Merge 42.x version folders if B42
+                    //if (isBuild42) {
+                    //    mergeVersionsForB42(modRoot);
+                    //}
+
+                    // Step 6: Install normal-case copy
+                    File normalDest = new File(modsPath, modName);
+                    if (normalDest.exists()) FileUtils.deleteDirectory(normalDest);
+                    copyDirectory(modRoot, normalDest);
+                    Log.d("ModFix", "  Installed normal: " + normalDest.getAbsolutePath());
+
+                    // Step 7: lowercase aliases inside the mod + the doubled-path link. Repeated at
+                    // every launch, because the doubled path spells out where the mod lives today.
+                    com.zomdroid.patch.LowercasePathAliases.applyToMod(normalDest, new File(modsPath));
+                }
+
+                finish(getString(R.string.mod_fix_installed), null);
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            } finally {
+                try { FileUtils.deleteDirectory(tmpDir); } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    // -------------------- MOD FIX HELPERS --------------------
+
+    // Merge all 42.x version folders into the latest, inject root media/ and common/,
+    // then clean up root files (logo.png, poster.png, mod.info).
+    // Used only for Build 42 installs.
+    private void mergeVersionsForB42(File modDir) throws IOException {
+        File[] entries = modDir.listFiles(File::isDirectory);
+        if (entries == null) return;
+
+        // Scan for version folders matching 42 or 42.x
+        List<String> versions = new ArrayList<>();
+        for (File f : entries) {
+            if (f.getName().equals("42") || (f.getName().startsWith("42.") && f.getName().length() > 3)) {
+                versions.add(f.getName());
+            }
+        }
+        if (versions.isEmpty()) return;
+
+        // Sort version-aware oldest → newest: 42 < 42.1 < 42.9 < 42.10 < 42.13
+        versions.sort((a, b) -> {
+            String[] pa = a.split("\\.");
+            String[] pb = b.split("\\.");
+            int maxLen = Math.max(pa.length, pb.length);
+            for (int i = 0; i < maxLen; i++) {
+                int na = i < pa.length ? Integer.parseInt(pa[i]) : 0;
+                int nb = i < pb.length ? Integer.parseInt(pb[i]) : 0;
+                if (na != nb) return Integer.compare(na, nb);
+            }
+            return 0;
+        });
+
+        String latest = versions.get(versions.size() - 1);
+        File target = new File(modDir, latest);
+        target.mkdirs();
+
+        // Merge older versions into latest, oldest first (no overwrite — newest wins)
+        for (int i = 0; i < versions.size() - 1; i++) {
+            File older = new File(modDir, versions.get(i));
+            copyDirectoryNoOverwrite(older, target);
+        }
+
+        // Inject root media/ → latest/media/ (no overwrite)
+        File rootMedia = new File(modDir, "media");
+        if (rootMedia.exists() && rootMedia.isDirectory()) {
+            copyDirectoryNoOverwrite(rootMedia, new File(target, "media"));
+            FileUtils.deleteDirectory(rootMedia);
+        }
+
+        // Inject common/ → latest/ (no overwrite), then empty common/ but keep folder
+        File rootCommon = new File(modDir, "common");
+        if (rootCommon.exists() && rootCommon.isDirectory()) {
+            copyDirectoryNoOverwrite(rootCommon, target);
+            File[] commonContents = rootCommon.listFiles();
+            if (commonContents != null) {
+                for (File f : commonContents) FileUtils.deleteDirectory(f);
+            }
+            // Keep empty common/ folder — same behaviour as bash script
+        }
+
+        // Delete old version folders
+        for (int i = 0; i < versions.size() - 1; i++) {
+            FileUtils.deleteDirectory(new File(modDir, versions.get(i)));
+        }
+
+        // Clean up root files — 42/mod.info is now authoritative
+        for (String name : new String[]{"logo.png", "poster.png", "mod.info"}) {
+            File f = new File(modDir, name);
+            if (f.exists()) f.delete();
+        }
+    }
+
+
+    // Extract mod name from ZIP filename via ContentResolver
+    private String extractZipName(Uri uri) {
+        String name = null;
+        try (android.database.Cursor cursor = getContentResolver().query(
+                uri,
+                new String[]{android.provider.MediaStore.MediaColumns.DISPLAY_NAME},
+                null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int idx = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.DISPLAY_NAME);
+                if (idx != -1) name = cursor.getString(idx);
+            }
+        } catch (Exception ignored) {}
+
+        if (name != null && name.toLowerCase().endsWith(".zip")) {
+            name = name.substring(0, name.length() - 4);
+        }
+        if (name == null || name.isEmpty()) {
+            name = "mod_" + System.currentTimeMillis();
+        }
+        return name;
+    }
+
+    // -------------------- GENERIC FILE HELPERS --------------------
+
+    private static boolean isModFolder(File dir) {
+        return dir != null && dir.isDirectory();
+    }
+
+    private static File[] listDirs(File root) {
+        File[] dirs = root.listFiles(FileUtils::isWalkableDirectory);
+        return (dirs == null) ? new File[0] : dirs;
+    }
+
+    private static void moveOrReplace(File srcDir, File dstDir) throws Exception {
+        if (dstDir.exists()) {
+            FileUtils.deleteDirectory(dstDir);
+        }
+        // Fast atomic move if on same storage partition
+        java.nio.file.Files.move(
+                srcDir.toPath(),
+                dstDir.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING
+        );
+    }
+
+    // Copy directory recursively
+    // Symlinks are skipped rather than followed in every copy below: following one duplicates the
+    // data it points at, and a link aimed at an ancestor never terminates. The lowercase aliases we
+    // place inside a mod are regenerated at the destination, so nothing is lost by dropping them.
+    private void copyDirectory(File src, File dst) throws IOException {
+        dst.mkdirs();
+        File[] files = src.listFiles();
+        if (files == null) return;
+        for (File f : files) {
+            if (Files.isSymbolicLink(f.toPath())) continue;
+            File target = new File(dst, f.getName());
+            if (f.isDirectory()) {
+                copyDirectory(f, target);
+            } else {
+                copyFile(f, target);
+            }
+        }
+    }
+
+    // Copy directory recursively, skip if destination file already exists
+    private void copyDirectoryNoOverwrite(File src, File dst) throws IOException {
+        dst.mkdirs();
+        File[] files = src.listFiles();
+        if (files == null) return;
+        for (File f : files) {
+            if (Files.isSymbolicLink(f.toPath())) continue;
+            File target = new File(dst, f.getName());
+            if (f.isDirectory()) {
+                copyDirectoryNoOverwrite(f, target);
+            } else if (!target.exists()) {
+                copyFile(f, target);
+            }
+        }
+    }
+
+    // Copy single file
+    private void copyFile(File src, File dst) throws IOException {
+        try (InputStream is = new FileInputStream(src);
+             OutputStream os = new FileOutputStream(dst)) {
+            byte[] buf = new byte[64 * 1024];
+            int r;
+            while ((r = is.read(buf)) != -1) os.write(buf, 0, r);
+        }
+    }
+
+    // -------------------- BUILD-SPECIFIC PATCHES --------------------
+
+    // Build 42.20+ layout:
+    //   game/natives/*.so                       (Linux x86_64)
+    //   game/natives/android/arm64-v8a/*.so    (Android arm64)
+    //
+    // Zomdroid's established layout is:
+    //   game/*.so
+    //   game/android/arm64-v8a/*.so
+    //
+    // Detect by structure rather than a textual version so later 42.x builds using the same
+    // packaging are handled automatically. This must run before maybeDisableLibFor42(), whose
+    // native-vs-Linux comparison deliberately expects the established layout.
+    private void normalizeNativeLayoutFor4220(GameInstance gameInstance) throws IOException {
+        File gameDir = new File(gameInstance.getGamePath());
+        File newLinuxDir = new File(gameDir, "natives");
+        File layoutMarker = new File(newLinuxDir, "libPZBullet64.so");
+        if (!layoutMarker.isFile()) return;
+
+        gameInstance.markBuild4220Plus();
+        Log.i(LOG_TAG, "Detected Build 42.20+ native layout; normalizing for Zomdroid");
+
+        File newAndroidDir = new File(newLinuxDir, "android/arm64-v8a");
+        File oldAndroidDir = new File(gameDir, "android/arm64-v8a");
+
+        // Move ARM64 first. moveSharedLibraries() only considers direct children, so the nested
+        // Android files can never be mistaken for Linux x86_64 files.
+        moveSharedLibraries(newAndroidDir, oldAndroidDir);
+        moveSharedLibraries(newLinuxDir, gameDir);
+
+        deleteDirectoryIfEmpty(newAndroidDir);
+        deleteDirectoryIfEmpty(new File(newLinuxDir, "android"));
+        deleteDirectoryIfEmpty(newLinuxDir);
+    }
+
+    private void moveSharedLibraries(File sourceDir, File targetDir) throws IOException {
+        File[] libraries = sourceDir.listFiles(
+                file -> file.isFile() && file.getName().endsWith(".so"));
+        if (libraries == null || libraries.length == 0) return;
+        if (!targetDir.exists() && !targetDir.mkdirs()) {
+            throw new IOException("Failed to create native library directory "
+                    + targetDir.getAbsolutePath());
+        }
+
+        for (File source : libraries) {
+            File target = new File(targetDir, source.getName());
+            try {
+                java.nio.file.Files.move(
+                        source.toPath(),
+                        target.toPath(),
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException moveError) {
+                // Same-filesystem moves are expected for an extracted instance, but retain a
+                // copy/delete fallback for unusual Android storage implementations.
+                copyFile(source, target);
+                if (!source.delete()) {
+                    throw new IOException("Copied but failed to remove "
+                            + source.getAbsolutePath(), moveError);
+                }
+            }
+            Log.i(LOG_TAG, "Normalized native library: " + source.getAbsolutePath()
+                    + " -> " + target.getAbsolutePath());
+        }
+    }
+
+    private void deleteDirectoryIfEmpty(File dir) {
+        File[] children = dir.listFiles();
+        if (children != null && children.length == 0 && !dir.delete()) {
+            Log.w(LOG_TAG, "Failed to remove empty directory " + dir.getAbsolutePath());
+        }
+    }
+
+    // 42.13: rename problematic native libs that crash on Android
+    private void maybeDisableLibFor42(GameInstance gameInstance) {
+        File gameDir = new File(gameInstance.getGamePath());
+        File pzJar = new File(gameDir, "projectzomboid.jar");
+        if (!pzJar.exists()) return; // Not a 42.13+ structure
+
+        File soDir = new File(gameDir, "android/arm64-v8a");
+        // Apply hard runtime findings (including Bullet's complete-looking but broken export).
+        com.zomdroid.patch.NativeLibraryWorkarounds.disableIncompleteNativeLibraries(gameInstance);
+        // The rest are judged on content instead, see below.
+        disableIncompleteNativeLibs(gameInstance, gameDir, soDir);
+    }
+
+    // The Android builds TIS ships in android/arm64-v8a/ occasionally omit a JNI method their own
+    // Linux build exports. 42.19's libPZPopMan64.so has no n_saveCell, so
+    // ZombiePopulationManager.writeCellSnapshot died with UnsatisfiedLinkError, worlds were saved
+    // incomplete, and every later load crashed — with nothing in console.txt to show for it.
+    // dlopen() prefers the native lib, so an incomplete one is strictly worse than none: drop it
+    // and let the x86_64 twin run under box64, which has the method.
+    //
+    // Content-based on purpose: no version numbers and no library names, so a build where TIS ships
+    // a complete library keeps its native speed, and the next library with the same defect is
+    // caught without a code change. Runs once per instance, here at install time — the game launch
+    // path is untouched. Only reached for 42.12+ layouts (the projectzomboid.jar gate above), which
+    // keeps it away from the multiplayer libs added by hand to 41.78 instances.
+    private void disableIncompleteNativeLibs(GameInstance gameInstance, File gameDir, File soDir) {
+        File[] nativeLibs = soDir.listFiles((dir, name) -> name.endsWith(".so"));
+        if (nativeLibs == null) return;
+
+        for (File nativeLib : nativeLibs) {
+            File linuxTwin = new File(gameDir, nativeLib.getName());
+            if (!linuxTwin.exists()) continue; // nothing to compare against
+
+            Set<String> expected = ElfSymbols.readExportedJniSymbols(linuxTwin);
+            Set<String> present = ElfSymbols.readExportedJniSymbols(nativeLib);
+            // null means "could not read" — never disable on a parse failure. An empty expected set
+            // means the library registers its natives some other way and cannot be judged this way.
+            if (expected == null || present == null || expected.isEmpty()) continue;
+
+            Set<String> missing = new TreeSet<>(expected);
+            missing.removeAll(present);
+            if (missing.isEmpty()) continue;
+
+            // No special case for libLighting64.so any more: its ARM64 build is a stale snapshot
+            // (circle light instead of torch cones — the missing export is just the marker), so
+            // it takes the same disable path as every other incomplete library. The x86_64 twin's
+            // getVisibleRooms() crash through the box64 bridge was the signature-cache race in
+            // linker.c, fixed there.
+
+            Log.w(LOG_TAG, "Disabling " + nativeLib.getName() + ": the Android build is missing "
+                    + missing.size() + " JNI method(s) exported by the Linux build, first: "
+                    + missing.iterator().next());
+            maybeDisableLib(soDir, nativeLib.getName());
+        }
+    }
+
+    private void maybeDisableLib(File soDir, String libName) {
+        File so = new File(soDir, libName);
+        if (!so.exists()) return;
+
+        File disabled = new File(soDir, libName + ".disabled");
+        if (disabled.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            so.delete();
+            return;
+        }
+
+        if (!so.renameTo(disabled)) {
+            throw new RuntimeException("Failed to rename " + libName + " for 42.13: " + so.getAbsolutePath());
+        }
+
+        Log.i(LOG_TAG, "42.13 patch: disabled " + libName + " -> " + disabled.getName());
+    }
+
+
+    // B42: patch ShaderUnit to enable combineShaderSources (required for NG_GL4ES;
+    // GLES forbids multi-unit linking, patched class uses PZ's own combineShaderSources mode).
+    // Safe on ZINK — combineShaderSources is valid for any GL.
+    //
+    // The universal ShaderUnitPatcher finds the flag field BY NAME in the constant pool, so it
+    // works on every game version — no md5 table, no pre-made replacement files. Also invoked
+    // at game launch (GameLauncher) to cover instances created by older launcher versions.
+    private void maybePatchShaderUnitCombine(GameInstance gameInstance) {
+        com.zomdroid.patch.ShaderUnitPatchApplier.applyIfNeeded(gameInstance);
+    }
+
+    private static String md5Hex(File file) throws IOException {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            try (InputStream is = new FileInputStream(file)) {
+                byte[] buf = new byte[8192];
+                int r;
+                while ((r = is.read(buf)) != -1) md.update(buf, 0, r);
+            }
+            byte[] digest = md.digest();
+            StringBuilder sb = new StringBuilder(32);
+            for (byte b : digest) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IOException("MD5 not available", e);
+        }
+    }
+
+    // 42.13+: extract projectzomboid.jar if present (new fat-jar structure)
+    private void extractProjectZomboidJarSimple(GameInstance gameInstance) throws IOException {
+        File gameDir = new File(gameInstance.getGamePath());
+        File jar = new File(gameDir, "projectzomboid.jar");
+        if (!jar.exists()) return;
+
+        Log.i(LOG_TAG, "42.13+: extracting projectzomboid.jar");
+        try (InputStream is = new FileInputStream(jar)) {
+            announceExtraction();
+            FileUtils.extractZipToDisk(is, gameDir.getAbsolutePath(), this, jar.length());
+        }
+    }
+
+    // -------------------- TASK STATE / NOTIFICATION --------------------
+
+    private void finish(String title, String message) {
+        taskRunning = false;
+        userTaskRunning = false;
+        this.taskState.postValue(new TaskState(title, message, -1, 0, true, false));
+    }
+
+    private void finishWithError(String title, String error) {
+        taskRunning = false;
+        Log.e(LOG_TAG, error);
+        userTaskRunning = false;
+        this.taskState.postValue(new TaskState(title, error, -1, 0, false, true));
+    }
+
+
+    // Every archive extraction reports progress through FileUtils, which has no text to give -
+    // its ticks carry null and rely on onProgressUpdate keeping the previous message. That only
+    // works if a message was SET first, and most tasks never set one: the instance-creation
+    // dialog showed a bare bar under its title for exactly this reason. One announcement before
+    // each extraction; repeated calls are harmless (message calls bypass the tick throttle).
+    private void announceExtraction() {
+        onProgressUpdate(getString(R.string.extracting), -1, 0);
+    }
+
+    private void installGameFromZip(GameInstance gameInstance, Uri zipUri) throws IOException {
+        ContentResolver contentResolver = getApplicationContext().getContentResolver();
+        try (InputStream inputStream = contentResolver.openInputStream(zipUri)) {
+            long fileSize = FileUtils.queryFileSize(contentResolver, zipUri);
+            announceExtraction();
+            FileUtils.extractZipToDisk(inputStream, gameInstance.getGamePath(), this, fileSize);
+        }
+    }
+
+    // The game files come in three shapes: the usual ZIP of the Linux build, GOG's Linux installer
+    // (a shell script with the game ZIP appended, handed over by path from the GOG downloader), or
+    // a ZIP wrapping such installers, which is what a file picker can deliver. The kind is decided
+    // by the new-instance screen from the archive index and passed along; nothing here re-sniffs a
+    // multi-gigabyte stream.
+    private void installGameFiles(GameInstance gameInstance, Uri archiveUri, String kind) throws IOException {
+        File gameDir = new File(gameInstance.getGamePath());
+        File cache = new File(getCacheDir(), "gog-install");
+        if (GogInstallerExtractor.KIND_INSTALLER.equals(kind)) {
+            File installer = "file".equals(archiveUri.getScheme()) ? new File(archiveUri.getPath()) : null;
+            File spooled = null;
+            try {
+                if (installer == null) {
+                    // A content provider gives a stream; the ZIP reader needs random access.
+                    if (!cache.isDirectory() && !cache.mkdirs()) throw new IOException("Failed to create " + cache);
+                    spooled = new File(cache, "installer.sh");
+                    onProgressUpdate(getString(R.string.gog_extracting), -1, 0);
+                    try (InputStream in = getContentResolver().openInputStream(archiveUri)) {
+                        GogInstallerExtractor.spool(in, archiveSize(archiveUri), spooled, this);
+                    }
+                    installer = spooled;
+                }
+                onProgressUpdate(getString(R.string.gog_extracting), -1, 0);
+                GogInstallerExtractor.extractInstaller(installer, gameDir, this);
+            } finally {
+                if (spooled != null) FileUtils.deleteDirectory(cache);
+            }
+        } else if (GogInstallerExtractor.KIND_BUNDLE.equals(kind)) {
+            try (InputStream in = getContentResolver().openInputStream(archiveUri)) {
+                onProgressUpdate(getString(R.string.gog_extracting), -1, 0);
+                GogInstallerExtractor.extractBundle(in, archiveSize(archiveUri), gameDir, cache, this);
+            } finally {
+                FileUtils.deleteDirectory(cache);
+            }
+        } else {
+            installGameFromZip(gameInstance, archiveUri);
+        }
+    }
+
+    // The size behind a URI, or -1: a content provider may not say, and a file:// URI has no
+    // provider to ask.
+    private long archiveSize(Uri uri) {
+        if ("file".equals(uri.getScheme())) return new File(uri.getPath()).length();
+        try {
+            return FileUtils.queryFileSize(getContentResolver(), uri);
+        } catch (RuntimeException e) {
+            return -1;
+        }
+    }
+
+    private void reconcilePresetWithGameFiles(GameInstance gameInstance) {
+        InstallationPreset detected = PresetManager.detectFromGameDir(new File(gameInstance.getGamePath()));
+        if (detected == null || detected.name.equals(gameInstance.getPresetName())) return;
+        Log.i(LOG_TAG, "Game files are " + detected.name + ", instance was created as "
+                + gameInstance.getPresetName() + " - switching preset");
+        gameInstance.applyPreset(detected);
+        // The post-install dialog reads these; keep them in step with the preset it will describe.
+        currentInstallPresetName = detected.name;
+        String vendor = "42".equals(detected.buildVersion) ? SuggestedPreset.detectGpuVendor() : null;
+        currentGpuVendor = vendor == null ? "UNKNOWN" : vendor;
+    }
+
+    // -------------------- GAME ROOT DRILL / UNWRAP --------------------
+    // Files/dirs that mark the real Project Zomboid install root, across all builds:
+    // desktop launcher script + its manifest, the 42.12+ fat jar, and the classes dir.
+    private static final String[] GAME_ROOT_MARKERS = {
+            "ProjectZomboid64.json", "ProjectZomboid64", "projectzomboid.jar", "zombie"
+    };
+
+    // True if dir DIRECTLY contains any PZ root marker.
+    private boolean isGameRoot(File dir) {
+        if (dir == null || !dir.isDirectory()) return false;
+        File[] files = dir.listFiles();
+        if (files == null) return false;
+        for (File f : files) {
+            for (String marker : GAME_ROOT_MARKERS) {
+                if (f.getName().equalsIgnoreCase(marker)) return true;
+            }
+        }
+        return false;
+    }
+
+    // Recursively locate the game root (this dir or a descendant). null if none found.
+    private File findGameRoot(File dir) {
+        if (isGameRoot(dir)) return dir;
+        File[] children = dir.listFiles(FileUtils::isWalkableDirectory);
+        if (children == null) return null;
+        for (File child : children) {
+            File found = findGameRoot(child);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
+    // If the extracted game sits inside one or more wrapper folders, lift the real root up so
+    // its contents live directly under gameDir. No-op if already flat or no PZ root is found.
+    private void flattenGameRootIfWrapped(File gameDir) throws IOException {
+        if (isGameRoot(gameDir)) return; // already flat
+        File root = findGameRoot(gameDir);
+        if (root == null || root.equals(gameDir)) return; // nothing PZ-like nested; launch check will report
+
+        Log.i(LOG_TAG, "Game root nested at " + root + " — flattening into " + gameDir);
+
+        File tmp = new File(gameDir.getParentFile(), gameDir.getName() + "__pzroot_tmp");
+        if (tmp.exists()) FileUtils.deleteDirectory(tmp);
+
+        // Move the nested root out of the wrapper tree (rename on same fs, copy as fallback)...
+        if (!root.renameTo(tmp)) {
+            copyDirectory(root, tmp);
+        }
+        // ...drop the leftover wrapper folders, then reinstate the root as gameDir.
+        FileUtils.deleteDirectory(gameDir);
+        if (!tmp.renameTo(gameDir)) {
+            copyDirectory(tmp, gameDir);
+            FileUtils.deleteDirectory(tmp);
+        }
+    }
+
+    @Override
+    public void onTimeout(int startId) {
+        super.onTimeout(startId);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    // INSTALL_MOD_SMART
+    // Intelligently extracts a mod from ZIP regardless of wrapper folders.
+    // Finds the mod root by looking for: mod.info file, media/ folder, or common/ folder.
+    // Then applies needsLowercaseFix check and installs accordingly.
+    private void doInstallModSmart(Intent intent) {
+        String taskTitle = getString(R.string.install_mod_smart_title);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        executorService.execute(() -> {
+            Uri archiveUri = intent.getParcelableExtra(EXTRA_MODS_URI);
+            String instanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+            String buildVersion = intent.getStringExtra(EXTRA_BUILD_VERSION);
+            boolean isBuild42 = "42".equals(buildVersion);
+
+            File tmpDir = new File(getCacheDir(), "smart_mod_tmp_" + System.currentTimeMillis());
+            try {
+                tmpDir.mkdirs();
+
+                // Step 1: Extract ZIP to temp
+                onProgressUpdate(getString(R.string.extracting), -1, 0);
+                try (InputStream is = getContentResolver().openInputStream(archiveUri);
+                     ZipInputStream zis = new ZipInputStream(is)) {
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        File outFile = new File(tmpDir, entry.getName());
+                        if (entry.isDirectory()) {
+                            outFile.mkdirs();
+                        } else {
+                            outFile.getParentFile().mkdirs();
+                            try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                byte[] buf = new byte[8192];
+                                int len;
+                                while ((len = zis.read(buf)) > 0) fos.write(buf, 0, len);
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+
+                // Step 2: Find mod root — folder containing mod.info, media/, or common/
+                File modRoot = findModRoot(tmpDir);
+                if (modRoot == null) {
+                    finishWithError(taskTitle, getString(R.string.install_mod_smart_no_root));
+                    return;
+                }
+                Log.d("SmartMod", "Found mod root: " + modRoot.getAbsolutePath());
+
+                // Step 3: Determine mod name
+                String modName = modRoot.getName();
+                if (modName.equals(tmpDir.getName())) {
+                    modName = extractZipName(archiveUri);
+                    if (modName != null && modName.endsWith(".zip"))
+                        modName = modName.substring(0, modName.length() - 4);
+                }
+
+                // Step 4: the case workaround is applied unconditionally now - see LowercasePathAliases.
+                Log.d("SmartMod", "isBuild42=" + isBuild42);
+
+                // Step 5: Merge 42.x version folders if B42
+                //if (isBuild42) {
+                //    mergeVersionsForB42(modRoot);
+                //}
+
+                // Step 6: Install normal-case copy
+                GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
+                if (gameInstance == null) {
+                    finishWithError(taskTitle, "Game instance not found: " + instanceName);
+                    return;
+                }
+                String modsPath = gameInstance.getHomePath() + "/Zomboid/mods";
+                File modsDir = new File(modsPath);
+                modsDir.mkdirs();
+
+                File normalDest = new File(modsDir, modName);
+                if (normalDest.exists()) FileUtils.deleteDirectory(normalDest);
+                copyDirectory(modRoot, normalDest);
+                Log.d("SmartMod", "Installed normal: " + normalDest.getAbsolutePath());
+
+                // Expand common/ into each version folder so assets are accessible
+                // (B42 looks in 42.x/ not in root, so common/ must be merged into each version folder)
+                File commonDir = new File(normalDest, "common");
+                if (commonDir.exists() && commonDir.isDirectory()) {
+                    File[] versionDirs = normalDest.listFiles(File::isDirectory);
+                    if (versionDirs != null) {
+                        for (File vd : versionDirs) {
+                            String name = vd.getName();
+                            if (name.equals("42") || name.startsWith("42.") ||
+                                name.equals("41") || name.startsWith("41.")) {
+                                copyDirectoryNoOverwrite(commonDir, vd);
+                                Log.d("SmartMod", "Expanded common/ into " + vd.getName());
+                            }
+                        }
+                    }
+                }
+
+                // Step 7: lowercase aliases inside the mod + the doubled-path link. The common/
+                // expansion above already ran on the real mod, and the link points at it, so the
+                // second expansion the lowercase copy used to need is gone with the copy.
+                com.zomdroid.patch.LowercasePathAliases.applyToMod(normalDest, modsDir);
+
+                finish(getString(R.string.install_mod_smart_done), null);
+
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            } finally {
+                try { FileUtils.deleteDirectory(tmpDir); } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    // Find the mod root inside an extracted ZIP tree.
+    // A valid mod root contains: mod.info, OR a media/ subfolder, OR a common/ subfolder.
+    private File findModRoot(File dir) {
+        if (isModRoot(dir)) return dir;
+        File[] children = dir.listFiles();
+        if (children == null) return null;
+        for (File child : children) {
+            if (FileUtils.isWalkableDirectory(child)) {
+                File found = findModRoot(child);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    private boolean isModRoot(File dir) {
+        if (!dir.isDirectory()) return false;
+        File[] files = dir.listFiles();
+        if (files == null) return false;
+        for (File f : files) {
+            String name = f.getName().toLowerCase();
+            if (f.isDirectory() && (name.equals("media") || name.equals("common"))) return true;
+            if (f.isDirectory() && (name.equals("41") || name.equals("42") ||
+                    name.startsWith("42.") || name.startsWith("41."))) return true;
+            if (!f.isDirectory() && name.equals("mod.info")) return true;
+        }
+        return false;
+    }
+
+    // INSTALL_ETO
+    // Installs Every Texture Optimized mod.
+    // Finds media/textures inside the ZIP using smart detection + build version:
+    //   B42: looks inside the latest 42.x subfolder → media/textures
+    //   B41: looks at root → media/textures
+    // Copies (overwrites) textures into the game's media/textures folder.
+    private void doInstallEto(Intent intent) {
+        String taskTitle = getString(R.string.optimization_eto_installing);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        executorService.submit(() -> {
+            Uri archiveUri = intent.getParcelableExtra(EXTRA_ARCHIVE_URI);
+            String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+            String buildVersion = intent.getStringExtra(EXTRA_BUILD_VERSION);
+            boolean isBuild42 = "42".equals(buildVersion);
+
+            GameInstance gameInstance = GameInstanceManager.requireSingleton()
+                    .getInstanceByName(gameInstanceName);
+            if (gameInstance == null) {
+                finishWithError(taskTitle, "Game instance not found: " + gameInstanceName);
+                return;
+            }
+
+            File tmpDir = new File(getCacheDir(), "eto_tmp_" + System.currentTimeMillis());
+            try {
+                tmpDir.mkdirs();
+
+                // Step 1: Extract ZIP to temp
+                try (InputStream is = getContentResolver().openInputStream(archiveUri);
+                     ZipInputStream zis = new ZipInputStream(is)) {
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        File outFile = new File(tmpDir, entry.getName());
+                        if (entry.isDirectory()) {
+                            outFile.mkdirs();
+                        } else {
+                            outFile.getParentFile().mkdirs();
+                            try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                byte[] buf = new byte[8192];
+                                int len;
+                                while ((len = zis.read(buf)) > 0) fos.write(buf, 0, len);
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+
+                // Step 2: Find the right mod root.
+                // If ZIP contains multiple mods, prefer the one with "performance" in the name.
+                // Otherwise take the single mod found.
+                File modRoot = findEtoModRoot(tmpDir);
+                if (modRoot == null) {
+                    finishWithError(taskTitle, getString(R.string.install_mod_smart_no_root));
+                    return;
+                }
+                Log.d("ETO", "Using mod root: " + modRoot.getAbsolutePath());
+
+                // Step 3: Find media/textures inside the chosen mod root.
+                // For B42: look inside the latest 42.x subfolder first.
+                // For B41: look directly at mod root.
+                File texturesSource = findEtoTexturesFolder(modRoot, isBuild42);
+
+                // Step 4: Validate BEFORE touching game files — fail fast if wrong mod/build.
+                if (texturesSource == null || !texturesSource.isDirectory()) {
+                    finishWithError(taskTitle, getString(R.string.optimization_eto_error_no_textures));
+                    return;
+                }
+                Log.d("ETO", "Textures source: " + texturesSource.getAbsolutePath());
+
+                // Step 5: Backup original textures folder if not already backed up.
+                // We copy (not rename) so the original textures remain intact.
+                // Backup happens only AFTER we confirmed textures source is valid.
+                File gameTextures = new File(gameInstance.getGamePath(), "media/textures");
+                File gameTexturesBak = new File(gameInstance.getGamePath(), "media/textures.bak");
+                if (gameTextures.isDirectory() && !gameTexturesBak.exists()) {
+                    Log.d("ETO", "Backing up original textures...");
+                    copyDirectory(gameTextures, gameTexturesBak);
+                    Log.d("ETO", "Backup done: " + gameTexturesBak.getAbsolutePath());
+                }
+
+                // Step 6: Copy ETO textures on top of existing textures folder.
+                // Original files not present in ETO remain untouched.
+                gameTextures.mkdirs();
+                copyDirectory(texturesSource, gameTextures);
+                Log.d("ETO", "Installed to: " + gameTextures.getAbsolutePath());
+
+                finish(getString(R.string.optimization_eto_installed), null);
+
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            } finally {
+                try { FileUtils.deleteDirectory(tmpDir); } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    // Find the best ETO mod root inside the extracted ZIP.
+    // Reads mod.info to get the mod id and selects by priority:
+    //
+    // B42 priority: Performance > Optimal > anything else (skip Hotfix)
+    // B41 priority: ETO_Performance_mode > ETO_Balanced_mode > ETO_Quality_mode
+    //               > ETO_FPS > anything else (skip ETO_Hotfix)
+    //
+    // If only one non-hotfix mod found — use it regardless of id.
+    private File findEtoModRoot(File tmpDir) {
+        List<File> roots = new ArrayList<>();
+        collectModRoots(tmpDir, roots);
+
+        if (roots.isEmpty()) return null;
+
+        // Filter out hotfix mods
+        List<File> candidates = new ArrayList<>();
+        for (File root : roots) {
+            String id = readModId(root);
+            if (id != null && id.toLowerCase().contains("hotfix")) {
+                Log.d("ETO", "Skipping hotfix mod: " + id);
+                continue;
+            }
+            candidates.add(root);
+        }
+
+        if (candidates.isEmpty()) return null;
+        if (candidates.size() == 1) return candidates.get(0);
+
+        // Multiple candidates — select by priority
+        String[] priority = {
+                "ETO_Performance_mode", "Performance",
+                "ETO_Balanced_mode",
+                "ETO_Quality_mode",
+                "Optimal",
+                "ETO_FPS"
+        };
+
+        for (String preferred : priority) {
+            for (File root : candidates) {
+                String id = readModId(root);
+                if (preferred.equalsIgnoreCase(id)) {
+                    Log.d("ETO", "Selected by priority id=" + id + ": " + root.getName());
+                    return root;
+                }
+            }
+        }
+
+        // No priority match — return first candidate
+        Log.d("ETO", "No priority match, using first: " + candidates.get(0).getName());
+        return candidates.get(0);
+    }
+
+    // Read the "id" field from mod.info inside a mod root folder.
+    // Returns null if mod.info not found or id field missing.
+    private String readModId(File modRoot) {
+        File modInfo = new File(modRoot, "mod.info");
+        if (!modInfo.isFile()) return null;
+        try (java.io.BufferedReader br = new java.io.BufferedReader(
+                new java.io.FileReader(modInfo))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("id=")) {
+                    return line.substring(3).trim();
+                }
+            }
+        } catch (IOException ignored) {}
+        return null;
+    }
+
+    // Collect all mod roots (containing mod.info, media/ or common/) into the list.
+    private void collectModRoots(File dir, List<File> result) {
+        if (isModRoot(dir)) {
+            result.add(dir);
+            return; // don't recurse into a mod root
+        }
+        File[] children = dir.listFiles();
+        if (children == null) return;
+        for (File child : children) {
+            if (FileUtils.isWalkableDirectory(child)) collectModRoots(child, result);
+        }
+    }
+
+    // Find the media/textures folder inside the chosen ETO mod root.
+    // For B42: navigate into the latest 42.x subfolder first.
+    // For B41: look directly at mod root level.
+    private File findEtoTexturesFolder(File modRoot, boolean isBuild42) {
+        if (isBuild42) {
+            File latestVersionFolder = findLatestB42FolderIn(modRoot);
+            if (latestVersionFolder != null) {
+                File textures = new File(latestVersionFolder, "media/textures");
+                if (textures.isDirectory()) return textures;
+            }
+        }
+        // B41 or fallback: media/textures directly at mod root
+        File textures = new File(modRoot, "media/textures");
+        if (textures.isDirectory()) return textures;
+        // Last resort: search anywhere under mod root
+        return findTexturesFolderRecursive(modRoot);
+    }
+
+    // Find the subfolder with the highest 42.x version number directly under dir.
+    private File findLatestB42FolderIn(File dir) {
+        File best = null;
+        double bestVersion = -1;
+        File[] files = dir.listFiles();
+        if (files == null) return null;
+        for (File f : files) {
+            if (!f.isDirectory()) continue;
+            String name = f.getName();
+            if (name.equals("42") || (name.startsWith("42.") && name.length() > 3)) {
+                try {
+                    double v = Double.parseDouble(name);
+                    if (v > bestVersion) {
+                        bestVersion = v;
+                        best = f;
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return best;
+    }
+
+    private File findTexturesFolderRecursive(File dir) {
+        File[] files = dir.listFiles();
+        if (files == null) return null;
+        for (File f : files) {
+            if (FileUtils.isWalkableDirectory(f)) {
+                if (f.getName().equals("textures")) return f;
+                File found = findTexturesFolderRecursive(f);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    // -------------------- INSTALL ZOMBIEBUDDY --------------------
+    // Extracts ZombieBuddy.jar from ZIP and copies it to the JARS dependencies folder.
+    // Enables the zombiebuddy_enabled flag in SharedPreferences automatically.
+    private void doInstallZombieBuddy(Intent intent) {
+        String taskTitle = getString(R.string.optimization_zombiebuddy_installing);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) { finishWithError(taskTitle, "Game instance not found: " + gameInstanceName); return; }
+
+        executorService.submit(() -> {
+            Uri archiveUri = intent.getParcelableExtra(EXTRA_ARCHIVE_URI);
+            if (archiveUri == null) { finishWithError(taskTitle, "Archive URI is missing"); return; }
+
+            File tmpDir = new File(getCacheDir(), "zb_tmp_" + System.currentTimeMillis());
+            try {
+                tmpDir.mkdirs();
+
+                // Extract ZIP
+                try (InputStream is = getContentResolver().openInputStream(archiveUri);
+                     ZipInputStream zis = new ZipInputStream(is)) {
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        File outFile = new File(tmpDir, entry.getName());
+                        if (entry.isDirectory()) { outFile.mkdirs(); }
+                        else {
+                            outFile.getParentFile().mkdirs();
+                            try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                byte[] buf = new byte[8192]; int len;
+                                while ((len = zis.read(buf)) > 0) fos.write(buf, 0, len);
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+
+                // Find ZombieBuddy.jar recursively
+                File jarFile = findFileRecursive(tmpDir, "ZombieBuddy.jar");
+                if (jarFile == null) {
+                    finishWithError(taskTitle, "ZombieBuddy.jar not found in archive");
+                    return;
+                }
+
+                // Copy jar to game/ folder of the instance
+                File destFile = new File(gameInstance.getGamePath(), C.deps.ZOMBIE_BUDDY_JAR);
+                copyFile(jarFile, destFile);
+                Log.d("ZombieBuddy", "Jar installed to: " + destFile.getAbsolutePath());
+
+                // Install mod folder to instance mods folder
+                File modRoot = findModRoot(tmpDir);
+                if (modRoot != null) {
+                    String modName = modRoot.getName();
+                    if (modName.equals(tmpDir.getName())) modName = "ZombieBuddy";
+                    String modsPath = gameInstance.getHomePath() + "/Zomboid/mods";
+                    new File(modsPath).mkdirs();
+                    File modDest = new File(modsPath, modName);
+                    if (modDest.exists()) FileUtils.deleteDirectory(modDest);
+                    copyDirectory(modRoot, modDest);
+                    Log.d("ZombieBuddy", "Mod installed to: " + modDest.getAbsolutePath());
+                }
+
+                // Enable flag for this instance
+                getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE)
+                        .edit().putBoolean("zombiebuddy_enabled_" + gameInstanceName, true).apply();
+
+                finish(getString(R.string.optimization_zombiebuddy_installed), null);
+
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            } finally {
+                try { FileUtils.deleteDirectory(tmpDir); } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    // -------------------- INSTALL ZBBETTERFPS --------------------
+    // Extracts ZBBetterFPS.jar, copies to JARS folder, comments out javaJarFile in mod.info,
+    // and installs the mod to the game instance mods folder.
+    // Enables the zbbetterfps_enabled flag in SharedPreferences automatically.
+    private void doInstallZbBetterFps(Intent intent) {
+        String taskTitle = getString(R.string.optimization_zbbetterfps_installing);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) { finishWithError(taskTitle, "Game instance not found: " + gameInstanceName); return; }
+
+        executorService.submit(() -> {
+            Uri archiveUri = intent.getParcelableExtra(EXTRA_ARCHIVE_URI);
+            if (archiveUri == null) { finishWithError(taskTitle, "Archive URI is missing"); return; }
+
+            File tmpDir = new File(getCacheDir(), "zbbfps_tmp_" + System.currentTimeMillis());
+            try {
+                tmpDir.mkdirs();
+
+                // Extract ZIP
+                try (InputStream is = getContentResolver().openInputStream(archiveUri);
+                     ZipInputStream zis = new ZipInputStream(is)) {
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        File outFile = new File(tmpDir, entry.getName());
+                        if (entry.isDirectory()) { outFile.mkdirs(); }
+                        else {
+                            outFile.getParentFile().mkdirs();
+                            try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                byte[] buf = new byte[8192]; int len;
+                                while ((len = zis.read(buf)) > 0) fos.write(buf, 0, len);
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+
+                // Find mod root
+                File modRoot = findModRoot(tmpDir);
+                if (modRoot == null) {
+                    finishWithError(taskTitle, getString(R.string.install_mod_smart_no_root));
+                    return;
+                }
+
+                // Install mod to instance mods folder as-is
+                String modName = modRoot.getName();
+                if (modName.equals(tmpDir.getName())) {
+                    modName = extractZipName(archiveUri);
+                    if (modName != null && modName.endsWith(".zip"))
+                        modName = modName.substring(0, modName.length() - 4);
+                }
+                String modsPath = gameInstance.getHomePath() + "/Zomboid/mods";
+                new File(modsPath).mkdirs();
+                File modDest = new File(modsPath, modName);
+                if (modDest.exists()) FileUtils.deleteDirectory(modDest);
+                copyDirectory(modRoot, modDest);
+                Log.d("ZBBetterFPS", "Mod installed to: " + modDest.getAbsolutePath());
+
+                // Replace ZBBetterFPS.jar with our Java 21 compatible version.
+                // For B41: replace only in 41/ subfolder.
+                // For B42: replace in all 42.x/ subfolders (ZombieBuddy picks the right one).
+                boolean isBuild42 = "42".equals(intent.getStringExtra(EXTRA_BUILD_VERSION));
+                replaceZbBetterFpsJars(modDest, isBuild42);
+
+                // Enable flag for this instance
+                getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE)
+                        .edit().putBoolean("zbbetterfps_enabled_" + gameInstanceName, true).apply();
+
+                finish(getString(R.string.optimization_zbbetterfps_installed), null);
+
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            } finally {
+                try { FileUtils.deleteDirectory(tmpDir); } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    // Find a file by name recursively inside a directory
+    private File findFileRecursive(File dir, String fileName) {
+        File[] files = dir.listFiles();
+        if (files == null) return null;
+        for (File f : files) {
+            if (f.isFile() && f.getName().equals(fileName)) return f;
+            if (FileUtils.isWalkableDirectory(f)) {
+                File found = findFileRecursive(f, fileName);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    // Recursively find and comment out javaJarFile= in all mod.info files
+    private void commentOutJavaJarFileRecursive(File dir) throws IOException {
+        File[] files = dir.listFiles();
+        if (files == null) return;
+        for (File f : files) {
+            if (FileUtils.isWalkableDirectory(f)) {
+                commentOutJavaJarFileRecursive(f);
+            } else if (f.getName().equals("mod.info")) {
+                commentOutJavaJarFile(f);
+            }
+        }
+    }
+
+    // Comment out javaJarFile= line in mod.info so ZombieBuddy skips addURL
+    private void commentOutJavaJarFile(File modInfo) throws IOException {
+        java.util.List<String> lines = new java.util.ArrayList<>();
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(modInfo))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().startsWith("javaJarFile=")) {
+                    lines.add("// " + line);
+                } else {
+                    lines.add(line);
+                }
+            }
+        }
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(modInfo, false))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+        }
+    }
+
+    // Replace ZBBetterFPS.jar in the installed mod with our Java 21 compatible version.
+    // For B41: only replaces in 41/ subfolder.
+    // For B42: replaces in all 42.x/ subfolders.
+    private void replaceZbBetterFpsJars(File modDir, boolean isBuild42) throws IOException {
+        // Only replace jars in 42.x folders — the 41/ folder has its own compatible jar.
+        if (!isBuild42) return;
+        File[] children = modDir.listFiles();
+        if (children == null) return;
+        for (File child : children) {
+            if (!child.isDirectory()) continue;
+            String name = child.getName();
+            boolean isB42Folder = name.equals("42") || name.startsWith("42.");
+            if (isB42Folder) {
+                File jar = findFileRecursive(child, "ZBBetterFPS.jar");
+                if (jar != null) {
+                    File backup = new File(jar.getParent(), "ZBBetterFPS.jar.ver25");
+                    jar.renameTo(backup);
+                    Log.d("ZBBetterFPS", "Backed up: " + backup.getAbsolutePath());
+                    try (InputStream assetIs = getAssets().open("patches/ZBBetterFPS.jar.ver21");
+                         FileOutputStream fos = new FileOutputStream(jar)) {
+                        byte[] buf = new byte[8192]; int len;
+                        while ((len = assetIs.read(buf)) > 0) fos.write(buf, 0, len);
+                    }
+                    Log.d("ZBBetterFPS", "Replaced with Java 21 jar: " + jar.getAbsolutePath());
+                }
+            }
+        }
+    }
+
+    // -------------------- IMPORT / EXPORT GAME FILES --------------------
+    // The "Import/Export Game Settings" screen carries three kinds of the game's own files, each in
+    // a .zip: options.ini (Zomboid/), the sandbox presets (Zomboid/Sandbox Presets/*.cfg, any name)
+    // and the character creation files in Zomboid/Lua: saved builds (saved_builds.txt, one
+    // "Name:profession;trait;...;" per line on 42.20) and saved outfits (saved_outfits.txt). A bare
+    // options.ini or .cfg is still accepted: options used to be exported as a plain .ini.
+    private static final String SANDBOX_PRESETS_DIR = "Sandbox Presets";
+    // 42.20 writes saved_builds.txt; the .ini is carried too in case another build names it that way.
+    private static final String[] CHARACTER_FILE_NAMES = {"saved_builds.txt", "saved_builds.ini", "saved_outfits.txt"};
+    private static final int GAME_FILE_MAX_BYTES = 16 * 1024 * 1024;
+    private static final int GAME_FILES_MAX_ENTRIES = 4096;
+
+    private void doImportGameSettings(Intent intent) {
+        String taskTitle = getString(R.string.game_settings_importing);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) { finishWithError(taskTitle, "Game instance not found: " + gameInstanceName); return; }
+
+        Uri fileUri = intent.getParcelableExtra(EXTRA_ARCHIVE_URI);
+        if (fileUri == null) { finishWithError(taskTitle, "File URI is missing"); return; }
+        int kind = intent.getIntExtra(EXTRA_GAME_FILES_KIND, GAME_FILES_OPTIONS);
+
+        executorService.submit(() -> {
+            try {
+                File zomboidDir = new File(gameInstance.getHomePath(), "Zomboid");
+                java.util.Map<String, byte[]> files = readGameFilesDocument(fileUri);
+                int imported = kind == GAME_FILES_SANDBOX ? importSandboxPresets(zomboidDir, files)
+                        : kind == GAME_FILES_BUILDS ? importCharacterBuilds(zomboidDir, files)
+                        : importOptionsIni(zomboidDir, files);
+                if (imported == 0) {
+                    String what = kind == GAME_FILES_SANDBOX ? ".cfg"
+                            : kind == GAME_FILES_BUILDS ? "saved_builds.txt / saved_outfits.txt" : "options.ini";
+                    finishWithError(taskTitle, getString(R.string.game_settings_zip_empty, what));
+                    return;
+                }
+                Log.i(LOG_TAG, "Imported " + imported + " game file item(s) of kind " + kind + " into " + zomboidDir);
+                finish(getString(R.string.game_settings_imported), null);
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            }
+        });
+    }
+
+    private void doExportGameSettings(Intent intent) {
+        String taskTitle = getString(R.string.game_settings_exporting);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        Uri outUri = intent.getParcelableExtra(EXTRA_OUTPUT_URI);
+        if (gameInstanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+        if (outUri == null) { finishWithError(taskTitle, "Output URI is missing"); return; }
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) { finishWithError(taskTitle, "Game instance not found: " + gameInstanceName); return; }
+        int kind = intent.getIntExtra(EXTRA_GAME_FILES_KIND, GAME_FILES_OPTIONS);
+
+        executorService.submit(() -> {
+            try {
+                File zomboidDir = new File(gameInstance.getHomePath(), "Zomboid");
+                java.util.List<File> files = new ArrayList<>();
+                if (kind == GAME_FILES_SANDBOX) {
+                    File[] presets = new File(zomboidDir, SANDBOX_PRESETS_DIR).listFiles();
+                    if (presets != null) for (File f : presets)
+                        if (f.isFile() && f.getName().toLowerCase(java.util.Locale.ROOT).endsWith(".cfg")) files.add(f);
+                } else if (kind == GAME_FILES_BUILDS) {
+                    for (String name : CHARACTER_FILE_NAMES) {
+                        File f = new File(zomboidDir, "Lua/" + name);
+                        if (f.isFile() && f.length() > 0) files.add(f);
+                    }
+                } else {
+                    File f = new File(zomboidDir, "options.ini");
+                    if (f.isFile()) files.add(f);
+                }
+                if (files.isEmpty()) {
+                    finishWithError(taskTitle, getString(kind == GAME_FILES_SANDBOX ? R.string.game_settings_sandbox_not_found
+                            : kind == GAME_FILES_BUILDS ? R.string.game_settings_builds_not_found
+                            : R.string.game_settings_not_found));
+                    return;
+                }
+                try (OutputStream os = getContentResolver().openOutputStream(outUri)) {
+                    if (os == null) throw new IllegalStateException("openOutputStream returned null");
+                    try (ZipOutputStream zos = new ZipOutputStream(os)) {
+                        for (File f : files) addFileToZip(zos, f, f.getName());
+                    }
+                }
+                Log.i(LOG_TAG, "Exported " + files.size() + " game file(s) of kind " + kind);
+                finish(getString(R.string.game_settings_exported), null);
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            }
+        });
+    }
+
+    /** Every file the picked document carries, by base name: the entries of a .zip, or the file itself. */
+    private java.util.Map<String, byte[]> readGameFilesDocument(Uri uri) throws IOException {
+        java.util.Map<String, byte[]> files = new java.util.LinkedHashMap<>();
+        try (InputStream raw = getContentResolver().openInputStream(uri)) {
+            if (raw == null) throw new IOException("openInputStream returned null");
+            java.io.BufferedInputStream in = new java.io.BufferedInputStream(raw);
+            in.mark(8);
+            byte[] magic = new byte[4];
+            int got = 0;
+            while (got < 4) {
+                int r = in.read(magic, got, 4 - got);
+                if (r < 0) break;
+                got += r;
+            }
+            in.reset();
+            if (got == 4 && magic[0] == 'P' && magic[1] == 'K' && magic[2] == 3 && magic[3] == 4) {
+                java.util.zip.ZipInputStream zip = new java.util.zip.ZipInputStream(in);
+                java.util.zip.ZipEntry entry;
+                while ((entry = zip.getNextEntry()) != null && files.size() < GAME_FILES_MAX_ENTRIES) {
+                    if (entry.isDirectory() || entry.getName().startsWith("__MACOSX/")) continue;
+                    // Only base names are ever used, so nothing in the archive can point outside
+                    // the folders we write into.
+                    String name = gameFileBaseName(entry.getName());
+                    if (name.isEmpty() || files.containsKey(name)) continue;
+                    files.put(name, readGameFileLimited(zip));
+                }
+            } else {
+                String name = queryGameFileDisplayName(uri);
+                if (name != null) files.put(gameFileBaseName(name), readGameFileLimited(in));
+            }
+        }
+        return files;
+    }
+
+    private String queryGameFileDisplayName(Uri uri) {
+        if ("file".equals(uri.getScheme()) && uri.getPath() != null) return new File(uri.getPath()).getName();
+        try (android.database.Cursor c = getContentResolver().query(uri,
+                new String[]{android.provider.OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+            if (c != null && c.moveToFirst()) {
+                int idx = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                if (idx >= 0) return c.getString(idx);
+            }
+        } catch (Exception ignored) { }
+        return null;
+    }
+
+    private static String gameFileBaseName(String path) {
+        return path.substring(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1);
+    }
+
+    private static byte[] readGameFileLimited(InputStream in) throws IOException {
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        byte[] buf = new byte[64 * 1024];
+        int r;
+        while ((r = in.read(buf)) != -1) {
+            if (out.size() + r > GAME_FILE_MAX_BYTES) throw new IOException("File too large for a game settings file");
+            out.write(buf, 0, r);
+        }
+        return out.toByteArray();
+    }
+
+    private static void writeGameFile(File target, byte[] data) throws IOException {
+        File parent = target.getParentFile();
+        if (parent != null && !parent.isDirectory() && !parent.mkdirs()) throw new IOException("Cannot create " + parent);
+        java.nio.file.Files.write(target.toPath(), data);
+    }
+
+    private static int importOptionsIni(File zomboidDir, java.util.Map<String, byte[]> files) throws IOException {
+        byte[] ini = null;
+        for (java.util.Map.Entry<String, byte[]> e : files.entrySet())
+            if (e.getKey().equalsIgnoreCase("options.ini")) { ini = e.getValue(); break; }
+        // A bare file from the old export, named options_<date>.ini.
+        if (ini == null && files.size() == 1) {
+            java.util.Map.Entry<String, byte[]> only = files.entrySet().iterator().next();
+            String lower = only.getKey().toLowerCase(java.util.Locale.ROOT);
+            if (lower.startsWith("options") && lower.endsWith(".ini")) ini = only.getValue();
+        }
+        if (ini == null) return 0;
+        writeGameFile(new File(zomboidDir, "options.ini"), ini);
+        return 1;
+    }
+
+    private static int importSandboxPresets(File zomboidDir, java.util.Map<String, byte[]> files) throws IOException {
+        File dir = new File(zomboidDir, SANDBOX_PRESETS_DIR);
+        int count = 0;
+        for (java.util.Map.Entry<String, byte[]> e : files.entrySet()) {
+            if (!e.getKey().toLowerCase(java.util.Locale.ROOT).endsWith(".cfg")) continue;
+            // A preset of the same name is replaced; the others stay.
+            writeGameFile(new File(dir, e.getKey()), e.getValue());
+            count++;
+        }
+        return count;
+    }
+
+    private static int importCharacterBuilds(File zomboidDir, java.util.Map<String, byte[]> files) throws IOException {
+        int count = 0;
+        for (String name : CHARACTER_FILE_NAMES) {
+            byte[] incoming = null;
+            for (java.util.Map.Entry<String, byte[]> e : files.entrySet())
+                if (e.getKey().equalsIgnoreCase(name)) { incoming = e.getValue(); break; }
+            if (incoming == null) continue;
+            File target = new File(zomboidDir, "Lua/" + name);
+            java.util.LinkedHashMap<String, String> added =
+                    parseCharacterBuilds(new String(incoming, java.nio.charset.StandardCharsets.UTF_8));
+            if (added != null && target.isFile()) {
+                java.util.LinkedHashMap<String, String> merged = parseCharacterBuilds(new String(
+                        java.nio.file.Files.readAllBytes(target.toPath()), java.nio.charset.StandardCharsets.UTF_8));
+                if (merged != null) {
+                    // What is already on the phone stays; an entry of the same name is replaced.
+                    merged.putAll(added);
+                    StringBuilder out = new StringBuilder();
+                    for (java.util.Map.Entry<String, String> b : merged.entrySet())
+                        out.append(b.getKey()).append(':').append(b.getValue()).append('\n');
+                    writeGameFile(target, out.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    count += added.size();
+                    continue;
+                }
+            }
+            // No file yet, or a shape we do not know: take the archive's file, keeping the old one.
+            if (target.isFile()) java.nio.file.Files.copy(target.toPath(), new File(target.getPath() + ".bak").toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            writeGameFile(target, incoming);
+            count += added != null ? added.size() : 1;
+        }
+        return count;
+    }
+
+    /** "Name:..." per line, as 42.20 writes saved_builds.txt ("Name:profession;trait;...;"); outfits are
+     *  assumed to share the shape. null for anything else, which is then replaced with a .bak kept. */
+    private static java.util.LinkedHashMap<String, String> parseCharacterBuilds(String text) {
+        java.util.LinkedHashMap<String, String> builds = new java.util.LinkedHashMap<>();
+        for (String line : text.split("\r?\n")) {
+            if (line.trim().isEmpty()) continue;
+            int colon = line.indexOf(':');
+            if (colon <= 0) return null;
+            builds.put(line.substring(0, colon), line.substring(colon + 1));
+        }
+        return builds;
+    }
+
+    // -------------------- INSTALL NATIVE LIBS --------------------
+    // Extracts .so files from ZIP into game/android/arm64-v8a folder.
+    // Used to add multiplayer libraries (libRakNet64.so, libZNetNoSteam64.so) to B41 instances.
+    private void doInstallNativeLibs(Intent intent) {
+        String taskTitle = getString(R.string.native_libs_installing);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) { finishWithError(taskTitle, "Game instance not found: " + gameInstanceName); return; }
+
+        Uri archiveUri = intent.getParcelableExtra(EXTRA_NATIVE_LIBS_URI);
+        if (archiveUri == null) { finishWithError(taskTitle, "Archive URI is missing"); return; }
+
+        executorService.submit(() -> {
+            try {
+                String nativeLibsPath = gameInstance.getGamePath() + "/android/arm64-v8a";
+                File nativeLibsDir = new File(nativeLibsPath);
+                nativeLibsDir.mkdirs();
+
+                try (InputStream is = getContentResolver().openInputStream(archiveUri)) {
+                    if (is == null) throw new IllegalStateException("openInputStream returned null");
+                    announceExtraction();
+                    FileUtils.extractZipToDisk(is, nativeLibsPath, this,
+                            FileUtils.queryFileSize(getContentResolver(), archiveUri));
+                }
+                Log.i(LOG_TAG, "Native libs installed to: " + nativeLibsPath);
+                finish(getString(R.string.native_libs_installed), null);
+            } catch (Exception e) {
+                finishWithError(taskTitle, e.toString());
+            }
+        });
+    }
+
+    // -------------------- INSTALL MACOS LIBS (from a ZIP) --------------------
+    /**
+     * The "Load from file" twin of the Steam download: takes a ZIP the player got elsewhere, picks
+     * the dylibs out of it wherever they sit in the archive, checks they are Mach-O files, writes
+     * the same manifest.json the downloader writes, and publishes the set into game/macos through
+     * MacosLibraries.publish(), so a half-done import can never replace a working set. Any subset
+     * of the three is accepted, and every library the archive installed is switched on.
+     */
+    private void doInstallMacosLibs(Intent intent) {
+        String taskTitle = getString(R.string.macos_libs_installing);
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
+        taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+        String gameInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null) { finishWithError(taskTitle, "Game instance name is missing"); return; }
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null) { finishWithError(taskTitle, "Game instance not found: " + gameInstanceName); return; }
+        Uri archiveUri = intent.getParcelableExtra(EXTRA_NATIVE_LIBS_URI);
+        if (archiveUri == null) { finishWithError(taskTitle, "Archive URI is missing"); return; }
+        executorService.submit(() -> {
+            File game = new File(gameInstance.getGamePath());
+            File stage = new File(game, ".macos-download-import");
+            try {
+                if (stage.exists()) FileUtils.deleteDirectory(stage);
+                if (!stage.mkdirs()) throw new IOException("Cannot create " + stage);
+                try (InputStream is = getContentResolver().openInputStream(archiveUri)) {
+                    if (is == null) throw new IllegalStateException("openInputStream returned null");
+                    announceExtraction();
+                    FileUtils.extractZipToDisk(is, stage.getPath(), this,
+                            FileUtils.queryFileSize(getContentResolver(), archiveUri));
+                }
+                // The wanted files come up to the stage root, whatever folders the archive had.
+                // Every one that is a Mach-O file is installed; a library the archive lacks, or
+                // carries broken, keeps the copy that is already installed, if there is one.
+                java.util.Map<String, File> found = new java.util.HashMap<>();
+                collectMacosLibraries(stage, found);
+                org.json.JSONObject previous = com.zomdroid.steam.MacosLibraries.installedEntries(game);
+                org.json.JSONObject entries = new org.json.JSONObject();
+                java.util.List<String> imported = new java.util.ArrayList<>();
+                java.util.List<String> rejected = new java.util.ArrayList<>();
+                java.util.List<String> kept = new java.util.ArrayList<>();
+                for (String name : com.zomdroid.steam.MacosLibraries.NAMES) {
+                    File target = new File(stage, name);
+                    File source = found.get(name);
+                    if (source != null) {
+                        if (!source.getCanonicalFile().equals(target.getCanonicalFile()))
+                            java.nio.file.Files.move(source.toPath(), target.toPath(),
+                                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                        if (isMachO(target)) {
+                            org.json.JSONObject entry = new org.json.JSONObject();
+                            entry.put("size", target.length());
+                            entry.put("sha256", com.zomdroid.steam.MacosLibraries.hash(target, "SHA-256"));
+                            entries.put(name, entry);
+                            imported.add(name);
+                            continue;
+                        }
+                        rejected.add(name);
+                        java.nio.file.Files.delete(target.toPath());
+                    }
+                    org.json.JSONObject old = previous.optJSONObject(name);
+                    if (old != null) {
+                        java.nio.file.Files.copy(new File(new File(game, "macos"), name).toPath(), target.toPath());
+                        entries.put(name, old);
+                        kept.add(name);
+                    }
+                }
+                if (imported.isEmpty())
+                    throw new IOException(rejected.isEmpty()
+                            ? getString(R.string.macos_libs_missing_files,
+                                        String.join(", ", com.zomdroid.steam.MacosLibraries.NAMES))
+                            : getString(R.string.macos_libs_bad_file, String.join(", ", rejected)));
+                // Everything else the archive carried is not ours to keep.
+                File[] leftovers = stage.listFiles();
+                if (leftovers != null) for (File f : leftovers) {
+                    if (com.zomdroid.steam.MacosLibraries.NAMES.contains(f.getName())) continue;
+                    if (f.isDirectory()) FileUtils.deleteDirectory(f);
+                    else java.nio.file.Files.delete(f.toPath());
+                }
+                org.json.JSONObject metadata = new org.json.JSONObject();
+                metadata.put("appBuildId", 0);
+                metadata.put("pack", "macos");
+                metadata.put("source", "zip");
+                metadata.put("files", entries);
+                java.nio.file.Files.write(new File(stage, "manifest.json").toPath(),
+                        metadata.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                com.zomdroid.steam.MacosLibraries.publish(game, stage);
+                gameInstance.settings().enableMacosModules(imported);
+                Log.i(LOG_TAG, "macOS libraries installed from a ZIP into " + new File(game, "macos")
+                        + ": imported " + imported + ", kept " + kept + ", rejected " + rejected);
+                finish(getString(R.string.macos_libs_installed), null);
+            } catch (Exception e) {
+                try { if (stage.exists()) FileUtils.deleteDirectory(stage); } catch (Exception ignored) { }
+                finishWithError(taskTitle, e.getMessage() != null ? e.getMessage() : e.toString());
+            }
+        });
+    }
+
+    private static void collectMacosLibraries(File dir, java.util.Map<String, File> found) {
+        File[] children = dir.listFiles();
+        if (children == null) return;
+        for (File f : children) {
+            if (java.nio.file.Files.isSymbolicLink(f.toPath())) continue;
+            if (f.isDirectory()) collectMacosLibraries(f, found);
+            else if (com.zomdroid.steam.MacosLibraries.NAMES.contains(f.getName()) && !found.containsKey(f.getName()))
+                found.put(f.getName(), f);
+        }
+    }
+
+    /** A fat binary (CAFEBABE, big-endian) or a plain 64-bit Mach-O (FEEDFACF, little-endian). */
+    private static boolean isMachO(File f) {
+        try (InputStream in = java.nio.file.Files.newInputStream(f.toPath())) {
+            byte[] m = new byte[4];
+            if (in.read(m) != 4) return false;
+            int be = ((m[0] & 255) << 24) | ((m[1] & 255) << 16) | ((m[2] & 255) << 8) | (m[3] & 255);
+            return be == 0xCAFEBABE || be == 0xCFFAEDFE;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private Notification buildNotification(String title) {
+        Intent notificationIntent = new Intent(this, LauncherActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                notificationIntent,
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+        );
+        notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(title)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                .setOngoing(true)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setAutoCancel(false);
+        return notificationBuilder.build();
+    }
+
+    @Override
+    public void onProgressUpdate(String message, int progress, int progressMax) {
+        // The throttle drops the whole event, not just a redraw, so a call carrying a new message
+        // that lands inside the window would lose that message for good - the next call is a bare
+        // percentage tick and could never bring it back. Only rate-limit the ticks.
+        if (message == null && System.currentTimeMillis() - lastProgressUpdateMs < 500) return;
+        lastProgressUpdateMs = System.currentTimeMillis();
+
+        TaskState currentState = this.taskState.getValue();
+        this.taskState.postValue(new TaskState(
+                currentState == null ? null : currentState.title,
+                // Carried forward exactly like the title above. Extraction reports progress through
+                // FileUtils, which has no text to give and passes null; treating that as "clear the
+                // line" is what wiped the "Extracting..." set moments earlier and left the dialog
+                // with a bare bar. The notification never had the bug - it only calls
+                // setContentText when the message is non-null - so the two disagreed on the same
+                // event.
+                message != null ? message : (currentState == null ? null : currentState.message),
+                progress, progressMax, false, false));
+
+        handler.post(() -> {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            if (message != null) {
+                notificationBuilder.setContentText(message);
+            }
+            if (progress < 0)
+                notificationBuilder.setProgress(0, 0, true);
+            else
+                notificationBuilder.setProgress(progressMax, progress, false);
+            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+        });
+    }
+
+    public LiveData<TaskState> getTaskState() {
+        return taskState;
+    }
+
+    public Task getCurrentTask() {
+        return currentTask;
+    }
+
+    public String getCurrentInstallPresetName() {
+        return currentInstallPresetName;
+    }
+
+    public String getCurrentInstanceName() {
+        return currentInstanceName;
+    }
+
+    public String getCurrentGpuVendor() {
+        return currentGpuVendor;
+    }
+
+    public class LocalBinder extends Binder {
+        public InstallerService getService() {
+            return InstallerService.this;
+        }
+    }
+
+    // -------------------- ENUMS / DATA CLASSES --------------------
+
+    public enum Task {
+        CREATE_GAME_INSTANCE,
+        DELETE_GAME_INSTANCE,
+        INSTALL_DEPENDENCIES,
+        INSTALL_MOD_TO_INSTANCE,
+        INSTALL_CONTROLS_TO_INSTANCE,
+        INSTALL_SAVES_TO_INSTANCE,
+        EXPORT_SAVES_FROM_INSTANCE,
+        EXPORT_CONTROLS_FROM_INSTANCE,
+        IMPORT_CUSTOM_DRIVER,
+        EXPORT_CUSTOM_DRIVER,
+        EXPORT_LOG,
+        INSTALL_BETTERFPS,
+        INSTALL_MOD_WITH_FIX,
+        INSTALL_MOD_SMART,
+        INSTALL_ETO,
+        INSTALL_ZOMBIEBUDDY,
+        INSTALL_ZBBETTERFPS,
+        IMPORT_GAME_SETTINGS,
+        EXPORT_GAME_SETTINGS,
+        INSTALL_NATIVE_LIBS,
+        INSTALL_MACOS_LIBS,
+        INSTALL_RENDER_LESS_ZOMBIE
+    }
+
+    public static class TaskState {
+        public final String title;
+        public final String message;
+        public final int progress;
+        public final int progressMax;
+        public final boolean isFinished;
+        public final boolean isFinishedWithError;
+
+        public TaskState(String title, String message, int progress, int progressMax,
+                         boolean isFinished, boolean isFinishedWithError) {
+            this.title = title;
+            this.message = message;
+            this.progress = progress;
+            this.progressMax = progressMax;
+            this.isFinished = isFinished;
+            this.isFinishedWithError = isFinishedWithError;
+        }
+    }
+}

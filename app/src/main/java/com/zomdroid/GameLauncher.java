@@ -1,0 +1,460 @@
+package com.zomdroid;
+
+import android.system.ErrnoException;
+import android.system.Os;
+import android.view.Surface;
+import android.util.Log;
+
+import com.zomdroid.input.InputNativeInterface;
+import com.zomdroid.input.InputControlsView;
+import com.zomdroid.game.GameInstance;
+import com.zomdroid.BuildConfig;
+
+import java.io.File;
+import java.util.ArrayList;
+
+public class GameLauncher {
+    public static void launch(GameInstance gameInstance) throws ErrnoException {
+        launch(gameInstance, false);
+    }
+
+    public static void launch(GameInstance gameInstance, boolean serverProbeClient) throws ErrnoException {
+        launch(gameInstance, serverProbeClient, null);
+    }
+    public static void launch(GameInstance gameInstance, boolean serverProbeClient, String coopBridgePath) throws ErrnoException {
+        serverProbeClient = BuildConfig.DEBUG && serverProbeClient;
+        boolean coopHostTest = coopBridgePath != null;
+        // Everything the launch path used to read from the global preferences now belongs to this
+        // instance. Read once: InstanceSettings is a view over shared prefs, not a snapshot.
+        final com.zomdroid.game.InstanceSettings settings = gameInstance.settings();
+        if ("Build 41".equals(gameInstance.getPresetName())) {
+            try { com.zomdroid.steam.MultiplayerLibraries.recover(new File(gameInstance.getGamePath())); }
+            catch (java.io.IOException e) { Log.w("GameLauncher", "Could not recover MP library backup", e); }
+        }
+
+        // B42: make sure ShaderUnit.class carries the combineShaderSources patch (needed by
+        // NG_GL4ES). Normally done at instance creation; doing it here too picks up instances
+        // created by older launcher versions whose md5-table didn't know their game version.
+        // Self-quenching: once the .bak exists this is a single stat call.
+        com.zomdroid.patch.ShaderUnitPatchApplier.applyIfNeeded(gameInstance);
+        // Also covers Build 42.20+ instances installed with an older launcher.
+        com.zomdroid.patch.FmodLoadPatchApplier.applyIfNeeded(gameInstance);
+        // Bink is only provided for x86_64 and cannot be loaded by the ARM64 HotSpot VM. Avoid a
+        // full NoClassDefFoundError stack trace from UI panels on every rendered frame.
+        com.zomdroid.patch.BinkVideoPatchApplier.applyIfNeeded(gameInstance);
+        // Heal instances a previous launcher version stubbed: put the original LightingJNI.class
+        // back so the emulated Linux Lighting (which really exports squareSetLightTransmission)
+        // gets the native call instead of a leftover Java no-op. Running at launch covers already
+        // installed instances without reinstalling the game.
+        com.zomdroid.patch.LightingTransmissionPatchApplier.restoreOriginalIfStubbed(gameInstance);
+        // Restore the two ZNetStatistics field names the stale Android RakNet still looks up
+        // (renamed in 42.15, native never rebuilt -> NoSuchFieldError on statistics-enabled
+        // servers). Runs at every launch, so instances created by any launcher version are covered.
+        com.zomdroid.patch.ZNetStatisticsPatchApplier.applyIfNeeded(gameInstance);
+        // Build 42: empty MainScreenState.printSpecs(), whose oshi hardware walk dies on Android
+        // before the player can reach anything, and make renderVideo() return false so the game
+        // draws its own static background instead of loading a Bink library that does not exist
+        // for ARM64. Same deal as above — every launch, so older instances are covered too.
+        com.zomdroid.patch.MainScreenStatePatchApplier.applyIfNeeded(gameInstance);
+        // Select safe native implementations after the class-level patches are known to be ready.
+        com.zomdroid.patch.NativeLibraryWorkarounds.disableIncompleteNativeLibraries(gameInstance);
+        // Build 42.12+'s ARM64 PathFind implementation is under test after reports of characters
+        // choosing incorrect interaction routes. Use PZ's own Java fallback without affecting
+        // Build 41 or the older pre-fat-jar Build 42 releases.
+        com.zomdroid.patch.PathfindingWorkaround.forceJavaPathfinderFor4212Plus(gameInstance,
+                new File(gameInstance.getHomePath(), coopHostTest ? "coop-probe" : serverProbeClient ? "client-probe" : "Zomboid"));
+        // Re-apply the 42.13 case workaround against where this instance lives right now. The mod
+        // aliases and the doubled path spell out an absolute location, so they go stale when an
+        // instance is renamed or copied; this also reaches mods installed before any of it existed,
+        // and sweeps the instance-level aliases b39a80a briefly shipped.
+        // Hosting sees the same mods as normal play; linked first so the repair below also builds
+        // the routes the game will look up through coop-probe/mods.
+        if (coopHostTest) {
+            try {
+                HostingProfileMods.link(gameInstance);
+            } catch (java.io.IOException e) {
+                Log.w("Zomdroid", "Hosting profile keeps its own mods folder", e);
+            }
+        }
+        com.zomdroid.patch.LowercasePathAliases.repair(gameInstance);
+        // Retire our bundled jassimp (built from Assimp 5.4.3) by taking it off java.library.path.
+        // Each game version ships the importer its models were authored against - B41's x86_64 is
+        // assimp 5.0.1, 42.12+ adds TIS's own ARM64 5.3.1 - and the linker routes libjassimp64 to
+        // those (the game's ARM64 when present, box64 for the x86_64 one). Our copy sat earlier on
+        // the search path and shadowed them for every build, which is where both the B41 floating
+        // hair/clothing and the B42 KI5 part offsets came from. It cannot stay even as a fallback:
+        // with jassimp on the emulated-lib list the dlopen hook would feed our ARM64 file to box64
+        // and fail the whole load on B41. Renamed rather than deleted so this is reversible, and
+        // re-checked every launch because a dependency bundle update re-extracts the file.
+        File bundledJassimp = new File(AppStorage.requireSingleton().getHomePath(),
+                C.deps.LIBS_ANDROID_ARM64_v8a + "/libjassimp64.so");
+        if (bundledJassimp.isFile()) {
+            File retired = new File(bundledJassimp.getParentFile(), "libjassimp64.so.zomdroid-543-off");
+            if (bundledJassimp.renameTo(retired)) {
+                Log.i("GameLauncher", "Bundled libjassimp64.so retired; the game's own importer will load");
+            } else {
+                Log.w("GameLauncher", "Failed to retire bundled libjassimp64.so - model bone offsets may be wrong");
+            }
+        }
+
+        // The game's own ARM64 jassimp (42.12+) is left ALONE, and so is our hybrid build. Both
+        // were briefly wired up here on the theory that TIS's importer broke mod animation clips;
+        // that theory is dead. Every importer was tried on one device with one save - the hybrid,
+        // the stock 5.4.3 that worked on 1.4.7v4, and the game's x86_64 through box64 - and all
+        // three failed identically, "bridge done" never printed. The actual culprit was our own
+        // per-entry lowercase aliases inflating the mod file table; with those off, the scene plays
+        // on the game's own importer. See LowercasePathAliases.PER_ENTRY_ALIASES_ENABLED.
+        //
+        // So 42.12+ keeps TIS's native ARM64 build: it is what shipped in 1.4.8, it is what fixed
+        // the KI5 hoods and the hair, and it is faster than the emulated route. Swapping a working
+        // importer for one of ours with no defect to fix is exactly the dice-reroll we keep saying
+        // we will not do. The hybrid recipe survives as patches/assimp/0002.patch in
+        // zomdroid-dependencies and is one CI run away if TIS ever ships a broken ARM64 build.
+        //
+        // Any stale override from a build that did wire it up must not survive into this process.
+        Os.unsetenv("ZOMDROID_JASSIMP64_OVERRIDE");
+
+        // A 42.12+ instance that a previous test build disabled stays disabled until repaired -
+        // the game would silently keep running the emulated importer forever otherwise.
+        File tisJassimpDisabled = new File(gameInstance.getGamePath(),
+                "android/arm64-v8a/libjassimp64.so.disabled");
+        if (tisJassimpDisabled.isFile()) {
+            File active = new File(tisJassimpDisabled.getParentFile(), "libjassimp64.so");
+            if (!active.exists() && tisJassimpDisabled.renameTo(active)) {
+                Log.i("GameLauncher", "Re-enabled the game's ARM64 libjassimp64.so");
+            }
+        }
+
+/*        // for debug
+        Os.setenv("MESA_DEBUG", "1", false);
+        Os.setenv("MESA_LOG_LEVEL", "debug", false);
+        Os.setenv("ZINK_DEBUG", "validation", false);
+        Os.setenv("mesa_glthread", "false", false);
+        Os.setenv("GALLIUM_THREAD", "0", false);
+        Os.setenv("VK_LOADER_DEBUG", "all", false);
+        Os.setenv("VK_DEBUG", "all", false);
+        Os.setenv("GALLIUM_DEBUG", "all", false);
+        Os.setenv("VK_LOADER_LAYERS_ENABLE", "VK_LAYER_KHRONOS_validation", false);
+        Os.setenv("BOX64_LOG", "3", false);
+        Os.setenv("BOX64_DYNAREC", "0", false);*/
+
+        //Os.setenv("LIBGL_NOERROR", "1", false);
+        //Os.setenv("LIBGL_LOGSHADERERROR", "1", false);
+        //Os.setenv("ZINK_DEBUG", "spirv", false);
+
+        Os.setenv("LIBGL_MIPMAP", "1", false);
+
+        boolean verboseNativeLogs = BuildConfig.DEBUG
+                || settings.isDebug();
+        Os.setenv("BOX64_LOG", verboseNativeLogs ? "1" : "0", false);
+        Os.setenv("BOX64_SHOWBT", verboseNativeLogs ? "1" : "0", false);
+        // Per-symbol detail of the macOS loader ([macho] bridge, [jni-bind], LDAPR offsets): dozens
+        // of lines per launch that only matter when the loader itself is being debugged.
+        Os.setenv("ZOMDROID_NATIVE_VERBOSE", verboseNativeLogs ? "1" : "0", false);
+        Os.setenv("BOX64_LD_LIBRARY_PATH", gameInstance.getLdLibraryPathForEmulation(), false);
+
+        // Emulate x86's Total Store Order for the emulated libraries. box64 defaults to no
+        // barriers at all, which is fine for single-threaded code but breaks x86 code written
+        // against TSO once ARM's weaker model is allowed to reorder. box64 itself force-enables
+        // this combination for the multithreaded libraries it knows about (libjvm, libtbb,
+        // MonoBleedingEdge - see box64 librarian/library.c); PZ's Lighting is multithreaded too
+        // (it runs its own thread, "LightingFPS set to 15") but is not on that list.
+        // Level 3 = barrier on every third guest store, the strongest setting; BIGBLOCK=0 stops
+        // block merging from moving stores across the barriers.
+        Os.setenv("BOX64_DYNAREC_STRONGMEM", "3", false);
+        Os.setenv("BOX64_DYNAREC_BIGBLOCK", "0", false);
+
+        Os.setenv("GALLIUM_DRIVER", "zink", false);
+
+        Os.setenv("ZOMDROID_CACHE_DIR", AppStorage.requireSingleton().getCachePath(), false);
+        Os.setenv("ZOMDROID_RENDERER", settings.getRenderer().name(), false);
+        switch (settings.getRenderer()) {
+            case ZINK_ZFA:
+            case ZINK_OSMESA:
+                String vulkanDriverName = settings.getVulkanDriver().libName;
+                if (vulkanDriverName != null) {
+                    Os.setenv("ZOMDROID_VULKAN_DRIVER_NAME", vulkanDriverName, false);
+                }
+                // Our Mesa carries an ETC2 encoder for large RGBA8 uploads (zomdroid_texetc2.c).
+                // On unless the instance's "Texture compression" switch is off; a value typed
+                // into the env vars still wins, they are applied after this block. Its disk
+                // cache is the same store NG_GL4ES uses (same encoder, same hash), which is why
+                // the "Clear" button in Settings covers both. The path is passed explicitly: the
+                // library's built-in default is /data/data/..., and on some devices the app's
+                // real data directory is /data/user/0/... instead.
+                Os.setenv("ZOMDROID_ZINK_ETC2", settings.isTextureCompression() ? "1" : "0", false);
+                Os.setenv("ZOMDROID_ETC2_CACHE_DIR",
+                        AppStorage.requireSingleton().getHomePath() + "/" + C.NGG_ETC2_CACHE_DIR,
+                        false);
+                break;
+            case NG_GL4ES: {
+                //Os.setenv("LIBGL_ES", "3", true);
+                //Os.setenv("LIBGL_GL", "21", true); // если нужен OpenGL 2.1 для движка
+                //Os.setenv("LIBGL_NOBANNER", "0", true);
+                //Os.setenv("LIBGL_SILENTSTUB", "0", true); // если хотите убрать шум
+                //Os.setenv("LIBGL_FB", "2", true);
+                //Os.setenv("LIBGL_FBONOALPHA", "1", true);
+                //Os.setenv("LIBGL_SIMPLE_SHADERCONV", "1", true);
+                //Os.setenv("LIBGL_DBGSHADERCONV", "15", true);
+                // Force SPIRV-Cross path instead of old ConvertShader
+                // Without this, esversion stays 200 and shaders go through
+                // the old converter that doesn't understand modern GLSL
+                //Os.setenv("LIBGL_VGPU_FORCE", "1", true);
+                //Os.setenv("LIBGL_VGPU_PRECISION", "1", true);
+                // The DECISIVE knob is the real EGL context version, not the GL version the game
+                // sees. On a true ES3 context Mali runs NG's internal ES3 paths, which
+                // deterministically kill box64/physics at Bullet.init; a 2.1 context yields Mali's
+                // ES2 profile and clean ES2 paths (proven playable). So: Qualcomm/Adreno -> ES3.2
+                // context, everyone else -> ES2.1 context. We own the context; the lib (RC13+) owns
+                // the badge and picks it from the actual context — do NOT set LIBGL_GL here, it
+                // would override the lib's decision. override=false keeps manual env overrides.
+                // Memory saver (Settings → Advanced): live-texture budget in MB. Past this
+                // threshold NG_GL4ES loads new large textures at half resolution — caps runaway
+                // texture memory at the cost of tile detail. Unset = 0 = the mechanism sleeps.
+                // override=false so a manual LIBGL_TEXBUDGET in the env-vars field still wins.
+                if (settings.isMemorySaver()) {
+                    Os.setenv("LIBGL_TEXBUDGET", "800", false);
+                }
+                boolean isQualcomm = isQualcommGpu();
+                Os.setenv("ZOMDROID_GLES_MAJOR", isQualcomm ? "3" : "2", false);
+                Os.setenv("ZOMDROID_GLES_MINOR", isQualcomm ? "2" : "1", false);
+                Os.setenv("LIBGL_ES", "2", false);
+                Os.setenv("LIBGL_MIPMAP", "1", false);
+                Os.setenv("LIBGL_LOGSHADERERROR", "1", false);
+                Os.setenv("LIBGL_VGPU_DUMP", "1", false);
+                // NG's ETC2 texture compression (LIBGL_ETC2, off in the library itself): same
+                // switch, same disk cache as the ZINK path above. Note it takes every texture
+                // of 512x512 and up at full resolution BEFORE the shrink logic runs, so with it
+                // on LIBGL_SHRINK=7 has nothing left to halve - that is why the tile grid is
+                // gone, not because the two combine. Needs a GLES 3 context (esversion >= 300).
+                Os.setenv("LIBGL_ETC2", settings.isTextureCompression() ? "1" : "0", false);
+                // DEBUG: red-clear bisection — disabled now that swap/context are
+                // confirmed alive; uncomment to mask frames again if needed.
+                //Os.setenv("ZOMDROID_DEBUG_RED_CLEAR", "1", false);
+                break;
+            }
+            case MOBILEGLUES_EXPERIMENTAL: {
+                // MobileGlues runs on a real GLES 3.x context; 3.2 is what the fork was tested on.
+                Os.setenv("ZOMDROID_GLES_MAJOR", "3", false);
+                Os.setenv("ZOMDROID_GLES_MINOR", "2", false);
+                // Its config.json, latest.log and GLSL cache live here. Without MG_DIR_PATH the
+                // library falls back to /sdcard/MG, cannot create it and silently drops its log.
+                File mgDir = new File(AppStorage.requireSingleton().getHomePath(), "mobileglues");
+                if (!mgDir.isDirectory() && !mgDir.mkdirs()) {
+                    Log.w("Zomdroid", "Failed to create MobileGlues directory " + mgDir);
+                }
+                Os.setenv("MG_DIR_PATH", mgDir.getAbsolutePath(), false);
+                break;
+            }
+            default: {
+                Os.setenv("ZOMDROID_GLES_MAJOR", "2", false);
+                Os.setenv("ZOMDROID_GLES_MINOR", "1", false);
+                break;
+            }
+        }
+
+        Os.setenv("ZOMDROID_AUDIO_API", LauncherPreferences.requireSingleton().getAudioAPI().name(), false);
+
+        if (BuildConfig.DEBUG) {
+            //for debugging GL calls, only supported on GL ES 3.2+ with GL_KHR_debug extension present
+            Os.setenv("LIBGL_STACKTRACE","1", false);
+            Os.setenv("LIBGL_LOGSHADERERROR","1", false);
+        }
+        initZomdroidWindow();
+        InputNativeInterface.sendJoystickConnected();
+
+        // JVM args [variables] from user settings
+        ArrayList<String> jvmArgs = gameInstance.getJvmArgsAsList();
+        String rawArgs = settings.getJvmArgs();
+
+        if (rawArgs != null && !rawArgs.trim().isEmpty()) {
+            String[] splitArgs = rawArgs.trim().split("\\s+");
+            for (String arg : splitArgs) {
+                jvmArgs.add(arg);
+            }
+        }
+
+        File macosGame = new File(gameInstance.getGamePath());
+        try {
+            com.zomdroid.steam.MacosLibraries.recover(macosGame);
+        } catch (java.io.IOException e) {
+            Log.w("Zomdroid", "Cannot recover macOS library set", e);
+        }
+
+        // Environment variables from user settings
+        String rawEnvVars = settings.getEnvVars();
+        if (rawEnvVars != null && !rawEnvVars.trim().isEmpty()) {
+            for (String token : rawEnvVars.trim().split("\\s+")) {
+                String[] parts = token.split("=", 2);
+                if (parts.length == 2) {
+                    Os.setenv(parts[0].trim(), parts[1].trim(), true);
+                }
+            }
+        }
+
+        // The native-library settings, applied AFTER the user's env vars on purpose: a leftover
+        // ZOMDROID_MACHO_LIBS=1 typed during testing kept the macOS libraries on against the
+        // settings (2026-09-12, twice), so the settings are the only authority for these names.
+        NativeLibraryEnvironment.applyMacos(gameInstance, new File(gameInstance.getHomePath(),
+                coopHostTest ? "coop-probe" : serverProbeClient ? "client-probe" : "Zomboid"));
+        Os.setenv("ZOMDROID_NATIVE_FMOD", settings.isNativeFmodEnabled() ? "1" : "0", true);
+        // Debug builds always carry the emulated-JNI statistics ([JNISTAT] in native.log); a user
+        // value of 0 still turns them off.
+        if (BuildConfig.DEBUG && Os.getenv("ZOMDROID_JNI_STATS") == null) {
+            Os.setenv("ZOMDROID_JNI_STATS", "1", true);
+        }
+
+        jvmArgs.add("-Dorg.lwjgl.opengl.libname=" + settings.getRenderer().libName);
+        jvmArgs.add("-Dzomdroid.renderer=" + settings.getRenderer().name());
+        // Presence of backup.dir is what arms the F10 backup in the agent. Both builds: the flush
+        // sequence was written against 42.20 and every class, method and field it touches was then
+        // read out of a 41.78.16 install and found identical - the sole difference, GameClient's
+        // multiplayer flag, is handled inside the agent. Multiplayer is refused there too, where
+        // that flag is visible.
+        //
+        // When the feature is OFF, that is said explicitly with backup=off: F10 then tells the
+        // player the feature is disabled instead of silently doing a plain save. The plain save
+        // resumes convincingly after a kill (the game streams the world anyway), which is exactly
+        // how two testers and we misread it as a working checkpoint - better no save and an honest
+        // message than a convincing illusion. An agent older than this change simply fails to
+        // resolve the Build 41 flag and turns its own backup half off, which is what Build 41
+        // already does today.
+        if (settings.isQuickSaveBackup()) {
+            jvmArgs.add("-Dzomdroid.backup.dir=" + gameInstance.getHomePath() + "/"
+                    + com.zomdroid.game.BackupManager.BACKUP_DIR_NAME);
+        } else {
+            jvmArgs.add("-Dzomdroid.backup=off");
+        }
+
+        if (BuildConfig.DEBUG) {
+            jvmArgs.add("-Dorg.lwjgl.util.Debug=true"); //print LWJGL library errors
+            //jvmArgs.add("-Dorg.lwjgl.util.DebugLoader=true");
+            jvmArgs.add("-XX:+PrintFlagsFinal"); // for debugging
+        }
+
+        jvmArgs.add("-XX:ErrorFile=/dev/stdout"); // print jvm crash report to stdout for now
+        // One line per garbage collection into native.log (stderr is mirrored there): heap before
+        // -> after (committed) and the pause. The heap after a collection is what a world really
+        // needs, which decides whether phones short on memory can get a lower -Xmx (2026-09-16).
+        jvmArgs.add("-Xlog:gc:stderr");
+
+
+        ArrayList<String> args = gameInstance.getArgsAsList();
+        if (serverProbeClient || coopHostTest) {
+            File clientCache = new File(gameInstance.getHomePath(), coopHostTest ? "coop-probe" : "client-probe");
+            if (!clientCache.isDirectory() && !clientCache.mkdirs()) {
+                throw new IllegalStateException("Cannot create " + clientCache);
+            }
+            jvmArgs.removeIf(arg -> arg.startsWith("-Xmx") || arg.startsWith("-Xms")
+                    || arg.startsWith("-Duser.home=") || arg.startsWith("-Dzomboid.steam=")
+                    || arg.startsWith("-Dzomdroid.backup"));
+            jvmArgs.add("-Xms256m");
+            jvmArgs.add("-Xmx2048m");
+            jvmArgs.add("-Duser.home=" + clientCache.getAbsolutePath());
+            jvmArgs.add("-Dzomboid.steam=0");
+            jvmArgs.add("-Dzomdroid.backup=off");
+            args.clear();
+            args.add("-cachedir=" + clientCache.getAbsolutePath());
+            args.add("-nosteam");
+            if (serverProbeClient) {
+                args.add("+connect");
+                args.add("127.0.0.1:16261");
+            }
+            if (coopHostTest) {
+                jvmArgs.add("-Dzomdroid.coop.bridge=" + coopBridgePath);
+                jvmArgs.add("-javaagent:" + coopBridgePath + "/coop-agent.jar");
+            }
+            Log.i("ServerProbeClient", (coopHostTest ? "COOP hosting enabled" : "Connecting to loopback server")
+                    + "; isolated cache=" + clientCache);
+        }
+        if (BuildConfig.DEBUG) {
+            //args.add("-debug");
+            //args.add("-debuglog=Shader");
+        }
+        Log.i("Zomdroid", "JVM ARGS: " + jvmArgs);
+        Log.i("Zomdroid", "GAME ARGS: " + args);
+
+        // PZ servers reject game debug clients by default. Keep launcher diagnostics,
+        // but use the ordinary game mode for the local server connection experiment.
+        if (!serverProbeClient && !coopHostTest && (BuildConfig.DEBUG || settings.isDebug())) {
+            args.add("-debug");
+        }
+
+        if (settings.getRenderer() == LauncherPreferences.Renderer.NG_GL4ES) {
+            args.add("-debuglog=Shader");
+        }
+
+        //String javaHomePath = AppStorage.requireSingleton().getHomePath() + "/" + C.deps.JRE;
+        String home = AppStorage.requireSingleton().getHomePath();
+
+        // Prefer JRE21 when using GL4ES-style renderers (Build 41 tends to rely on that path).
+        // This isolates "old GL4ES pipeline" from "new Java 25 runtime" regressions.
+        boolean preferJre21ForRenderer = isLegacyRendererNeedingJre21(settings.getRenderer());
+        // ZombieBuddy agent — loaded if jar present in game folder AND enabled in settings
+        android.content.SharedPreferences zbPrefs = LauncherPreferences.requireSingleton().getSharedPrefs();
+
+        String instanceName = gameInstance.getName();
+        String zombieBuddyPath = gameInstance.getGamePath() + "/" + C.deps.ZOMBIE_BUDDY_JAR;
+        boolean zombieBuddyEnabled = zbPrefs.getBoolean("zombiebuddy_enabled_" + instanceName, false);
+        if (new File(zombieBuddyPath).exists() && zombieBuddyEnabled) {
+            jvmArgs.add("-javaagent:" + zombieBuddyPath + "=policy=allow-all");
+            jvmArgs.add("-Dnet.bytebuddy.processor=ASM_ONLY");
+            jvmArgs.add("-Dnet.bytebuddy.experimental=true");
+            // On JRE25 (ZINK) we do NOT set classfile.version — ByteBuddy must handle
+            if (!preferJre21ForRenderer) {
+                Log.i("ZombieBuddy", "in GameLauncher ZINK loaded, ZombieBuddy loaded.");
+                //jvmArgs.add("-Dnet.bytebuddy.classfile.version=65");
+                //jvmArgs.add("-Dnet.bytebuddy.unsupported.classfile.version=69");
+            }
+        }
+
+        // Try to use dedicated folders if present (jre21 / jre25). If not present, fall back to C.deps.JRE.
+        String jreFolder = preferJre21ForRenderer ? C.deps.JRE_21 : C.deps.JRE_25;
+        String candidateJavaHomePath = home + "/" + jreFolder;
+        String javaHomePath;
+
+        if (new File(candidateJavaHomePath).exists()) {
+            javaHomePath = candidateJavaHomePath;
+        } else {
+            // fallback for setups that still package only one JRE folder (legacy behavior)
+            javaHomePath = home + "/" + C.deps.JRE_ROOT;
+        }
+        if (BuildConfig.DEBUG) {
+            Log.i("Zomdroid", "jreFolder: " + jreFolder+", candidateJavaHomePath: "+candidateJavaHomePath+", javaHomePath: "+javaHomePath);
+        }
+        String ldLibraryPath = AppStorage.requireSingleton().getLibraryPath() + ":/system/lib64:"
+                + javaHomePath + "/lib:" + javaHomePath + "/lib/server:" + gameInstance.getJavaLibraryPath();
+        //Log.d("zomdroid-main", ldLibraryPath);
+        GameLauncher.startGame(gameInstance.getGamePath(), ldLibraryPath, jvmArgs.toArray(new String[0]),
+                gameInstance.getMainClassName(), args.toArray(new String[0]));
+    }
+
+    private static boolean isLegacyRendererNeedingJre21(LauncherPreferences.Renderer r) {
+        // NG_GL4ES dropped from this list on purpose: it is being tested against JRE25 (Java 25),
+        // which is also what Build 42.12+ requires. Only stock GL4ES stays pinned to JRE21.
+        boolean result = (r == LauncherPreferences.Renderer.GL4ES);
+
+        if (BuildConfig.DEBUG) {
+            Log.i("Zomdroid", "isLegacyRendererNeedingJre21: " + result + ", Renderer: " + r.name());
+        }
+        return result;
+    }
+
+    // Positive-ID Qualcomm/Adreno only (they tolerate the ES3 EGL context). Everything else —
+    // MediaTek/Mali, and any unknown, to stay safe — returns false so NG gets the ES2 context.
+    // Delegates to the one shared detector: this used to be a private copy with the same
+    // unguarded Build.SOC_* array that crashed Android 11 (those fields are API 31+, and
+    // NoSuchFieldError is not an Exception) — the guard must live in exactly one place.
+    private static boolean isQualcommGpu() {
+        return com.zomdroid.game.SuggestedPreset.QUALCOMM.equals(
+                com.zomdroid.game.SuggestedPreset.detectGpuVendor());
+    }
+
+    public static native int initZomdroidWindow();
+    public static native void destroyZomdroidWindow();
+    public static native int setSurface(Surface surface, int width, int height);
+    public static native void destroySurface();
+    /** Frames the game has presented so far (glfwSwapBuffers), for the in-game FPS display. */
+    public static native long getPresentedFrameCount();
+    static native void startGame(String gameDirPath, String libraryDirPath, String[] jvmArgs, String mainClassName, String[] args);
+}

@@ -1,0 +1,710 @@
+package com.zomdroid.fragments;
+
+import static android.content.Context.MODE_PRIVATE;
+
+import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Insets;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.DocumentsContract;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowInsets;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.zomdroid.C;
+import com.zomdroid.GameActivity;
+import com.zomdroid.InstallerService;
+import com.zomdroid.LauncherPreferences;
+import com.zomdroid.R;
+
+import com.zomdroid.databinding.FragmentLauncherBinding;
+import com.zomdroid.databinding.TaskProgressDialogBinding;
+import com.zomdroid.game.BackupManager;
+import com.zomdroid.game.GameInstance;
+import com.zomdroid.game.GameInstanceManager;
+import com.zomdroid.game.SuggestedPreset;
+import android.widget.ImageView;
+
+public class LauncherFragment extends Fragment {
+    private static final String LOG_TAG = LauncherFragment.class.getName();
+    private FragmentLauncherBinding binding;
+    private RecyclerView.Adapter<?> adapter;
+    private TaskProgressDialogBinding taskProgressDialogBinding;
+    private BroadcastReceiver taskProgressReceiver;
+    private AlertDialog taskProgressDialog;
+    private InstallerService installerService;
+    private boolean isInstallerServiceBound;
+    private boolean postInstallDialogShown;
+
+    private final ServiceConnection installerServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            InstallerService.LocalBinder binder = (InstallerService.LocalBinder) service;
+            installerService = binder.getService();
+            isInstallerServiceBound = true;
+
+            handleTaskState(installerService.getTaskState().getValue());
+            installerService.getTaskState().observe(LauncherFragment.this, this::handleTaskState);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            Log.e(LOG_TAG, "Connection to installer service has been lost");
+            isInstallerServiceBound = false;
+            taskProgressDialog.dismiss();
+        }
+
+        private void handleTaskState(InstallerService.TaskState state) {
+            if (state == null)
+                return;
+            // Detached fragment: every branch below needs a context (dialogs, unbinding), and
+            // requireContext() throws rather than returning null - that crashed the app for a
+            // player whose activity was being recreated when the installer reported an error
+            // (2026-09-23). Dropping the state is safe: the observer is bound to this fragment's
+            // lifecycle, so the same value arrives again once it is attached and started.
+            if (!isAdded() || getContext() == null)
+                return;
+            if (state.isFinished) {
+                InstallerService.Task finishedTask = installerService.getCurrentTask();
+                String presetName = installerService.getCurrentInstallPresetName();
+                String gpuVendor = installerService.getCurrentGpuVendor();
+                String newInstanceName = installerService.getCurrentInstanceName();
+                adapter.notifyDataSetChanged();
+                updateEmptyState();
+                taskProgressDialog.dismiss();
+                unbindInstallerService();
+                if (installerService != null) installerService.stopUnlessRestarted();
+                if (finishedTask == InstallerService.Task.CREATE_GAME_INSTANCE
+                        && !postInstallDialogShown) {
+                    postInstallDialogShown = true;
+                    showPostInstallSetupDialog(presetName, gpuVendor, newInstanceName);
+                }
+            } else if (state.isFinishedWithError) {
+                adapter.notifyDataSetChanged();
+                updateEmptyState();
+                showTaskFinishedDialog(state.title, state.message);
+                unbindInstallerService();
+                if (installerService != null) installerService.stopUnlessRestarted();
+            } else {
+                if (installerService.getCurrentTask() == InstallerService.Task.CREATE_GAME_INSTANCE) {
+                    postInstallDialogShown = false;
+                }
+                showTaskProgressDialog(state.title, state.message, state.progress, state.progressMax);
+            }
+        }
+    };
+
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (!isGranted) {
+                    // Explain to user why we need the permission?
+                }
+            });
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentLauncherBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+
+    }
+
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        adapter = new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            @NonNull
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.game_instance_item, parent, false);
+                return new RecyclerView.ViewHolder(view) {
+                };
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+                GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstances().get(position);
+                View itemView = holder.itemView;
+
+                TextView nameTv = itemView.findViewById(R.id.game_instance_item_name_tv);
+                ImageButton launchIb = itemView.findViewById(R.id.game_instance_item_launch_ib);
+                ImageButton settingsIb = itemView.findViewById(R.id.game_instance_item_settings_ib);
+                ImageButton moreIb = itemView.findViewById(R.id.game_instance_item_more_ib);
+
+                nameTv.setText(gameInstance.getName());
+                // The hosting switch lives in the instance settings; the card repeats it so the
+                // player sees why the game will open on the hosting profile before launching.
+                itemView.findViewById(R.id.game_instance_item_hosting_tv).setVisibility(
+                        gameInstance.settings().isCoopHostingEnabled() ? View.VISIBLE : View.GONE);
+
+                ImageView bannerIv = itemView.findViewById(R.id.game_instance_item_banner_iv);
+                int bannerRes;
+                switch (gameInstance.getPresetName()) {
+                    case "Build 42.12+":
+                        bannerRes = R.drawable.banner_build42_12;
+                        break;
+                    case "Build 42":
+                        bannerRes = R.drawable.banner_build42;
+                        break;
+                    default:
+                        bannerRes = R.drawable.banner_build41;
+                        break;
+                }
+                bannerIv.setImageResource(bannerRes);
+
+                launchIb.setOnClickListener(v -> {
+                    if (!gameInstance.isInstallationFinished()) {
+                        Toast.makeText(getContext(), R.string.installation_not_finished,
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    } else if (!gameInstance.hasGameFiles()) {
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(R.string.dialog_title_game_files_missing)
+                                .setMessage(R.string.game_files_missing)
+                                .setCancelable(true)
+                                .setPositiveButton(R.string.dialog_button_view_guide, (dialog, which) -> {
+                                    Navigation.findNavController(v).navigate(R.id.wiki_fragment, WikiFragment.section("get-game-files"));
+                                })
+                                .setNegativeButton(R.string.dialog_button_close, null)
+                                .create()
+                                .show();
+                        return;
+                    } else if (!gameInstance.hasFilesForLinux()) {
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(R.string.dialog_title_game_files_not_for_linux)
+                                .setMessage(R.string.game_files_not_for_linux)
+                                .setCancelable(true)
+                                .setPositiveButton(R.string.dialog_button_view_guide, (dialog, which) -> {
+                                    Navigation.findNavController(v).navigate(R.id.wiki_fragment, WikiFragment.section("get-game-files"));
+                                })
+                                .setNegativeButton(R.string.dialog_button_close, null)
+                                .create()
+                                .show();
+                        return;
+                    }
+                    boolean areDependenciesInstalled = requireContext().getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE)
+                            .getBoolean(C.shprefs.keys.ARE_DEPENDENCIES_INSTALLED, false);
+                    if (!areDependenciesInstalled) {
+                        Toast.makeText(getContext(), R.string.dependencies_not_installed,
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    // A crash left its marker and there is a complete backup to offer: ask BEFORE
+                    // the JVM starts, while nothing holds the save open. Never silent - the player
+                    // may honestly prefer the streamed state they crashed in.
+                    BackupManager.Backup crashed = BackupManager.findCrashed(gameInstance);
+                    if (crashed != null) {
+                        java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(
+                                java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(R.string.backup_restore_title)
+                                .setMessage(getString(R.string.backup_restore_message,
+                                        crashed.worldRel,
+                                        df.format(new java.util.Date(crashed.timestamp)),
+                                        crashed.sizeBytes >> 20))
+                                .setCancelable(false)
+                                .setNegativeButton(R.string.backup_restore_continue, (d, w) -> {
+                                    // Asked once per crash: either answer clears the marker; the
+                                    // agent writes a fresh one when a world loads again.
+                                    BackupManager.clearCrashMarker(gameInstance);
+                                    launchGame(gameInstance);
+                                })
+                                .setPositiveButton(R.string.backup_restore_do, (d, w) -> {
+                                    BackupManager.clearCrashMarker(gameInstance);
+                                    restoreBackup(gameInstance, crashed, true);
+                                })
+                                .show();
+                        return;
+                    }
+                    launchGame(gameInstance);
+                });
+
+                // The gear opens this instance's launch settings; storage, backup and delete
+                // live under the overflow next to it.
+                settingsIb.setOnClickListener(v -> {
+                    Bundle args = new Bundle();
+                    args.putString(SettingsFragment.ARG_INSTANCE, gameInstance.getName());
+                    Navigation.findNavController(v)
+                            .navigate(R.id.action_open_instance_settings, args);
+                });
+
+                moreIb.setOnClickListener(v -> {
+                    PopupMenu popupMenu = new PopupMenu(requireContext(), v);
+                    popupMenu.getMenuInflater().inflate(R.menu.menu_game_instance, popupMenu.getMenu());
+                    if (gameInstance.isInstallationFinished()) {
+                        popupMenu.getMenu().add(R.string.ds_start)
+                                .setOnMenuItemClickListener(item -> {
+                                    Intent probe = new Intent().setClassName(requireContext(),
+                                            "com.zomdroid.DedicatedServerActivity");
+                                    probe.putExtra(GameActivity.EXTRA_GAME_INSTANCE_NAME, gameInstance.getName());
+                                    startActivity(probe);
+                                    return true;
+                                });
+                    }
+
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            if (com.zomdroid.DedicatedServerService.active(requireContext())) {
+                                Toast.makeText(requireContext(), R.string.ds_busy, Toast.LENGTH_LONG).show();
+                                return true;
+                            }
+                            int itemId = item.getItemId();
+                            if (itemId == R.id.action_game_instance_restore_backup) {
+                                BackupManager.Backup backup = BackupManager.find(gameInstance);
+                                if (backup == null) {
+                                    Toast.makeText(getContext(), R.string.backup_none_found,
+                                            Toast.LENGTH_SHORT).show();
+                                    return true;
+                                }
+                                java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(
+                                        java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
+                                new MaterialAlertDialogBuilder(requireContext())
+                                        .setTitle(R.string.game_instance_restore_backup)
+                                        .setMessage(getString(R.string.backup_manual_restore_message,
+                                                backup.worldRel,
+                                                df.format(new java.util.Date(backup.timestamp)),
+                                                backup.sizeBytes >> 20))
+                                        .setPositiveButton(R.string.backup_restore_do, (dialog, which) ->
+                                                restoreBackup(gameInstance, backup, false))
+                                        .setNegativeButton(R.string.dialog_button_cancel, null)
+                                        .show();
+                            } else if (itemId == R.id.action_game_instance_manage_storage) {
+                                Uri folderUri = DocumentsContract.buildDocumentUri(C.STORAGE_PROVIDER_AUTHORITY, gameInstance.getHomePath());
+                                Intent intent = new Intent();
+                                intent.setAction(Intent.ACTION_VIEW);
+                                intent.setDataAndType(folderUri, DocumentsContract.Document.MIME_TYPE_DIR);
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                Intent chooserIntent = Intent.createChooser(intent, null);
+                                startActivity(chooserIntent);
+                            } else if (itemId == R.id.action_game_instance_delete) {
+                                new MaterialAlertDialogBuilder(requireContext())
+                                        .setTitle(R.string.dialog_title_delete_game_instance)
+                                        .setMessage(R.string.delete_game_instance)
+                                        .setCancelable(true)
+                                        .setPositiveButton(R.string.dialog_button_confirm, (dialog, which) -> {
+                                            Intent gameInstallerIntent = new Intent(requireContext(), InstallerService.class);
+                                            gameInstallerIntent.putExtra(InstallerService.EXTRA_COMMAND, InstallerService.Task.DELETE_GAME_INSTANCE.ordinal());
+                                            gameInstallerIntent.putExtra(InstallerService.EXTRA_GAME_INSTANCE_NAME, gameInstance.getName());
+                                            requireContext().startForegroundService(gameInstallerIntent);
+                                        })
+                                        .setNegativeButton(R.string.dialog_button_cancel, null)
+                                        .create()
+                                        .show();
+                            }
+                            return false;
+                        }
+                    });
+
+                    popupMenu.show();
+                });
+            }
+
+            @Override
+            public int getItemCount() {
+                return GameInstanceManager.requireSingleton().getInstances().size();
+            }
+        };
+        binding.gameInstancesRv.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.gameInstancesRv.setAdapter(adapter);
+        binding.launcherEmptyQuickStartBtn.setOnClickListener(v -> Navigation.findNavController(v)
+                .navigate(R.id.action_open_wiki_fragment, WikiFragment.section("quick-start")));
+        binding.launcherEmptyDownloadBtn.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_download_steam));
+        binding.launcherEmptyGogBtn.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_download_gog));
+        updateEmptyState();
+
+        binding.gameInstancesRv.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @NonNull
+            @Override
+            public WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets windowInsets) {
+                Insets insets = windowInsets.getInsets(WindowInsets.Type.systemBars());
+                v.setPadding(
+                        v.getPaddingLeft(),
+                        v.getPaddingTop(),
+                        v.getPaddingRight(),
+                        insets.bottom
+                );
+
+                return windowInsets;
+            }
+        });
+
+        MenuHost menuHost = requireActivity();
+        menuHost.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menuInflater.inflate(R.menu.menu_launcher, menu);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                if (menuItem.getItemId() == R.id.action_new_game_instance) {
+                    Navigation.findNavController(view).navigate(R.id.new_game_instance_fragment);
+                    return true;
+                }
+                if (menuItem.getItemId() == R.id.action_open_wiki_help) {
+                    Navigation.findNavController(view).navigate(R.id.action_open_wiki_fragment);
+                    return true;
+                }
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+
+        taskProgressDialogBinding = TaskProgressDialogBinding.inflate(getLayoutInflater());
+
+        taskProgressDialog = new MaterialAlertDialogBuilder(requireContext())
+                .setView(taskProgressDialogBinding.getRoot())
+                .setCancelable(false)
+                .create();
+
+        taskProgressDialogBinding.progressDialogOkMb.setOnClickListener(v -> {
+            taskProgressDialog.dismiss();
+            adapter.notifyDataSetChanged();
+            updateEmptyState();
+        });
+
+        taskProgressReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (action == null) return;
+                if (action.equals(InstallerService.ACTION_STARTED)) {
+                    postInstallDialogShown = false;
+                    bindInstallerService();
+                }
+            }
+        };
+
+        SharedPreferences prefs = requireContext().getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE);
+        if (!prefs.getBoolean(C.shprefs.keys.IS_LEGAL_NOTICE_ACCEPTED, false)) {
+            showLegalNoticeDialog();
+            requireActivity().findViewById(android.R.id.content).setVisibility(View.GONE);
+        } else {
+            updateDependencies();
+            maybeShowReleaseNotes(prefs);
+        }
+
+    }
+
+    /**
+     * Release notes, shown once per installed version - on updates AND on fresh installs. Our own
+     * notes tell people a clean install is the safer upgrade path, so "freshly installed" very
+     * often IS an update: treating those users as newcomers hid the notes from exactly the people
+     * following our advice. The text ships in strings.xml rather than being fetched: a once-only
+     * dialog that depends on the network being up at the right moment is a dialog most people
+     * never see.
+     */
+    private void maybeShowReleaseNotes(SharedPreferences prefs) {
+        String current = com.zomdroid.BuildConfig.VERSION_NAME;
+        String shownFor = prefs.getString(C.shprefs.keys.RELEASE_NOTES_SHOWN_FOR, null);
+        if (current.equals(shownFor)) return;
+
+        // First pass ever (pre-notes versions stored nothing): if the legal notice was accepted,
+        // this IS an update - those versions could not have recorded anything. Show the notes.
+        prefs.edit().putString(C.shprefs.keys.RELEASE_NOTES_SHOWN_FOR, current).apply();
+
+        final android.text.SpannableString s =
+                new android.text.SpannableString(getString(R.string.release_notes_body));
+        android.text.util.Linkify.addLinks(s, android.text.util.Linkify.WEB_URLS);
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.release_notes_title, current))
+                .setMessage(s)
+                .setPositiveButton(R.string.dialog_button_ok, null)
+                .create();
+        dialog.show();
+        TextView messageView = dialog.findViewById(android.R.id.message);
+        if (messageView != null)
+            messageView.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+    }
+
+    private void showLegalNoticeDialog() {
+        AlertDialog legalNoticeDialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.legal_notice_title)
+                .setMessage(R.string.legal_notice_message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_button_accept, (dialog, which) -> {
+                    requireContext().getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE)
+                            .edit().putBoolean(C.shprefs.keys.IS_LEGAL_NOTICE_ACCEPTED, true).apply();
+                    requireActivity().findViewById(android.R.id.content).setVisibility(View.VISIBLE);
+                    updateDependencies();
+                    requestNotificationPermission();
+                    maybeShowReleaseNotes(requireContext()
+                            .getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE));
+                })
+                .create();
+        legalNoticeDialog.show();
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
+    }
+
+    private void showTaskProgressDialog(String title, String message, int progress, int progressMax) {
+        if (title != null) {
+            taskProgressDialogBinding.progressDialogTitleTv.setText(title);
+            taskProgressDialogBinding.progressDialogTitleTv.setVisibility(View.VISIBLE);
+        } else {
+            taskProgressDialogBinding.progressDialogTitleTv.setVisibility(View.GONE);
+        }
+
+        if (message != null) {
+            taskProgressDialogBinding.progressDialogMessageTv.setText(message);
+            taskProgressDialogBinding.progressDialogMessageTv.setVisibility(View.VISIBLE);
+        } else {
+            taskProgressDialogBinding.progressDialogMessageTv.setVisibility(View.GONE);
+        }
+
+        taskProgressDialogBinding.progressDialogProgressLpi.setVisibility(View.VISIBLE);
+        if (progress < 0)
+            taskProgressDialogBinding.progressDialogProgressLpi.setIndeterminate(true);
+        else {
+            taskProgressDialogBinding.progressDialogProgressLpi.setIndeterminate(false);
+            taskProgressDialogBinding.progressDialogProgressLpi.setMax(progressMax);
+            taskProgressDialogBinding.progressDialogProgressLpi.setProgress(progress);
+        }
+
+        taskProgressDialogBinding.progressDialogOkMb.setVisibility(View.GONE);
+
+        taskProgressDialog.show();
+    }
+
+    private void showTaskFinishedDialog(String title, String message) {
+        if (title != null) {
+            taskProgressDialogBinding.progressDialogTitleTv.setText(title);
+            taskProgressDialogBinding.progressDialogTitleTv.setVisibility(View.VISIBLE);
+        } else {
+            taskProgressDialogBinding.progressDialogTitleTv.setVisibility(View.GONE);
+        }
+
+        if (message != null) {
+            taskProgressDialogBinding.progressDialogMessageTv.setText(message);
+            taskProgressDialogBinding.progressDialogMessageTv.setVisibility(View.VISIBLE);
+        } else {
+            taskProgressDialogBinding.progressDialogMessageTv.setVisibility(View.GONE);
+        }
+
+        taskProgressDialogBinding.progressDialogProgressLpi.setVisibility(View.GONE);
+
+        taskProgressDialogBinding.progressDialogOkMb.setVisibility(View.VISIBLE);
+
+        taskProgressDialog.show();
+    }
+
+    private void launchGame(GameInstance gameInstance) {
+        // Heals whatever an interrupted restore may have left, cheap when there is nothing to do.
+        BackupManager.cleanupInterruptedRestore(gameInstance);
+        Intent intent = new Intent(requireContext(), GameActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra(GameActivity.EXTRA_GAME_INSTANCE_NAME, gameInstance.getName());
+        startActivity(intent);
+        requireActivity().finish();
+    }
+
+    /**
+     * Copy the backup over the live world, off the UI thread, behind an uncancelable progress
+     * dialog - at 300-600 MB this takes long enough that a dismissable screen would invite exactly
+     * the kind of interruption the transactional copy exists to survive.
+     */
+    private void restoreBackup(GameInstance gameInstance, BackupManager.Backup backup, boolean launchAfter) {
+        androidx.appcompat.app.AlertDialog progress = new MaterialAlertDialogBuilder(requireContext())
+                .setMessage(R.string.backup_restoring)
+                .setCancelable(false)
+                .show();
+        new Thread(() -> {
+            String error = null;
+            try {
+                BackupManager.cleanupInterruptedRestore(gameInstance);
+                BackupManager.restore(gameInstance, backup);
+            } catch (Exception e) {
+                error = e.getMessage() != null ? e.getMessage() : e.toString();
+            }
+            final String fError = error;
+            requireActivity().runOnUiThread(() -> {
+                progress.dismiss();
+                if (fError != null) {
+                    Toast.makeText(getContext(),
+                            getString(R.string.backup_restore_failed, fError), Toast.LENGTH_LONG).show();
+                    return; // never launch on top of a failed restore
+                }
+                Toast.makeText(getContext(), R.string.backup_restore_done, Toast.LENGTH_SHORT).show();
+                if (launchAfter) launchGame(gameInstance);
+            });
+        }, "zomdroid-backup-restore").start();
+    }
+
+    private void showPostInstallSetupDialog(String presetName, String gpuVendor,
+                                            String instanceName) {
+        if (presetName == null) return;
+
+        // A dialog used to stand here asking non-Qualcomm users to pick between NG_GL4ES and ZINK,
+        // and it returned early - so this whole screen never ran for exactly the people it was
+        // written for. It is gone for two reasons. The choice is no longer open: two and a half
+        // weeks of reports say NG_GL4ES with shrinking works everywhere, while ZINK needs an Adreno
+        // GPU or ANGLE. And it set the renderer alone, leaving shrinking, the Java arguments and
+        // the memory saver at whatever they were - half a preset, which is no preset. ZINK stays
+        // one tap away in Settings for anyone who wants the cleaner picture.
+
+        int titleRes;
+        String message;
+        boolean isBuild42;
+        if ("Build 42.12+".equals(presetName)) {
+            titleRes = R.string.preset_dialog_title_b4212;
+            message = getString(R.string.preset_dialog_message_b4212);
+            isBuild42 = true;
+        } else if ("Build 42".equals(presetName)) {
+            titleRes = R.string.preset_dialog_title_b42;
+            message = getString(R.string.preset_dialog_message_b42);
+            isBuild42 = true;
+        } else {
+            titleRes = R.string.preset_dialog_title_b41;
+            message = getString(R.string.preset_dialog_message_b41);
+            isBuild42 = false;
+        }
+
+        // Apply before showing, so the dialog can report what the settings ARE rather than tell
+        // someone to go and set them. Renderer, texture shrinking, Java arguments, resolution and
+        // the memory saver only work as a set - handing out one of them and naming the rest is how
+        // "switch to NG_GL4ES" ended up being advice that changed nothing.
+        // The preset lands on the instance that was just created, not on an app-wide default:
+        // a Build 41 instance next to a Build 42 one must not be dragged along by this.
+        SuggestedPreset preset = SuggestedPreset.forInstall(presetName, gpuVendor);
+        preset.apply(requireContext(), new com.zomdroid.game.InstanceSettings(instanceName));
+
+        // Three short paragraphs, in this order: which build this is, what was set for this GPU,
+        // and what to do if it still misbehaves. The wall of text this replaces was accurate and
+        // unread - the requirements paragraph alone used to explain which chipsets the build runs
+        // on, which nobody can act on after the install has already happened.
+        if (isBuild42) {
+            // Named from the GPU probe, not from the vendor: on Adreno the driver we just chose
+            // depends on the exact model, so printing the model is what makes the choice checkable.
+            // The probe answers for Mali and the rest too, and falls back to a nameless line.
+            com.zomdroid.GpuInfo gpu = com.zomdroid.GpuInfo.query();
+            boolean named = gpu.renderer != null && !gpu.renderer.trim().isEmpty();
+            if (SuggestedPreset.QUALCOMM.equals(gpuVendor)) {
+                message += "\n\n" + (named
+                        ? getString(R.string.preset_dialog_gpu_zink, gpu.displayName())
+                        : getString(R.string.preset_dialog_gpu_zink_unnamed));
+            } else {
+                // Mali, Exynos, Tensor, Kirin, Unisoc. These used to get ZINK and not one word
+                // about it, which is the worst of both.
+                message += "\n\n" + (named
+                        ? getString(R.string.preset_dialog_gpu_ng, gpu.displayName())
+                        : getString(R.string.preset_dialog_gpu_ng_unnamed));
+            }
+        } else {
+            message += "\n\n" + getString(R.string.preset_dialog_b41_applied);
+        }
+        message += "\n\n" + getString(R.string.preset_dialog_troubleshoot);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(titleRes)
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_button_ok, null)
+                // Where these settings live, for the Adreno owner the hint above sends here and for
+                // anyone who wants to look. One canonical place; every other screen points at it.
+                .setNeutralButton(R.string.preset_card_title, (dialog, which) -> {
+                    Bundle presetArgs = new Bundle();
+                    presetArgs.putString(SettingsFragment.ARG_INSTANCE, instanceName);
+                    Navigation.findNavController(requireView())
+                            .navigate(R.id.action_open_instance_settings, presetArgs);
+                })
+                .show();
+    }
+
+    private void updateDependencies() {
+        // Always run: doInstallDependencies() CRC32-checks each bundle (JRE21/JRE25/libs/jars)
+        // against what's on disk and only re-extracts the ones that changed, silently no-op'ing
+        // (no notification/dialog) when nothing did. That's what lets an APK update carrying a
+        // changed libs.tar.xz take effect on next launch, without requiring a full app reinstall
+        // (a reinstall wipes app data, which is what used to reset ARE_DEPENDENCIES_INSTALLED
+        // and force a re-check — now unnecessary).
+        Intent installerIntent = new Intent(requireContext(), InstallerService.class);
+        installerIntent.putExtra(InstallerService.EXTRA_COMMAND, InstallerService.Task.INSTALL_DEPENDENCIES.ordinal());
+        requireContext().startForegroundService(installerIntent);
+    }
+
+    private void bindInstallerService() {
+        Intent intent = new Intent(requireContext(), InstallerService.class);
+        requireContext().bindService(intent, this.installerServiceConnection, 0);
+    }
+
+    private void unbindInstallerService() {
+        if (this.isInstallerServiceBound) {
+            // Without a context there is nothing to unbind from: Android drops the binding with
+            // the activity it belonged to.
+            Context context = getContext();
+            if (context != null) context.unbindService(this.installerServiceConnection);
+            isInstallerServiceBound = false;
+        }
+    }
+
+    /** The first-steps card shows only while there is no instance yet. */
+    private void updateEmptyState() {
+        if (binding == null) return;
+        boolean empty = GameInstanceManager.requireSingleton().getInstances().isEmpty();
+        binding.launcherEmptyCard.setVisibility(empty ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter != null) adapter.notifyDataSetChanged();
+        updateEmptyState();
+
+        bindInstallerService();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(InstallerService.ACTION_STARTED);
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(taskProgressReceiver, filter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        unbindInstallerService();
+
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(taskProgressReceiver);
+    }
+}

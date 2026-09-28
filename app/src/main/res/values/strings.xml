@@ -1,0 +1,699 @@
+<resources>
+    <string name="app_name" translatable="false">Zomdroid</string>
+
+    <string name="percentage_format" translatable="false">%d%%</string>
+
+    <string name="legal_notice_title">Legal notice</string>
+    <string name="legal_notice_message">This launcher is a third-party tool and requires original Project Zomboid files to function. You must own a legally licensed copy of the game to use this software. The developer of this launcher is not affiliated with the original game creators and assumes no responsibility for any legal consequences arising from the use of this software.</string>
+
+    <string name="fragment_label_launcher">Launcher</string>
+    <string name="fragment_label_new_game_instance">New game instance</string>
+    <string name="fragment_label_settings">Settings</string>
+    <string name="fragment_label_instance_settings">Instance settings</string>
+    <string name="settings_etc2_cache_clear">Clear</string>
+    <string name="settings_etc2_cache_label">Texture cache: %1$s</string>
+    <string name="settings_etc2_cache_hint">Shared by all instances. Safe to clear at any time: the renderer re-encodes what it needs, which costs a few seconds on the next load.</string>
+    <string name="settings_etc2_cache_cleared">Texture cache cleared</string>
+    <string name="settings_texture_compression">Texture compression (ETC2)</string>
+    <string name="settings_texture_compression_hint">Compresses large textures with a minimal loss of quality for phone and even tablet screens. Comes with a cache you can clear yourself. The first launch builds the cache and may take a little longer. The cache is shared by ZINK and NG_GL4ES. <b>Note:</b> with ETC2 enabled the LIBGL_SHRINK variable becomes almost pointless, and no tile grid is drawn on textures.</string>
+    <string name="settings_texture_compression_short">Compresses large textures with minimal quality loss. Keeps a cache you can clear.</string>
+    <string name="app_settings_instance_hint">Renderer, driver, Java arguments, resolution and the on-screen controls belong to a game instance. Open them with the gear button on an instance card.</string>
+    <string name="game_instance_settings">Instance settings</string>
+    <string name="fragment_label_controls_editor">Controls editor</string>
+    <string name="fragment_label_wiki">Wiki</string>
+    <string name="fragment_label_onscreen">Onscreen buttons only</string>
+    <string name="nav_menu_install_mod">Import Mods</string>
+
+    <string name="controls_editor_instructions">Long press on empty space to open context menu. Changes are saved automatically once you are finished</string>
+    <string name="controls_editor_add_element">Add control element</string>
+    <string name="control_element_scale">Scale</string>
+    <string name="control_element_text">Text</string>
+    <string name="control_element_text_empty">Empty</string>
+    <string name="control_element_bindings">Bindings</string>
+    <string name="control_element_select_binding">Select binding</string>
+    <string name="control_element_binding_invalid">Invalid binding</string>
+    <string name="control_element_opacity">Opacity</string>
+    <string name="control_element_tap_click">Tap = left click</string>
+    <string name="control_element_binding_left">Binding Left</string>
+    <string name="control_element_binding_up">Binding Up</string>
+    <string name="control_element_binding_right">Binding Right</string>
+    <string name="control_element_binding_down">Binding Down</string>
+    <string name="control_element_input_type_mnk">Mouse &amp; Keyboard</string>
+    <string name="control_element_input_type_gamepad">Gamepad</string>
+    <string name="gamepad_mapper_button_lt">LT (Left Trigger)</string>
+    <string name="gamepad_mapper_button_rt">RT (Right Trigger)</string>
+
+    <string name="game_instance_name">Name</string>
+    <string name="game_instance_preset">Preset</string>
+    <string name="game_instance_files">Game files (.zip)</string>
+    <string name="game_instance_browse_files_hint">Browse for files…</string>
+    <string name="game_instance_no_file_selected">No files selected</string>
+    <string name="game_instance_name_invalid">Invalid name</string>
+    <string name="game_instance_name_already_exists">Already exists</string>
+    <string name="game_instance_unsupported_extension">Only .zip archives are supported</string>
+
+    <string name="dialog_button_ok">OK</string>
+    <string name="dialog_button_accept">Accept</string>
+    <string name="dialog_button_quit">Quit</string>
+    <string name="dialog_button_view_guide">View guide</string>
+    <string name="dialog_button_close">Close</string>
+    <string name="dialog_button_confirm">Confirm</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_title_delete_game_instance">Delete game instance?</string>
+    <string name="dialog_title_info">Info</string>
+    <string name="dialog_title_fatal_error">Fatal error</string>
+    <string name="dialog_title_creating_instance">Creating game instance…</string>
+    <string name="dialog_title_instance_created">Instance successfully created</string>
+    <string name="dialog_title_failed_to_create_instance">Failed to create instance</string>
+    <string name="dialog_title_deleting_game_instance">Deleting game instance…</string>
+    <string name="dialog_title_instance_deleted">Instance successfully deleted</string>
+    <string name="dialog_title_failed_to_delete_instance">Failed to delete instance</string>
+    <string name="dialog_title_installing_dependencies">Installing dependencies…</string>
+    <string name="dialog_title_dependencies_installed">Dependencies successfully installed</string>
+    <string name="dialog_title_failed_to_install_dependencies">Failed to install dependencies</string>
+    <string name="dialog_title_donate">Support development</string>
+    <string name="dialog_title_game_files_missing">Game files are missing</string>
+    <string name="dialog_title_game_files_not_for_linux">Installed files are not supported</string>
+
+    <string name="installation_not_finished">Installation is not finished</string>
+    <string name="dependencies_not_installed">Zomdroid dependencies are not installed</string>
+
+    <string name="settings_renderer">Renderer</string>
+    <string name="settings_vulkan_driver">Vulkan driver</string>
+    <string name="settings_resolution_scale">Resolution scale</string>
+    <string name="settings_hud">In-game display</string>
+    <string name="settings_hud_off">Off</string>
+    <string name="settings_hud_fps">Only FPS</string>
+    <string name="settings_hud_full">Full info</string>
+    <string name="settings_hud_hint">Full info shows a bar at the top: GPU and CPU load, memory, power draw, temperature and an FPS graph. Handy to see what slows the game down.</string>
+    <string name="settings_audio_api">Audio API</string>
+    <string name="settings_render_hint">Build 41 → GL4ES, Build 42 → NG_GL4ES (Adreno: ZINK)</string>
+
+    <string name="nav_menu_controls_editor">Controls editor</string>
+    <string name="nav_menu_gamepad_mapper">Gamepad mapper</string>
+    <string name="nav_menu_manage_storage">Manage storage</string>
+    <string name="nav_menu_donate">Donate</string>
+    <string name="control_element_delete">Delete element</string>
+    <string name="control_element_input_type">Input type</string>
+    <string name="control_element_stick_binding">Stick Binding</string>
+    <string name="control_element_icon">Icon</string>
+    <string name="control_element_style">Style</string>
+    <string name="control_element_custom_icon">Custom icon…</string>
+    <string name="control_element_icon_no_tint">Keep original colors</string>
+    <string name="control_element_custom_icon_select_button">Select a button first</string>
+    <string name="control_element_custom_icon_failed">Could not load image</string>
+
+    <!-- Steam downloader -->
+    <string name="steam_dl_menu">Download from Steam</string>
+    <string name="steam_dl_tab_game">Game</string>
+    <string name="steam_dl_tab_mods">Mods</string>
+    <string name="steam_dl_login_group">Steam login</string>
+    <string name="steam_dl_login_note">Your login is sent to Steam (the same way DepotDownloader works) and is NOT stored — no data or password is saved. Approve the sign-in in your Steam Mobile app, or enter the Steam Guard code when asked.</string>
+    <string name="steam_dl_slow_warning">⚠️ Downloading can be slow.</string>
+    <string name="steam_dl_build_42">Build 42</string>
+    <string name="steam_dl_build_41">Build 41</string>
+    <string name="steam_dl_manifest_hint_41">Build 41 manifest id (required)</string>
+    <string name="steam_dl_build41_needs_manifest">Build 41: enter its manifest id.</string>
+    <string name="steam_dl_cancel">Cancel download</string>
+    <string name="steam_dl_cancel_confirm">Cancel the download? Files already downloaded are kept for resuming later.</string>
+    <string name="steam_dl_username">Steam username</string>
+    <string name="steam_dl_password">Steam password</string>
+    <string name="steam_dl_version_note">Downloads the Linux build of Project Zomboid into Downloads/zomdroid — no Termux, no PC. Build 41 is ~6–7 GB and Build 42 ~10–11 GB unpacked, so it takes a long time; if interrupted, just start the same build again and it resumes. Leave the manifest field blank for the latest build. To pin an older version instead, find it at https://steamdb.info/depot/108603/manifests/ and copy its \"DepotDownloader\" line (not \"Steam Console\") — paste the whole line here, branch included; the Build 41/42 toggle above is then ignored.</string>
+    <string name="steam_dl_manifest_hint">Manifest id, or a full DepotDownloader line (blank = latest)</string>
+    <string name="steam_dl_download_game">Download game</string>
+    <string name="steam_dl_mods_note">Download Workshop mods by ID (the number in the workshop URL: …/sharedfiles/filedetails/?id=NUMBER). No Steam login needed. Several IDs can be space-separated. Each is saved as a .zip in Downloads/zomdroid.</string>
+    <string name="steam_dl_mods_hint">Workshop IDs (space-separated)</string>
+    <string name="steam_dl_download_mods">Download mods</string>
+    <string name="steam_dl_required">Required</string>
+    <string name="steam_dl_mods_empty">Enter a Workshop ID (the number from the URL)</string>
+    <string name="steam_dl_storage_title">Storage access needed</string>
+    <string name="steam_dl_storage_message">The game and mods are saved into the public Downloads/zomdroid folder so you can see, share and import them. Please grant \"All files access\" to Zomdroid, then tap Download again.</string>
+    <string name="steam_dl_grant">Grant</string>
+    <string name="steam_dl_guard_title">Enter Steam Guard code</string>
+    <string name="steam_dl_guard_retry">Code incorrect — try again</string>
+    <string name="steam_dl_guard_hint">Steam Guard code</string>
+    <string name="steam_dl_guard_email">Code emailed to %1$s</string>
+
+    <string name="game_instance_manage_storage">Manage storage</string>
+    <string name="game_instance_delete">Delete</string>
+
+    <string name="donate_message">Enjoying the app and want to support us? \n\nMaintained and Developed by: ko-fi.com/udarmolota, \ncreator: ko-fi.com/liamelui.  \n\nContributors: \nshimux0, Wakort, LeHiepDuy, deadgamer182, Liko, Willing-Run-8987, Willing-Upstairs-580.</string>
+
+    <string name="app_aborted">The app ran into an unexpected issue and had to close</string>
+    <string name="share_logs">Share log file</string>
+
+    <string name="delete_game_instance">All game files and data (saves, mods, favorite servers, etc.) associated with this instance will be permanently lost</string>
+    <string name="game_files_missing">Make sure ProjectZomboid64 is at the top level of the .zip archive used for installation. You can follow the guide on the wiki to ensure the files are packaged correctly</string>
+    <string name="game_files_not_for_linux">Project Zomboid version for Linux is required. You can follow the guide on the wiki to ensure the correct files are downloaded</string>
+
+    <!-- Gamepad Mapper Strings -->
+    <string name="gamepad_mapper_title">Gamepad Button Mapping</string>
+    <string name="gamepad_mapper_description">Press the buttons on your gamepad in the requested order to customize your controls.</string>
+    <string name="gamepad_mapper_start">Start Mapping</string>
+    <string name="gamepad_mapper_reset">Reset to Default</string>
+    <string name="gamepad_mapper_step">Press: %s</string>
+    <string name="gamepad_mapper_save">Mapping Complete!</string>
+    <string name="gamepad_mapper_success">Gamepad mapping saved successfully</string>
+    <string name="gamepad_mapper_reset_confirmation">Gamepad mapping reset to default</string>
+
+    <!-- Gamepad Button Names -->
+    <string name="gamepad_mapper_button_a">A Button</string>
+    <string name="gamepad_mapper_button_b">B Button</string>
+    <string name="gamepad_mapper_button_x">X Button</string>
+    <string name="gamepad_mapper_button_y">Y Button</string>
+    <string name="gamepad_mapper_button_lb">Left Bumper</string>
+    <string name="gamepad_mapper_button_rb">Right Bumper</string>
+    <string name="gamepad_mapper_button_select">Select/Back</string>
+    <string name="gamepad_mapper_button_start">Start/Menu</string>
+    <string name="gamepad_mapper_button_guide">Guide/Home</string>
+    <string name="gamepad_mapper_button_lstk">Left Stick Click</string>
+    <string name="gamepad_mapper_button_rstk">Right Stick Click</string>
+    <string name="gamepad_mapper_button_dpad_up">D-Pad Up</string>
+    <string name="gamepad_mapper_button_dpad_down">D-Pad Down</string>
+    <string name="gamepad_mapper_button_dpad_left">D-Pad Left</string>
+    <string name="gamepad_mapper_button_dpad_right">D-Pad Right</string>
+
+    <!-- Native Libraries -->
+    <string name="game_instance_native_libs_label">Native Libraries for B41 (.zip)</string>
+    <string name="game_instance_no_native_libs_selected">Please select native libraries ZIP (opt., for MP on B41 only)</string>
+    <string name="game_instance_browse_native_libs">Browse native libraries ZIP (B41)</string>
+
+    <!-- Saves -->
+    <string name="game_instance_saves_label">Save file (.zip)</string>
+    <string name="game_instance_no_saves_selected">Please select Save ZIP</string>
+    <string name="game_instance_browse_saves">Browse Save ZIP</string>
+
+    <!-- Mods -->
+    <string name="game_instance_mods_label">Mods ZIP (optional)</string>
+
+    <!-- Onscreen controls -->
+    <string name="touch_controls_description">Touch control mode disables gamepad support and enables on-screen buttons only.</string>
+    <string name="touch_controls_switch_label">Enable on-screen touch controls</string>
+    <string name="vibrate_on_touch_switch_label">Vibrate on button press</string>
+    <string name="touch_controls_enabled_toast">Touch controls enabled</string>
+    <string name="touch_controls_disabled_toast">Touch controls disabled</string>
+    <string name="fragment_label_touch_controls">Touch Controls</string>
+
+    <!-- Import Mod -->
+    <string name="install_mod_title">Import Mods</string>
+    <string name="install_mod_instance_label">Game instance</string>
+    <string name="install_mod_zip_label">Mod ZIP</string>
+    <string name="install_mod_browse">Browse…</string>
+    <string name="install_mod_install">Import</string>
+
+    <string name="install_mod_no_instances">No game instances found</string>
+    <string name="install_mod_select_instance">Select a game instance</string>
+    <string name="install_mod_select_zip">Select a ZIP file</string>
+
+    <string name="dialog_title_installing_mods">Importing mods</string>
+    <string name="dialog_title_failed_to_install_mods">Failed to import mods</string>
+    <string name="dialog_title_mods_installed">Mods installed</string>
+
+    <string name="dialog_title_installing_saves">Importing saves</string>
+    <string name="dialog_title_failed_to_install_saves">Failed to import saves</string>
+    <string name="dialog_title_saves_installed">Saves imported</string>
+
+    <string name="install_mod_zip_warning">Some mods are better installed from the Optimization menu.</string>
+
+    <string name="install_mod_zip_help_title">Mod archive structure</string>
+
+    <string name="install_mod_zip_help_message">
+        \u2705 Correct examples:\n\n
+    
+        Single mod:\n
+        ModName/\n
+        \u00A0\u00A0mod.info\n
+        \u00A0\u00A0media/\n
+        \u00A0\u00A0scripts/\n\n
+    
+        Multiple mods in one ZIP:\n
+        ModA/\n
+        \u00A0\u00A0mod.info\n
+        ModB/\n
+        \u00A0\u00A0mod.info\n\n
+    
+        \u274C Incorrect examples:\n\n
+    
+        Extra wrapper folder:\n
+        Downloads/\n
+        \u00A0\u00A0ModName/\n
+        \u00A0\u00A0\u00A0\u00A0mod.info\n\n
+    
+        Missing mod root:\n
+        media/\n
+        scripts/\n
+        (no mod.info in root)
+    </string>
+
+
+    <!-- Controls layout -->
+    <string name="menu_install_controls">Import/Export Controls</string>
+
+    <string name="install_controls_instance_label">Game instance</string>
+    <string name="install_controls_zip_label">Controls ZIP</string>
+    <string name="install_controls_install">Import</string>
+
+    <string name="dialog_title_installing_controls">Importing controls…</string>
+    <string name="dialog_title_controls_installed">Controls imported</string>
+    <string name="dialog_title_failed_to_install_controls">Failed to import controls</string>
+
+    <string name="install_controls_zip_warning">ZIP must contain controls.json (at top level). If not, it may be installed incorrectly.</string>
+
+    <string name="install_controls_zip_help_title">Controls ZIP format</string>
+    <string name="install_controls_zip_help_message">✅ Correct:\n\ncontrols.json\n\n❌ Incorrect:\n\nSomeFolder/\n\u00A0\u00A0controls.json</string>
+
+    <string name="install_saves_instance_label">Select game instance</string>
+    <string name="install_saves_zip_label">Saves ZIP archive</string>
+    <string name="install_saves_zip_warning">ZIP must contain save folders directly (Sandbox, Survival, etc.).</string>
+    <string name="install_saves_install">Import</string>
+    <string name="install_saves_menu">Import/Export Saves</string>
+    <string name="install_saves_zip_help_title">How saves ZIP should look</string>
+    <string name="install_saves_zip_help_message">
+    \u2705 Example structure:
+    \u00A0\u00A0Sandbox/\n
+    \u00A0Survival/\n
+    \u00A0Builder/\n
+    \u00A0Apocalypse/\n\n
+
+    Do not pack the parent folder.
+    </string>
+
+    <string name="install_saves_export">Export</string>
+    <string name="dialog_title_exporting_saves">Exporting saves</string>
+    <string name="dialog_title_saves_exported">Saves exported</string>
+    <string name="dialog_title_failed_to_export_saves">Failed to export saves</string>
+
+    <string name="install_controls_export">Export</string>
+
+    <string name="dialog_title_exporting_controls">Exporting controls…</string>
+    <string name="dialog_title_controls_exported">Controls exported</string>
+    <string name="dialog_title_failed_to_export_controls">Failed to export controls</string>
+    <string name="dialog_title_controls_export_skipped_default">Default controls in use — nothing to export</string>
+    <string name="install_controls_global_hint">
+       Controls layout is global. Export saves controls.json only if you changed the layout.
+    </string>
+    <string name="controls_export_nothing_to_export">Nothing to export: default controls layout is used.</string>
+    <string name="settings_debug_mode">Debug mode (-debug)</string>
+    <string name="settings_memory_saver">Memory saver (NG_GL4ES)</string>
+    <string name="settings_memory_saver_hint">Lowers texture detail when memory runs low. Helps avoid crashes on devices with 8 GB RAM or less; not needed with 12 GB. Applies to the NG_GL4ES renderer on Build 42.</string>
+
+    <!-- Quick Save (the F10 backup): opt-in, priced honestly. The settings switch is called Quick
+         Save (F10) and is translated; the instance menu item and the dialogs say F10, which keeps
+         the short labels language-neutral. See BackupManager and the agent. -->
+    <!-- Shown once after an update, then recorded. The body is DELIBERATELY in strings.xml, not
+         fetched from GitHub: a once-only dialog that needs the network up at exactly the right
+         moment is a dialog most people never see. Rewrite the body as part of every release. -->
+    <string name="release_notes_title">What\'s new in %1$s</string>
+    <string name="release_notes_body">Main features\n\n• Server hosting — turn on Allow server hosting in the instance settings and choose Host in the game. Friends join over Wi-Fi or, with UPnP on the router, over the internet. While it is on, the game uses a separate profile. Experimental.\n\n• Dedicated server — instance menu (⋮) → Start Server runs only the game server on this phone, and players join from other devices. Experimental.\n\n• Native macOS libraries (Build 42.20+) — lighting, pathfinding and zombie population run as native ARM64 code instead of emulation. Download them from Steam or load a ZIP in Additional libraries. Experimental.\n\n• Download from GOG — sign in, download the Linux installer and create an instance straight from it.\n\n• Import/Export — game settings, sandbox presets, and character builds and outfits, all as .zip.\n\n• Readable names in the controls editor, and first steps on an empty home screen.\n\nChanged\n\n• The game\'s mouse cursor follows the \"Lock cursor to window\" option without a restart.\n\n• Sound (FMOD) and, on Build 42.20+, physics (Bullet) run natively.\n\nKnown issues\n\n• Build 41 with KI5/Autotsar vehicles on GL4ES: the interface may turn green or disappear. Turn off reflections in the game settings.</string>
+
+    <string name="settings_features_title">Features</string>
+    <string name="settings_backup_switch">Quick Save (F10)</string>
+    <string name="backup_warning_title">Before you turn this on</string>
+    <string name="backup_warning_message">Pressing F10 makes a full copy of your world — a point you can return to after a crash or a death.\n\nThe bigger your save (the longer your character has lived), the longer the copy takes. Find a couple of safe minutes before pressing F10: the game may look frozen while the copy is written — it is not. Just wait and do not close it.\n\nThe F10 button is part of the new control layouts. If you keep your own layout from an earlier version, add the button yourself in the controls editor: input type Keyboard &amp; mouse, binding F10.\n\nOne copy is kept per world; each new one replaces the last. Build 41 and 42, single player only.</string>
+    <string name="backup_restore_title">Previous session crashed</string>
+    <string name="backup_restore_message">There is a backup of “%1$s” from %2$s (%3$d MB) — the moment you pressed F10.\n\nReturning to it will erase everything that happened after it was made.</string>
+    <string name="backup_restore_continue">Continue as is</string>
+    <string name="backup_restore_do">Return to backup</string>
+    <string name="backup_restoring">Restoring the backup…</string>
+    <string name="backup_restore_done">Backup restored</string>
+    <string name="backup_restore_failed">Restore failed: %1$s</string>
+    <string name="game_instance_restore_backup">Restore F10 backup</string>
+    <string name="backup_manual_restore_message">There is a backup of “%1$s” from %2$s (%3$d MB).\n\nRestoring it will replace your current progress in that world with the state at the moment the backup was made. This cannot be undone.</string>
+    <string name="bug_report_pick_instance">Which game is this report about?</string>
+    <string name="backup_none_found">No backup found for the last played world</string>
+    <string name="select_instance">— Select game instance —</string>
+
+    <!-- Vulkan Driver dialogs -->
+    <string name="vulkan_driver_freedreno_8xx_title">Freedreno 8xx</string>
+    <string name="vulkan_driver_freedreno_8xx_message">Custom driver for Adreno 8xx GPUs (by whitebelyash).\n\nSnapdragon 8 Gen 3/4/5/Elite + 7 Gen 3.</string>
+
+    <string name="vulkan_driver_freedreno_840_title">Freedreno 830/840</string>
+    <string name="vulkan_driver_freedreno_840_message">Custom driver optimized for Adreno 830/840 GPUs.\n\nSnapdragon 8 Gen 5/Elite.</string>
+
+    <string name="vulkan_driver_turnip_8gen2_title">TURNIP 740 (bbdd688)</string>
+    <string name="vulkan_driver_turnip_8gen2_message">Custom driver for Adreno 740 GPU.\n\nSnapdragon 8 Gen 2. Fixes flickering after HyperOS3/OneUI  update (by Weab-chan).</string>
+
+    <string name="vulkan_driver_turnip_bbdd688_title">TURNIP 7xx (bbdd688)</string>
+    <string name="vulkan_driver_turnip_bbdd688_message">Custom driver for Adreno 7xx GPUs  (by Weab-chan).\n\nSnapdragon 7-series. </string>
+
+    <string name="vulkan_driver_turnip_gmem_title">TURNIP 710</string>
+    <string name="vulkan_driver_turnip_gmem_message">Custom driver for Adreno 710 GPU (previously known as TURNIP 25.1.3 GMEM by duduproad).\n\nSnapdragon 7 Gen 1.</string>
+
+    <string name="vulkan_driver_turnip_a6xx_title">TURNIP Adreno 6xx</string>
+    <string name="vulkan_driver_turnip_a6xx_message">Custom driver for older Adreno 6xx GPUs by K11MCH1.\n\nSnapdragon 600-series. Use if the default Freedreno driver doesn\'t work.</string>
+
+    <string name="vulkan_driver_freedreno">Freedreno</string>
+    <string name="vulkan_driver_freedreno_message">Default driver for Adreno 7xx GPUs.\n\nSnapdragon 7-series. May also work on some 6xx devices.</string>
+
+    <!-- JVM args dialog -->
+    <string name="jvm_args_dialog_title">JVM arguments</string>
+    <string name="jvm_args_dialog_message">Additional JVM arguments, e.g.:\n\n• -Xmx2G - allocate 2Gb of memory\n• -Xms512M - process starts with 512MB RAM\n• -XX:MaxGCPauseMillis=120 - target a shorter garbage-collector pause\n\nIn theory, it should help when there\'s not enough RAM. Some arguments are already set by settings.\nIf you set it incorrectly and the app doesn\'t run, reinstall it or just clear the app cache.</string>
+
+    <!-- Custom Driver import/export -->
+    <string name="install_driver_menu">Import/Export Custom Driver</string>
+    <string name="install_driver_so_label">Custom Vulkan Driver (.so file)</string>
+    <string name="install_driver_warning">Replaces the previously loaded custom driver. Use at your own risk.</string>
+    <string name="install_driver_import">Import</string>
+    <string name="install_driver_export">Export</string>
+    <string name="install_driver_wrong_extension">Please select a .so file</string>
+ 
+    <!-- InstallerService task titles -->
+    <string name="dialog_title_importing_driver">Importing custom driver…</string>
+    <string name="dialog_title_driver_imported">Custom driver imported</string>
+    <string name="dialog_title_failed_to_import_driver">Failed to import driver</string>
+    <string name="dialog_title_exporting_driver">Exporting custom driver…</string>
+    <string name="dialog_title_driver_exported">Custom driver exported</string>
+    <string name="dialog_title_failed_to_export_driver">Failed to export driver</string>
+
+    <!-- Export log -->
+    <string name="export_log_menu">Export Game Log</string>
+    <string name="export_log_export">Export console.txt</string>
+    <string name="export_log_not_found">Log file not found. The game may not have run yet, or it crashed before creating the Zomboid folder.</string>
+    <string name="dialog_title_exporting_log">Exporting log…</string>
+    <string name="dialog_title_log_exported">Log exported</string>
+    <string name="dialog_title_failed_to_export_log">Failed to export log</string>
+
+    <string name="nav_menu_reddit">Reddit</string>
+    <!-- Labels for the bottom icon row. Short on purpose: five columns share the drawer width. -->
+    <string name="nav_bottom_github">GitHub</string>
+    <!-- CC BY requires the credit to stay visible, so it rides along in the version dialog - the
+         one "about this app" surface reachable at any time. Untranslated on purpose: a licence
+         attribution names people and a licence, and both stay as written. -->
+    <string name="credits_third_party" translatable="false">Donate icon: \"Donate\" by Edward Boatman from the Noun Project, CC BY 3.0.\nhttps://thenounproject.com/icon/donate-285/</string>
+    <string name="nav_bottom_rimdroid" translatable="false">RimDroid</string>
+    <string name="rimdroid_url" translatable="false">https://github.com/udarmolota/RimDroid/releases</string>
+    <string name="rimdroid_dialog_title" translatable="false">RimDroid</string>
+    <string name="rimdroid_dialog_message">RimDroid runs RimWorld on Android, the same way this launcher runs Project Zomboid. Same author, same approach.\n\nhttps://github.com/udarmolota/RimDroid/releases</string>
+    <string name="reddit_dialog_title">Zomdroid on Reddit</string>
+    <string name="reddit_message">Join our community on Reddit:\nhttps://www.reddit.com/r/zomdroid</string>
+
+    <string name="settings_env_vars">Environment variables</string>
+    <string name="settings_env_vars_hint">For example: TU_DEBUG=nogmem</string>
+    <string name="settings_texture_shrink_title">Texture shrink — GL4ES / NG_GL4ES</string>
+    <string name="settings_texture_shrink_desc">Values 1–11 are not a scale. Commonly used: 1 (ultra low) and 7 (balanced); mode 1 can crash on empty textures. See the table for the rest.</string>
+    <string name="settings_texture_shrink_table">1. ⚠  all halved\n2. ⚠  above 512px halved\n3. ⚠  above 256px halved\n4. ⚠  above 256px halved, 1024px+ quartered\n5.    above 256px → 256px\n6.    above 128px halved, 512px+ → 256px\n7.    above 512px halved</string>
+    <string name="settings_texture_shrink_notes">⚠  also shrinks empty textures — this is where the crashes come from.\n\n8–11 are compatibility modes: they report a larger maximum texture size to the game and save no memory. Not needed for PZ.\n\nHalving a side quarters the memory a texture costs.</string>
+    <string name="settings_texture_shrink_none">Off</string>
+    <string name="settings_texture_shrink_balanced">Balanced (7)</string>
+    <string name="settings_texture_shrink_ultra">Ultra low (1)</string>
+
+    <string name="settings_env_vars_dialog_message">Environment variables passed directly to the system before the game starts.\n\nUse to configure renderers, drivers and other components, e.g.:\n\nTU_DEBUG=nogmem\nZINK_DEBUG=norp\n\nUse with caution — incorrect values may cause crashes.</string>
+
+    <!-- Controls Editor -->
+    <string name="controls_editor_layout_dialog_title">Layout</string>
+    <string name="controls_editor_load_vkbd">⌨️ Load Virtual KB+Mouse</string>
+    <string name="controls_editor_reset_gamepad">🕹 Reset to default GAMEPAD</string>
+    <string name="controls_editor_vkbd_loaded">Virtual Keyboard layout loaded</string>
+    <string name="controls_editor_layout_restored">Original layout restored</string>
+
+    <!-- Version update -->
+    <string name="version_check_title">Zomdroid by udar_molota</string>
+    <string name="version_check_up_to_date">You have the latest version: %1$s</string>
+    <string name="version_check_update_available">Installed: %1$s\nAvailable: %2$s\n%3$s</string>
+    <string name="version_check_error">Could not check for updates\nCurrent version: %1$s</string>
+    <string name="version_check_ahead_of_release">Installed: %1$s\nThis build is newer than the latest published release (%2$s)</string>
+    <string name="nav_menu_version">Check for updates</string>
+
+    <!-- Bug report -->
+    <string name="nav_bug_report">Report a bug</string>
+    <string name="bug_report_preparing">Preparing bug report…</string>
+    <string name="bug_report_email" translatable="false">210478@mail.ru</string>
+    <string name="bug_report_subject" translatable="false">ZOMDROID REPORT %1$s</string>
+    <string name="bug_report_body">Hi, I have a new bug report.\n\nDescription: \n\n\n---\n%1$s</string>
+    <string name="bug_report_no_mail">No email app found on this device.</string>
+
+    <!-- New instance -->
+    <string name="native_libs_dialog_title">Native libraries for B41 (optional)</string>
+    <string name="native_libs_dialog_message">Native libraries are files from build 42.12. These are mainly two files:\n\n🌐 libRakNet64.so\n🌐 libZNetNoSteam64.so\n\nThey are required for multiplayer support on build 41.78. You can read more about them on the Wiki.</string>
+    <string name="dialog_button_wiki">Wiki</string>
+
+    <string name="preset_dialog_title_b41">Build 41</string>
+    <string name="preset_dialog_title_b42">Build 42</string>
+    <string name="preset_dialog_title_b4212">Build 42.12+</string>
+
+    <string name="preset_dialog_message_b41">Build 41.78. Needs 4 GB of RAM or more.</string>
+    <string name="preset_dialog_message_b42">Build 42.0–42.11. Needs at least 6 GB of RAM.</string>
+    <string name="preset_dialog_message_b4212">Build 42.12 and above. Needs at least 8 GB of RAM to play comfortably.</string>
+
+    <!-- Settings groups -->
+    <string name="settings_group_rendering">Rendering</string>
+    <string name="settings_group_texture">Texture compression</string>
+    <string name="settings_group_appearance">Appearance</string>
+    <string name="settings_theme">Launcher theme</string>
+    <string name="settings_group_advanced">Advanced</string>
+    <string name="settings_group_controls">Controls</string>
+    <string name="settings_group_audio">Audio</string>
+
+    <!-- Game files zip help text -->
+    <string name="game_instance_files_help_message">
+        \u2705 Correct:\n\n
+        projectzomboid.zip/\n
+        \u00A0\u00A0ProjectZomboid64.json\n
+        \u00A0\u00A0java/\n
+        \u00A0\u00A0natives/\n
+        \u00A0\u00A0...\n\n
+        \u274C Incorrect:\n\n
+        projectzomboid.zip/\n
+        \u00A0\u00A0Project Zomboid/\n
+        \u00A0\u00A0\u00A0\u00A0ProjectZomboid64.json\n
+        \u00A0\u00A0\u00A0\u00A0java/\n
+        \u00A0\u00A0\u00A0\u00A0...\n\n
+        A GOG Linux installer (.sh) works too: put it into a .zip archive on its own.
+    </string>
+    <string name="game_instance_files_help_title">Game files ZIP structure</string>
+
+    <!-- New instance layout names -->
+    <string name="new_game_instance_group_name">Instance name</string>
+    <string name="new_game_instance_group_preset">Preset</string>
+    <string name="new_game_instance_group_files">Files</string>
+
+    <string name="install_mod_group_instance">→ Instance</string>
+    <string name="install_mod_group_file">Mod file</string>
+    <string name="install_controls_group_file">Controls layout</string>
+    <string name="install_saves_group_import">Import saves</string>
+    <string name="install_saves_group_export">Export saves</string>
+    <string name="install_saves_export_hint">Save your current saves as a ZIP archive.</string>
+    <string name="install_controls_group_export">Export layout</string>
+    <string name="install_controls_export_hint">Save your current button layout as a ZIP archive.</string>
+    <string name="install_driver_group_import">Import driver</string>
+    <string name="install_driver_group_export">Export driver</string>
+    <string name="install_driver_export_hint">Save the currently installed custom driver as a .so file.</string>
+    <string name="export_log_group_export">Export log</string>
+    <string name="export_log_hint">Exports the console.txt log file from the selected instance.</string>
+
+    <string name="new_game_instance_create">Create</string>
+    <string name="new_game_instance_select_preset">Select preset…</string>
+    <string name="new_game_instance_no_preset_selected">Please select a preset. It must match your game build: Build 41 has one preset, Build 42 is split into two — choose carefully.</string>
+    <string name="new_game_instance_no_preset_title">Select preset</string>
+    <string name="new_game_instance_detect_failed">Could not read the game ZIP. Make sure it is a valid Project Zomboid archive and try again.</string>
+    <string name="new_game_instance_analyzing">Analyzing the game file, please wait…</string>
+    <!-- Suggested presets: the settings combinations we hand out. See SuggestedPreset. -->
+    <string name="preset_card_title">Suggested presets</string>
+    <string name="preset_card_subtitle">Renderer, texture shrinking, Java arguments and resolution, set together for your game build.</string>
+    <string name="preset_name_b42">Build 42</string>
+    <string name="preset_name_b42_compat">Build 42 — compatibility</string>
+    <string name="preset_name_b41">Build 41</string>
+    <string name="preset_current">Currently applied: %1$s</string>
+    <string name="preset_current_none">Currently applied: your own settings</string>
+    <string name="preset_button_apply_suggested">Suggested preset</string>
+
+    <string name="preset_confirm_title">Apply %1$s?</string>
+    <string name="preset_confirm_nothing_to_do">Your settings already match this preset.</string>
+    <string name="preset_confirm_compat_note">\n\nSets the NG_GL4ES renderer: it needs no driver to be picked and is compatible with every known GPU.</string>
+    <string name="preset_change_renderer">Renderer: %1$s → %2$s</string>
+    <string name="preset_change_shrink">Texture shrinking: %1$s → %2$s</string>
+    <string name="preset_change_jvm_args">Java arguments: set to the recommended set</string>
+    <string name="preset_change_render_scale">Resolution scale: %1$s → %2$s</string>
+    <string name="preset_change_vulkan_driver">Vulkan driver: %1$s → %2$s</string>
+    <string name="preset_change_memory_saver_on">Memory saver: on</string>
+    <string name="preset_change_memory_saver_off">Memory saver: off</string>
+    <string name="preset_applied">Preset applied: %1$s</string>
+
+    <string name="renderer_gl4es_build41_title">GL4ES is for Build 41</string>
+    <string name="renderer_gl4es_build41_message">On Build 41 this is the right choice: it runs on any GPU and needs no driver setup.\n\nOn Build 42 it does not work — you will get a black screen. There, use NG_GL4ES (any GPU) or ZINK (Adreno).</string>
+
+
+    <string name="nav_menu_optimization">Optimization</string>
+    <string name="nav_menu_mod_fixes">Mod Fixes</string>
+
+    <!-- Optimization page -->
+    <string name="optimization_group_jvm">JVM arguments</string>
+    <string name="optimization_jvm_hint">The default arguments tune the garbage collector only, and are safe on any device — heap size and thread counts are left to the JVM, which scales them to your phone. Build 42 benefits from a stronger set: apply it with one button in Settings → Advanced → JVM arguments.</string>
+    <string name="settings_jvm_args_reset">Reset to default</string>
+    <string name="settings_jvm_args_clear">Clear</string>
+    <string name="settings_jvm_args_b42_recommendation">Recommended for Build 42: caps the Java heap and returns memory to the system, which leaves room for the renderer. In some cases the game may fail to start without some of these parameters. Not for Build 41 — on 4 GB devices it does more harm than good.</string>
+    <string name="settings_jvm_args_b42_preset_title">Preset for Build 42 (recommended)</string>
+    <string name="settings_jvm_args_apply">Apply</string>
+    <string name="renderer_ng_build42_only_title">NG_GL4ES is for Build 42</string>
+    <string name="renderer_ng_build42_only_message">This renderer was written for Build 42 and does not work on Build 41 — the game will not start. On Build 41 choose GL4ES.\n\nBuild 42 also wants its own Java arguments — the suggested preset sets everything at once: Settings → Suggested presets.</string>
+    <string name="new_game_instance_b42_jvm_hint">Build 42 needs tuned JVM arguments — there is a one-button preset for them in the settings.</string>
+    <string name="new_game_instance_open_settings">Open Settings → Advanced → JVM arguments →</string>
+    <string name="optimization_jvm_recommended_label">→ Current default:</string>
+    <string name="optimization_jvm_4gb_note">⚠️ On 4 GB devices the game will run, but not perfectly: Build 42 is not recommended there — play Build 41 and use the optimization mods below (BetterFPS, Every Texture Optimized). They help far more than JVM settings.</string>
+    <string name="optimization_copy">Copy</string>
+    <string name="optimization_open_settings">→ Open Settings</string>
+    <string name="optimization_group_betterfps">BetterFPS b41</string>
+    <string name="optimization_betterfps_hint">Reduces the render area around the player. \n\nDownload the mod, upload the zip file, and select one of the three most popular modes.</string>
+    <string name="optimization_betterfps_file_label">BetterFPS mod (zipped)</string>
+    <string name="optimization_install">Install</string>
+    <string name="optimization_betterfps_help_title">How BetterFPS works</string>
+    <string name="optimization_betterfps_help_message">Steam Workshop ID: 3022543997\n\n"Project Zomboid renders a 190×190 tile zone around the player. This mod reduces the size of this zone and avoids loading unnecessary chunks."\n— mod description\n\nVariants:\n• PotatoePC — maximum performance\n• 1080 — balanced\n• 4k — best quality (still lower than the original)\n• All_Settings — custom area sizes from 30×30 to 190×190; must be installed manually\n\nWe recommend starting with PotatoePC. You can go lower manually if needed.</string>
+    <string name="optimization_betterfps_installed">BetterFPS installed successfully</string>
+    <string name="optimization_betterfps_installing">Installing BetterFPS…</string>
+    <string name="optimization_betterfps_mode_label">→ Mode</string>
+    <string name="optimization_betterfps_mode_potato">PotatoPC (recommended)</string>
+    <string name="optimization_betterfps_mode_1080p">1080p</string>
+    <string name="optimization_betterfps_mode_4k">4K</string>
+    <string name="optimization_betterfps_error_not_found">IsoChunkMap.class not found for mode: %1$s</string>
+
+    <!-- Render Less Zombie (B41) -->
+    <string name="optimization_group_rlz">Render Less Zombie b41</string>
+    <string name="optimization_rlz_hint">Renders distant zombies as flat texture animations instead of full models, which helps a lot when a horde is on screen.\n\nSteam Workshop ID: 2970823607. Download the mod, upload the ZIP here and pick a level — it is the number of zombies still drawn as full models. Lower = faster.</string>
+    <string name="optimization_rlz_level_label">→ Level</string>
+    <string name="optimization_rlz_file_label">RenderLessZombie mod (zip archive)</string>
+    <string name="optimization_rlz_installing">Installing Render Less Zombie…</string>
+    <string name="optimization_rlz_installed">Render Less Zombie installed (level %1$s)</string>
+    <string name="optimization_rlz_error_not_found">Level %1$s not found in this archive. Make sure you picked the RenderLessZombie mod ZIP.</string>
+    <string name="optimization_rlz_help_title">How Render Less Zombie works</string>
+    <string name="optimization_rlz_help_message">Steam Workshop ID: 2970823607\n\n"When there are too many zombies, they will be rendered as texture animations."\n— mod description\n\nThe level is how many zombies are still drawn as full 3D models; everything beyond that becomes a cheap flat animation. Available levels: 1, 25, 50, 75, 100, 150 — the mod author recommends 50. The vanilla game has a hard limit of 510.\n\nInstalling replaces the zombie/iso classes of the selected instance; the originals are kept next to them as .bak files, so you can restore them by hand if you ever want the stock behaviour.\n\nBuild 41 only.</string>
+
+    <!-- ===== Mods fix ===== -->
+    <string name="mod_fix_installing">Installing mod with fix…</string>
+    <string name="mod_fix_installed">Mod installed successfully</string>
+    <string name="mod_fix_error_no_mod_folder">No mod folder found in archive</string>
+    <string name="mod_fix_error_not_b42">This mod does not appear to be a Build 42 mod: %1$s</string>
+    <string name="mod_fix_group_double_path">Double path fix</string>
+    <string name="mod_fix_double_path_hint">Fix for Build 41/42 mods with path errors on Android. Known mods: Tsar\'s Common Library (ID: 3402491515), Simple Flashlight on Belt (ID: 3394588830).</string>
+    <string name="mod_fix_help_title">What is this fix?</string>
+    <string name="mod_fix_help_message">Some mods use a folder structure that causes a path conflict on Android. The game ends up looking for files in a doubled path and cannot find them.\n\nThis fix installs the mod twice — once with the original folder names, and once with all names in lowercase — so the game finds the files regardless of which path it uses.\n\nKnown affected mods:\n• Tsar\'s Common Library — ID: 3402491515\n• [B42] Simple Flashlight on Belt — ID: 3394588830\n\nTo use: download the mod and load it here.</string>
+
+    <!-- CPU/GPU autodetect -->
+    <string name="preset_dialog_gpu_zink">%1$s detected. ZINK_ZFA renderer and the Vulkan driver that suits your GPU have been set. If the picture looks wrong, try another driver or import your own in Settings.</string>
+    <string name="preset_dialog_gpu_zink_unnamed">ZINK_ZFA renderer and a Vulkan driver have been set. If the picture looks wrong, try another driver or import your own in Settings.</string>
+    <string name="preset_dialog_gpu_ng">%1$s detected. The NG_GL4ES renderer has been set — it runs on any GPU and needs no driver. Textures are compressed with ETC2 at full resolution, so memory stays low without the picture suffering.</string>
+    <string name="preset_dialog_gpu_ng_unnamed">The NG_GL4ES renderer has been set — it runs on any GPU and needs no driver. Textures are compressed with ETC2 at full resolution, so memory stays low without the picture suffering.</string>
+    <string name="preset_dialog_troubleshoot">If the game will not start with these settings, or closes soon after it does, try a ready-made preset — the button below.</string>
+    <string name="preset_dialog_b41_applied">GL4ES renderer has been set — it runs on any GPU and needs no driver setup.</string>
+
+    <!-- Manual mods installation -->
+    <string name="install_mod_manual_group">Manual installation</string>
+    <string name="install_mod_manual_hint">Copy mod folder to the mods folder inside the Zomboid folder. Create the mods folder if it doesn\'t exist (lowercase "mods"). Mod folder must not contain any extra wrapper folders.</string>
+    <string name="install_mod_open_folder">Open mods folder</string>
+    <string name="install_mod_manual_help_title">Manual installation</string>
+    <string name="install_mod_manual_help_message">
+        \u2705 Correct structure:\n\n
+        ModName/\n
+        \u00A0\u00A0mod.info\n
+        \u00A0\u00A0media/\n
+        \u00A0\u00A0scripts/\n\n
+        \u274C Incorrect — extra wrapper folder:\n\n
+        Downloads/\n
+        \u00A0\u00A0ModName/\n
+        \u00A0\u00A0\u00A0\u00A0mod.info
+    </string>
+
+    <!-- ===== SMART IMPORT strings ===== -->
+    <string name="install_mod_smart_group">Smart Import</string>
+    <string name="install_mod_smart_hint">Automatically finds the mod folder inside the ZIP, even if wrapped in extra folders (e.g. from Skymods). Applies fixes for mods with scripts or models.</string>
+    <string name="install_mod_smart_help_title">Smart Import</string>
+    <string name="install_mod_smart_help_message">Smart Import extracts the correct mod folder from any ZIP structure.\n\nIt detects the mod root by looking for mod.info, media/ or common/ folders — no matter how many wrapper folders surround it.\n\nFor mods with scripts/ or models_X/ folders, a lowercase copy is also installed automatically to fix Android path issues.</string>
+    <string name="install_mod_smart_install">Import</string>
+    <string name="install_mod_smart_title">Smart import…</string>
+    <string name="install_mod_smart_done">Mod imported successfully</string>
+    <string name="install_mod_smart_no_root">Could not find a mod folder in this ZIP. Make sure the archive contains mod.info, media/ or common/.</string>
+    <string name="extracting">Extracting…</string>
+
+    <!-- ===== CONTROLS EDITOR LAUNCH strings ===== -->
+    <string name="controls_editor_bg_group">Background Image (optional)</string>
+    <string name="controls_editor_bg_hint">Load a screenshot from the game to use as the editor background. Makes it easier to position buttons exactly where you want them.</string>
+    <string name="controls_editor_bg_clear">Remove background</string>
+    <string name="controls_editor_bg_saved">Background image saved</string>
+    <string name="controls_editor_bg_cleared">Background removed</string>
+    <string name="controls_editor_bg_error">Failed to save background: %1$s</string>
+    <string name="controls_editor_open_group">Editor</string>
+    <string name="controls_editor_open_hint">Open the controls editor to drag, resize and configure on-screen buttons.</string>
+    <string name="controls_editor_open_btn">Open editor</string>
+
+    <!-- ===== ETO + collapsible strings ===== -->
+    <string name="optimization_group_eto">Every Texture Optimized</string>
+    <string name="optimization_eto_hint">Installs optimized textures for better performance. \n⚠️ Can be installed as a regular mod via the in-game mod manager, but for low-end devices with 4GB RAM, a one-time texture replacement is highly recommended. \n\nSelect your game instance — the correct texture version (B41 or B42) will be applied automatically.</string>
+    <string name="optimization_eto_help_title">Every Texture Optimized</string>
+    <string name="optimization_eto_help_message">Steam Workshop ID: 3119788162 [B42] and ID: 2812026801 [B41]\n\nDownload the mod ZIP from Steam Workshop or Skymods.\n\nSelect your game instance and the ZIP file, then tap Install. The launcher will automatically choose the correct texture folder for your build version and copy the files into the game\'s media/textures directory, replacing the original ones.\n\nThe original textures folder will be renamed to textures.bak. To roll back the mod, delete the new textures folder and rename textures.bak back to textures.</string>
+    <string name="optimization_eto_installing">Installing textures…</string>
+    <string name="optimization_eto_installed">Textures installed successfully</string>
+    <string name="optimization_eto_error_no_textures">Could not find a textures folder in this ZIP.</string>
+
+    <!-- ===== ZombieBuddy + ZBBetterFPS strings ===== -->
+    <string name="optimization_group_zombiebuddy">ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_hint">A framework mod. \n⚠️ Mods using ZombieBuddy can be incompatible with other mods. If issues occur, try adjusting the load order or switching mod versions.\n\nTo disable: turn off the switch here AND disable the mod in-game, then restart.</string>
+    <string name="optimization_zombiebuddy_enabled">Enable ZombieBuddy agent</string>
+    <string name="optimization_zombiebuddy_help_title">ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_help_message">A framework that enables advanced Java mods for Project Zomboid. \n\nDownload ZombieBuddy from Steam, Workshop ID: 3619862853, upload the ZIP here and tap Install.</string>
+    <string name="optimization_zombiebuddy_installing">Installing ZombieBuddy…</string>
+    <string name="optimization_zombiebuddy_installed">ZombieBuddy installed</string>
+     
+    <string name="optimization_group_zbbetterfps">ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_hint">Optimizing mod. All options are disabled by default. Enable them in Mod Options after installing the mod.\n\nThis mod is modified for Zomdroid for compatibility with Android.\n\n⚠️ ZBBetterFPS and BetterFPS are not compatible, use only one of them.</string>
+    <string name="optimization_zbbetterfps_enabled">Enable ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_help_title">ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_help_message">A comprehensive performance overhaul for Project Zomboid that optimizes rendering, game logic, and CPU usage. Author: Zed.\n\nRequires ZombieBuddy (+ModOptions on B41) to be installed and enabled.\n⚠️ Mods using ZombieBuddy can be incompatible with other mods. If issues occur, try adjusting the load order or switching mod versions. \n\nDownload ZBBetterFPS from Steam Workshop or Skymods, ID: 3622986450, upload the ZIP here and tap Install.</string>
+    <string name="optimization_zbbetterfps_installing">Installing ZBBetterFPS…</string>
+    <string name="optimization_zbbetterfps_installed">ZBBetterFPS installed</string>
+    <string name="optimization_zbbetterfps_gl4es_warning">⚠️ ZBBetterFPS only works with ZINK renderer. For GL4ES, use the regular BetterFPS mod instead.</string>
+
+    <string name="control_element_sensitivity">Sensitivity</string>
+
+    <!-- ===== Game Settings strings ===== -->
+    <string name="game_settings_menu">Import/Export Game Settings</string>
+    <string name="game_settings_import_title">Import</string>
+    <string name="game_settings_import_hint">Select a .zip with options.ini (a bare options.ini also works). It replaces the game settings of the selected instance.</string>
+    <string name="game_settings_export_title">Export</string>
+    <string name="game_settings_export_hint">Saves options.ini of the selected instance into a .zip named with the current date and time.</string>
+    <string name="game_settings_importing">Importing game settings…</string>
+    <string name="game_settings_imported">Game settings imported</string>
+    <string name="game_settings_exporting">Exporting game settings…</string>
+    <string name="game_settings_exported">Game settings exported</string>
+    <string name="game_settings_not_found">options.ini not found. The game may not have run yet.</string>
+    <string name="game_settings_wrong_format">Please select a .zip file</string>
+    <string name="game_settings_tab_options">Settings</string>
+    <string name="game_settings_tab_sandbox">Sandbox</string>
+    <string name="game_settings_tab_builds">Builds</string>
+    <string name="game_settings_import_hint_sandbox">Select a .zip with sandbox presets (.cfg files). They are added to the presets of the selected instance; a preset with the same name is replaced.</string>
+    <string name="game_settings_export_hint_sandbox">Saves all sandbox presets of the selected instance into one .zip.</string>
+    <string name="game_settings_import_hint_builds">Select a .zip with saved_builds.txt and saved_outfits.txt. Its character builds and outfits are added to those of the selected instance; one with the same name is replaced.</string>
+    <string name="game_settings_export_hint_builds">Saves the character builds and outfits of the selected instance into a .zip.</string>
+    <string name="game_settings_zip_empty">Nothing to import: the file has no %1$s.</string>
+    <string name="game_settings_sandbox_not_found">No sandbox presets found. Save a preset in the game first.</string>
+    <string name="game_settings_builds_not_found">No saved character builds or outfits found. Save one in the game first.</string>
+    <string name="import_label">Import</string>
+    <string name="export_label">Export</string>
+
+    <!-- ===== Workshop Download strings ===== -->
+    <string name="install_mod_workshop_section">Download from Steam Workshop</string>
+    <string name="install_mod_workshop_disclaimer">Powered by ggntw.com — third-party service, may stop working at any time.\nFirst-time use may show  many ads before download.</string>
+    <string name="install_mod_workshop_btn">Download from Workshop</string>
+    <string name="install_mod_workshop_dialog_title">Steam Workshop ID</string>
+    <string name="install_mod_workshop_dialog_message">Enter the Workshop ID from the mod page URL.\n\nExample: Workshop ID: 3619862853</string>
+    <string name="install_mod_workshop_download">Download</string>
+    <string name="install_mod_workshop_id_empty">Please enter a Workshop ID</string>
+    <string name="install_mod_workshop_requesting">Requesting download link…</string>
+    <string name="install_mod_workshop_error">Could not get download link. Try again later.</string>
+    <string name="install_mod_workshop_webview_title">Complete download</string>
+    <string name="install_mod_workshop_downloading">Downloading mod…</string>
+    <string name="install_mod_workshop_downloaded">Mod downloaded. Tap Install to proceed.</string>
+    <string name="install_mod_workshop_download_failed">Download failed. Try again.</string>
+
+    <!-- ===== Native Libs strings ===== -->
+    <string name="native_libs_menu">Import libs for MP (B41)</string>
+    <string name="native_libs_hint">🎮 Here you can install additional native libraries libRakNet64.so and libZNetNoSteam64.so for multiplayer support on Build 41.\n\nThese libraries first appeared in Build 42.12+. To use them on Build 41, copy them from a Build 42 instance folder: game/android/arm64-v8a — this is not a bug.</string>
+    <string name="native_libs_group_file">ZIP archive with .so files</string>
+    <string name="native_libs_install">Install</string>
+    <string name="native_libs_installing">Installing native libraries…</string>
+    <string name="native_libs_installed">Native libraries installed</string>
+
+    <string name="control_element_opacity_all">To all</string>
+    <string name="settings_jvm_args_title">JVM arguments</string>
+    <string name="launcher_empty_title">Getting started</string>
+    <string name="launcher_empty_body">To start playing, create an instance — an installed copy of Project Zomboid. Add your game files with the + at the top, or download the game from Steam or GOG in the side menu. A Steam download must be packed into a .zip first; from GOG, tap “Create an instance” once the download is done.</string>
+    <string name="launcher_empty_quick_start">Quick start</string>
+</resources>

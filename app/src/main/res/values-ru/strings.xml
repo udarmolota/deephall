@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Zomdroid</string>
+
+    <string name="percentage_format" translatable="false">%d%%</string>
+
+    <string name="legal_notice_title">Правовое уведомление</string>
+    <string name="legal_notice_message">Этот лаунчер является сторонним инструментом и требует оригинальных файлов Project Zomboid для работы. Для использования этого программного обеспечения вы должны владеть лицензионной копией игры. Разработчик лаунчера не связан с создателями оригинальной игры и не несёт ответственности за какие-либо правовые последствия использования данного программного обеспечения.</string>
+
+    <string name="fragment_label_launcher">Лаунчер</string>
+    <string name="fragment_label_new_game_instance">Новый экземпляр игры</string>
+    <string name="fragment_label_settings">Настройки</string>
+    <string name="fragment_label_controls_editor">Редактор управления</string>
+    <string name="fragment_label_wiki">Вики</string>
+    <string name="fragment_label_onscreen">Только экранные кнопки</string>
+    <string name="nav_menu_install_mod">Импорт модов</string>
+
+    <string name="controls_editor_instructions">Долгое нажатие на пустое место открывает контекстное меню. Изменения сохраняются автоматически</string>
+    <string name="controls_editor_add_element">Добавить элемент управления</string>
+    <string name="control_element_scale">Масштаб</string>
+    <string name="control_element_text">Текст</string>
+    <string name="control_element_text_empty">Пусто</string>
+    <string name="control_element_bindings">Привязки</string>
+    <string name="control_element_select_binding">Выбрать привязку</string>
+    <string name="control_element_binding_invalid">Неверная привязка</string>
+    <string name="control_element_opacity">Прозрачность</string>
+    <string name="control_element_tap_click">Тап — левый клик</string>
+    <string name="control_element_binding_left">Привязка влево</string>
+    <string name="control_element_binding_up">Привязка вверх</string>
+    <string name="control_element_binding_right">Привязка вправо</string>
+    <string name="control_element_binding_down">Привязка вниз</string>
+    <string name="control_element_input_type_mnk">Мышь и клавиатура</string>
+    <string name="control_element_input_type_gamepad">Геймпад</string>
+    <string name="gamepad_mapper_button_lt">LT (левый триггер)</string>
+    <string name="gamepad_mapper_button_rt">RT (правый триггер)</string>
+
+    <string name="game_instance_name">Название</string>
+    <string name="game_instance_preset">Пресет</string>
+    <string name="game_instance_files">Файлы игры (.zip)</string>
+    <string name="game_instance_browse_files_hint">Выбрать файлы…</string>
+    <string name="game_instance_no_file_selected">Файлы не выбраны</string>
+    <string name="game_instance_name_invalid">Недопустимое название</string>
+    <string name="game_instance_name_already_exists">Уже существует</string>
+    <string name="game_instance_unsupported_extension">Поддерживаются только .zip архивы</string>
+
+    <string name="dialog_button_ok">ОК</string>
+    <string name="dialog_button_accept">Принять</string>
+    <string name="dialog_button_quit">Выйти</string>
+    <string name="dialog_button_view_guide">Открыть гайд</string>
+    <string name="dialog_button_close">Закрыть</string>
+    <string name="dialog_button_confirm">Подтвердить</string>
+    <string name="dialog_button_cancel">Отмена</string>
+    <string name="dialog_title_delete_game_instance">Удалить экземпляр игры?</string>
+    <string name="dialog_title_info">Информация</string>
+    <string name="dialog_title_fatal_error">Критическая ошибка</string>
+    <string name="dialog_title_creating_instance">Создание экземпляра игры…</string>
+    <string name="dialog_title_instance_created">Экземпляр успешно создан</string>
+    <string name="dialog_title_failed_to_create_instance">Не удалось создать экземпляр</string>
+    <string name="dialog_title_deleting_game_instance">Удаление экземпляра игры…</string>
+    <string name="dialog_title_instance_deleted">Экземпляр успешно удалён</string>
+    <string name="dialog_title_failed_to_delete_instance">Не удалось удалить экземпляр</string>
+    <string name="dialog_title_installing_dependencies">Установка зависимостей…</string>
+    <string name="dialog_title_dependencies_installed">Зависимости успешно установлены</string>
+    <string name="dialog_title_failed_to_install_dependencies">Не удалось установить зависимости</string>
+    <string name="dialog_title_donate">Поддержать разработку</string>
+    <string name="dialog_title_game_files_missing">Файлы игры отсутствуют</string>
+    <string name="dialog_title_game_files_not_for_linux">Установленные файлы не поддерживаются</string>
+
+    <string name="installation_not_finished">Установка не завершена</string>
+    <string name="dependencies_not_installed">Зависимости Zomdroid не установлены</string>
+
+    <string name="settings_renderer">Рендерер</string>
+    <string name="settings_vulkan_driver">Драйвер Vulkan</string>
+    <string name="settings_resolution_scale">Масштаб разрешения</string>
+    <string name="settings_hud">Показ в игре</string>
+    <string name="settings_hud_off">Выкл</string>
+    <string name="settings_hud_fps">Только FPS</string>
+    <string name="settings_hud_full">Инфо-панель</string>
+    <string name="settings_hud_hint">«Инфо-панель» — плашка сверху: загрузка видеочипа и процессора, память, потребление, температура и график FPS. Помогает понять, что тормозит игру.</string>
+    <string name="settings_audio_api">Аудио API</string>
+    <string name="settings_render_hint">Build 41 → GL4ES, Build 42 → ZINK (Dimensity: включить ANGLE)</string>
+
+    <string name="nav_menu_controls_editor">Редактор управления</string>
+    <string name="nav_menu_gamepad_mapper">Настройка геймпада</string>
+    <string name="nav_menu_manage_storage">Управление хранилищем</string>
+    <string name="nav_menu_donate">Донат</string>
+    <string name="control_element_delete">Удалить элемент</string>
+    <string name="control_element_input_type">Тип ввода</string>
+    <string name="control_element_stick_binding">Привязка стика</string>
+    <string name="control_element_icon">Иконка</string>
+
+    <string name="game_instance_manage_storage">Управление хранилищем</string>
+    <string name="game_instance_restore_backup">Вернуть копию F10</string>
+    <string name="backup_warning_title">Прежде чем включить</string>
+    <string name="backup_warning_message">Нажатие F10 делает полную копию вашего мира — точку, к которой можно вернуться после вылета или смерти.\n\nЧем больше сохранение, то есть чем дольше живёт персонаж, тем дольше создаётся копия. Перед нажатием F10 найдите пару спокойных минут: пока копия записывается, игра может казаться зависшей, но это не так. Просто подождите и не закрывайте её.\n\nКнопка F10 есть в новых раскладках управления. Если вы оставили свою раскладку из прошлой версии, добавьте кнопку сами в редакторе управления: тип ввода «Клавиатура и мышь», привязка F10.\n\nДля каждого мира хранится одна копия, каждая новая заменяет предыдущую. Build 41 и 42, только одиночная игра.</string>
+    <string name="backup_restore_title">Прошлая сессия завершилась вылетом</string>
+    <string name="backup_restore_message">Есть копия мира «%1$s» от %2$s (%3$d МБ), сделанная, когда вы нажали F10.\n\nЕсли вернуться к ней, всё, что произошло после, будет стёрто.</string>
+    <string name="backup_restore_continue">Продолжить как есть</string>
+    <string name="backup_restore_do">Вернуться к копии</string>
+    <string name="backup_restoring">Восстанавливаем копию…</string>
+    <string name="backup_restore_done">Копия восстановлена</string>
+    <string name="backup_restore_failed">Не удалось восстановить: %1$s</string>
+    <string name="backup_manual_restore_message">Есть копия мира «%1$s» от %2$s (%3$d МБ).\n\nВосстановление заменит текущий прогресс в этом мире состоянием на момент создания копии. Отменить это будет нельзя.</string>
+    <string name="backup_none_found">Копия для последнего мира не найдена</string>
+    <string name="game_instance_delete">Удалить</string>
+
+    <string name="donate_message">Нравится приложение и хотите поддержать нас? \n\nРазвитие и поддержка: ko-fi.com/udarmolota, автор: ko-fi.com/liamelui. \n\nДругие участники: \nshimux0, Wakort, LeHiepDuy, deadgamer182, Liko, Willing-Run-8987, Willing-Upstairs-580.</string>
+
+    <string name="app_aborted">Приложение столкнулось с непредвиденной проблемой и было закрыто</string>
+    <string name="share_logs">Поделиться файлом логов</string>
+
+    <string name="delete_game_instance">Все файлы игры и данные (сохранения, моды, избранные серверы и т.д.), связанные с этим экземпляром, будут безвозвратно удалены</string>
+    <string name="game_files_missing">Убедитесь, что ProjectZomboid64 находится на верхнем уровне .zip архива, использованного при установке. Следуйте гайду на вики для правильной упаковки файлов</string>
+    <string name="game_files_not_for_linux">Требуется версия Project Zomboid для Linux. Следуйте гайду на вики для загрузки правильных файлов</string>
+
+    <!-- Gamepad Mapper Strings -->
+    <string name="gamepad_mapper_title">Настройка кнопок геймпада</string>
+    <string name="gamepad_mapper_description">Нажимайте кнопки на геймпаде в указанном порядке для настройки управления.</string>
+    <string name="gamepad_mapper_start">Начать настройку</string>
+    <string name="gamepad_mapper_reset">Сбросить к умолчанию</string>
+    <string name="gamepad_mapper_step">Нажмите: %s</string>
+    <string name="gamepad_mapper_save">Настройка завершена!</string>
+    <string name="gamepad_mapper_success">Настройка геймпада сохранена</string>
+    <string name="gamepad_mapper_reset_confirmation">Настройка геймпада сброшена к умолчанию</string>
+
+    <!-- Gamepad Button Names -->
+    <string name="gamepad_mapper_button_a">Кнопка A</string>
+    <string name="gamepad_mapper_button_b">Кнопка B</string>
+    <string name="gamepad_mapper_button_x">Кнопка X</string>
+    <string name="gamepad_mapper_button_y">Кнопка Y</string>
+    <string name="gamepad_mapper_button_lb">Левый бампер</string>
+    <string name="gamepad_mapper_button_rb">Правый бампер</string>
+    <string name="gamepad_mapper_button_select">Select/Back</string>
+    <string name="gamepad_mapper_button_start">Start/Menu</string>
+    <string name="gamepad_mapper_button_guide">Guide/Home</string>
+    <string name="gamepad_mapper_button_lstk">Нажатие левого стика</string>
+    <string name="gamepad_mapper_button_rstk">Нажатие правого стика</string>
+    <string name="gamepad_mapper_button_dpad_up">D-Pad вверх</string>
+    <string name="gamepad_mapper_button_dpad_down">D-Pad вниз</string>
+    <string name="gamepad_mapper_button_dpad_left">D-Pad влево</string>
+    <string name="gamepad_mapper_button_dpad_right">D-Pad вправо</string>
+
+    <!-- Native Libraries -->
+    <string name="game_instance_native_libs_label">Нативные библиотеки для B41 (.zip)</string>
+    <string name="game_instance_no_native_libs_selected">Выберите ZIP с нативными библиотеками (опц., для мульт. только на B41)</string>
+    <string name="game_instance_browse_native_libs">Выбрать ZIP нативных библиотек (B41)</string>
+
+    <!-- Saves -->
+    <string name="game_instance_saves_label">Файл сохранения (.zip)</string>
+    <string name="game_instance_no_saves_selected">Выберите ZIP с сохранениями</string>
+    <string name="game_instance_browse_saves">Выбрать ZIP сохранений</string>
+
+    <!-- Mods -->
+    <string name="game_instance_mods_label">ZIP с модами (необязательно)</string>
+
+    <!-- Onscreen controls -->
+    <string name="touch_controls_description">Режим сенсорного управления отключает поддержку геймпада и включает только экранные кнопки.</string>
+    <string name="touch_controls_switch_label">Включить сенсорное управление</string>
+    <string name="touch_controls_enabled_toast">Сенсорное управление включено</string>
+    <string name="touch_controls_disabled_toast">Сенсорное управление отключено</string>
+    <string name="fragment_label_touch_controls">Сенсорное управление</string>
+
+    <!-- Import Mod -->
+    <string name="install_mod_title">Импорт модов</string>
+    <string name="install_mod_instance_label">Экземпляр игры</string>
+    <string name="install_mod_zip_label">ZIP с модом</string>
+    <string name="install_mod_browse">Обзор…</string>
+    <string name="install_mod_install">Импортировать</string>
+
+    <string name="install_mod_no_instances">Экземпляры игры не найдены</string>
+    <string name="install_mod_select_instance">Выберите экземпляр игры</string>
+    <string name="install_mod_select_zip">Выберите ZIP файл</string>
+
+    <string name="dialog_title_installing_mods">Импорт модов</string>
+    <string name="dialog_title_failed_to_install_mods">Не удалось импортировать моды</string>
+    <string name="dialog_title_mods_installed">Моды установлены</string>
+
+    <string name="dialog_title_installing_saves">Импорт сохранений</string>
+    <string name="dialog_title_failed_to_install_saves">Не удалось импортировать сохранения</string>
+    <string name="dialog_title_saves_installed">Сохранения импортированы</string>
+
+    <string name="install_mod_zip_warning">Некоторые моды лучше устанавливать через меню оптимизации.</string>
+
+    <string name="install_mod_zip_help_title">Структура архива с модом</string>
+
+    <string name="install_mod_zip_help_message">
+        \u2705 Правильные примеры:\n\n
+
+        Один мод:\n
+        ModName/\n
+        \u00A0\u00A0mod.info\n
+        \u00A0\u00A0media/\n
+        \u00A0\u00A0scripts/\n\n
+
+        Несколько модов в одном ZIP:\n
+        ModA/\n
+        \u00A0\u00A0mod.info\n
+        ModB/\n
+        \u00A0\u00A0mod.info\n\n
+
+        \u274C Неправильные примеры:\n\n
+
+        Лишняя папка-обёртка:\n
+        Downloads/\n
+        \u00A0\u00A0ModName/\n
+        \u00A0\u00A0\u00A0\u00A0mod.info\n\n
+
+        Отсутствует корень мода:\n
+        media/\n
+        scripts/\n
+        (нет mod.info в корне)
+    </string>
+
+    <!-- Controls layout -->
+    <string name="menu_install_controls">Импорт/экспорт управления</string>
+
+    <string name="install_controls_instance_label">Экземпляр игры</string>
+    <string name="install_controls_zip_label">ZIP с управлением</string>
+    <string name="install_controls_install">Импортировать</string>
+
+    <string name="dialog_title_installing_controls">Импорт управления…</string>
+    <string name="dialog_title_controls_installed">Управление импортировано</string>
+    <string name="dialog_title_failed_to_install_controls">Не удалось импортировать управление</string>
+
+    <string name="install_controls_zip_warning">ZIP должен содержать controls.json на верхнем уровне. Иначе может быть установлен некорректно.</string>
+
+    <string name="install_controls_zip_help_title">Формат ZIP с управлением</string>
+    <string name="install_controls_zip_help_message">✅ Правильно:\n\ncontrols.json\n\n❌ Неправильно:\n\nSomeFolder/\n\u00A0\u00A0controls.json</string>
+
+    <string name="install_saves_instance_label">Выберите экземпляр игры</string>
+    <string name="install_saves_zip_label">ZIP архив с сохранениями</string>
+    <string name="install_saves_zip_warning">ZIP должен содержать папки сохранений напрямую (Sandbox, Survival и т.д.).</string>
+    <string name="install_saves_install">Импортировать</string>
+    <string name="install_saves_menu">Импорт/экспорт сохранений</string>
+    <string name="install_saves_zip_help_title">Как должен выглядеть ZIP с сохранениями</string>
+    <string name="install_saves_zip_help_message">
+    \u2705 Пример структуры:
+    \u00A0\u00A0Sandbox/\n
+    \u00A0Survival/\n
+    \u00A0Builder/\n
+    \u00A0Apocalypse/\n\n
+
+    Не упаковывайте родительскую папку.
+    </string>
+
+    <string name="install_saves_export">Экспорт</string>
+    <string name="dialog_title_exporting_saves">Экспорт сохранений</string>
+    <string name="dialog_title_saves_exported">Сохранения экспортированы</string>
+    <string name="dialog_title_failed_to_export_saves">Не удалось экспортировать сохранения</string>
+
+    <string name="install_controls_export">Экспорт</string>
+
+    <string name="dialog_title_exporting_controls">Экспорт раскладки…</string>
+    <string name="dialog_title_controls_exported">Раскладка экспортирована</string>
+    <string name="dialog_title_failed_to_export_controls">Не удалось экспортировать раскладку</string>
+    <string name="dialog_title_controls_export_skipped_default">Используется стандартная раскладка — нечего экспортировать</string>
+    <string name="install_controls_global_hint">
+       Раскладка управления глобальная. Экспорт сохраняет controls.json только если вы изменили раскладку.
+    </string>
+    <string name="controls_export_nothing_to_export">Нечего экспортировать: используется стандартная раскладка управления.</string>
+    <string name="settings_debug_mode">Режим отладки (-debug)</string>
+    <string name="settings_memory_saver">Экономия памяти (NG_GL4ES)</string>
+    <string name="settings_memory_saver_hint">Снижает детализацию текстур, когда памяти становится мало. Помогает избежать вылетов на устройствах с 8 ГБ ОЗУ и меньше; на устройствах с 12 ГБ не нужна. Действует для рендерера NG_GL4ES на Build 42.</string>
+    <string name="select_instance">— Выберите экземпляр игры —</string>
+
+    <!-- Vulkan Driver dialogs -->
+    <string name="vulkan_driver_freedreno_8xx_title">Freedreno 8xx</string>
+    <string name="vulkan_driver_freedreno_8xx_message">Кастомный драйвер для GPU Adreno 8xx (by whitebelyash).\n\nSnapdragon 8 Gen 3/4/5/Elite + 7 Gen 3.</string>
+    <string name="vulkan_driver_freedreno_840_title">Freedreno 830/840</string>
+    <string name="vulkan_driver_freedreno_840_message">Кастомный драйвер, оптимизированный для GPU Adreno 830/840.\n\nSnapdragon 8 Gen 5/Elite.</string>
+    <string name="vulkan_driver_turnip_8gen2_title">TURNIP 740 (bbdd688)</string>
+    <string name="vulkan_driver_turnip_8gen2_message">Кастомный драйвер для GPU Adreno 740.\n\nSnapdragon 8 Gen 2. Исправляет мерцание после обновления HyperOS 3 / OneUI (by Weab-chan).</string>
+    <string name="vulkan_driver_turnip_bbdd688_title">TURNIP 7xx (bbdd688)</string>
+    <string name="vulkan_driver_turnip_bbdd688_message">Кастомный драйвер для GPU Adreno 7xx (by Weab-chan).\n\nSnapdragon 7-series.</string>
+    <string name="vulkan_driver_turnip_gmem_title">TURNIP 710</string>
+    <string name="vulkan_driver_turnip_gmem_message">Кастомный драйвер для GPU Adreno 710 (ранее известен как TURNIP 25.1.3 GMEM by duduproad).\n\nSnapdragon 7 Gen 1.</string>
+    <string name="vulkan_driver_turnip_a6xx_title">TURNIP Adreno 6xx</string>
+    <string name="vulkan_driver_turnip_a6xx_message">Кастомный драйвер для старых GPU Adreno 6xx от K11MCH1.\n\nSnapdragon 600-series. Используйте, если стандартный Freedreno не работает.</string>
+    <string name="vulkan_driver_freedreno">Freedreno</string>
+    <string name="vulkan_driver_freedreno_message">Стандартный драйвер для GPU Adreno 7xx.\n\nSnapdragon 7-series. Может работать и на некоторых устройствах с 6xx.</string>
+
+    <!-- JVM args dialog -->
+    <string name="jvm_args_dialog_title">Аргументы JVM</string>
+    <string name="jvm_args_dialog_message">Дополнительные аргументы JVM, например:\n\n• -Xmx2G — выделить 2 ГБ памяти\n• -Xms512M — процесс стартует с 512 МБ RAM\n• -XX:MaxGCPauseMillis=120 — сократить паузы сборщика мусора\n\nТеоретически помогает при нехватке RAM. Некоторые аргументы уже заданы настройками.\nЕсли настроено неверно и приложение не запускается — переустановите его или очистите кэш.</string>
+
+    <!-- Custom Driver import/export -->
+    <string name="install_driver_menu">Импорт/экспорт драйвера</string>
+    <string name="install_driver_so_label">Пользовательский драйвер Vulkan (файл .so)</string>
+    <string name="install_driver_warning">Заменяет ранее загруженный драйвер. Используйте на свой страх и риск.</string>
+    <string name="install_driver_import">Импорт</string>
+    <string name="install_driver_export">Экспорт</string>
+    <string name="install_driver_wrong_extension">Пожалуйста, выберите файл .so</string>
+
+    <!-- InstallerService task titles -->
+    <string name="dialog_title_importing_driver">Импорт драйвера…</string>
+    <string name="dialog_title_driver_imported">Драйвер импортирован</string>
+    <string name="dialog_title_failed_to_import_driver">Не удалось импортировать драйвер</string>
+    <string name="dialog_title_exporting_driver">Экспорт драйвера…</string>
+    <string name="dialog_title_driver_exported">Драйвер экспортирован</string>
+    <string name="dialog_title_failed_to_export_driver">Не удалось экспортировать драйвер</string>
+
+    <string name="export_log_menu">Экспорт лога игры</string>
+    <string name="export_log_export">Экспортировать console.txt</string>
+    <string name="export_log_not_found">Файл лога не найден. Возможно, игра ещё не запускалась или вылетела до создания папки Zomboid.</string>
+    <string name="dialog_title_exporting_log">Экспорт лога…</string>
+    <string name="dialog_title_log_exported">Лог экспортирован</string>
+    <string name="dialog_title_failed_to_export_log">Не удалось экспортировать лог</string>
+
+    <string name="nav_menu_reddit">Reddit</string>
+    <string name="reddit_dialog_title">Zomdroid на Reddit</string>
+    <string name="reddit_message">Mы на Reddit:\nhttps://www.reddit.com/r/zomdroid</string>
+
+    <string name="settings_env_vars">Переменные окружения</string>
+    <string name="settings_env_vars_hint">Например: TU_DEBUG=nogmem</string>
+    <string name="settings_texture_shrink_title">Сжатие текстур — GL4ES / NG_GL4ES</string>
+    <string name="settings_texture_shrink_desc">Значения 1–11 — не шкала. Чаще берут 1 (ультра лоу) и 7 (баланс); у 1 бывают вылеты на пустых текстурах. Остальные — в таблице.</string>
+    <string name="settings_texture_shrink_table">1. ⚠  всё пополам\n2. ⚠  больше 512px пополам\n3. ⚠  больше 256px пополам\n4. ⚠  больше 256px пополам, от 1024px вчетверо\n5.    больше 256px → 256px\n6.    больше 128px пополам, от 512px → 256px\n7.    больше 512px пополам</string>
+    <string name="settings_texture_shrink_notes">⚠  ужимает и пустые текстуры — отсюда вылеты.\n\n8–11 — режимы совместимости: сообщают игре завышенный максимальный размер текстуры и памяти не экономят. Для PZ не нужны.\n\nСторона вдвое меньше — вчетверо меньше памяти.</string>
+    <string name="settings_texture_shrink_none">Выключено</string>
+    <string name="settings_texture_shrink_balanced">Баланс (7)</string>
+    <string name="settings_texture_shrink_ultra">Ультра лоу (1)</string>
+
+    <string name="settings_env_vars_dialog_message">Переменные окружения, передаваемые напрямую в систему перед запуском игры.\n\nИспользуются для настройки рендереров, драйверов и других компонентов, например:\n\nTU_DEBUG=nogmem\nZINK_DEBUG=norp\n\nИспользуйте с осторожностью — неверные значения могут вызвать сбои.</string>
+
+    <!-- Controls Editor -->
+    <string name="controls_editor_layout_dialog_title">Раскладка</string>
+    <string name="controls_editor_load_vkbd">⌨️ Загрузить виртуальную К+М</string>
+    <string name="controls_editor_reset_gamepad">🕹 Сбросить на геймпад (по умолчанию)</string>
+    <string name="controls_editor_vkbd_loaded">Раскладка виртуальной клавиатуры загружена</string>
+    <string name="controls_editor_layout_restored">Исходная раскладка восстановлена</string>
+
+    <!-- Version update -->
+    <string name="version_check_title">Zomdroid by udar_molota</string>
+    <string name="version_check_up_to_date">Актуальная версия: %1$s</string>
+    <string name="version_check_update_available">Установлена: %1$s\nДоступна: %2$s\n%3$s</string>
+    <string name="version_check_error">Не удалось проверить обновления\nТекущая версия: %1$s</string>
+    <string name="version_check_ahead_of_release">Установлена: %1$s\nЭта сборка новее последнего опубликованного релиза (%2$s)</string>
+    <string name="nav_menu_version">Проверить обновления</string>
+
+    <!-- Bug report -->
+    <string name="nav_bug_report">Сообщить об ошибке</string>
+    <string name="bug_report_preparing">Подготовка отчёта об ошибке…</string>
+    <string name="bug_report_email" translatable="false">210478@mail.ru</string>
+    <string name="bug_report_subject" translatable="false">ZOMDROID REPORT %1$s</string>
+    <string name="bug_report_body">Здравствуйте, у меня новый отчёт об ошибке.\n\nОписание: \n\n\n---\n%1$s</string>
+    <string name="bug_report_no_mail">На этом устройстве не найдено почтовое приложение.</string>
+
+    <!-- New instance -->
+    <string name="native_libs_dialog_title">Нативные библиотеки для B41 (необязательно)</string>
+    <string name="native_libs_dialog_message">Нативные библиотеки — это файлы от билда 42.12. В основном это два файла:\n\n🌐 libRakNet64.so\n🌐 libZNetNoSteam64.so\n\nОни необходимы для поддержки мультиплеера в билде 41.78. Подробнее можно прочитать в Вики.</string>
+    <string name="dialog_button_wiki">Вики</string>
+
+    <string name="preset_dialog_title_b41">Билд 41</string>
+    <string name="preset_dialog_title_b42">Билд 42</string>
+    <string name="preset_dialog_title_b4212">Билд 42.12+</string>
+
+    <string name="preset_dialog_message_b41">Билд 41.78 — самая стабильная версия на сегодняшний день. Запускается на большинстве смартфонов с 4ГБ ОЗУ и выше.</string>
+    <string name="preset_dialog_message_b42">Билд 42 (версии 42.0–42.11). Требует 6ГБ+ ОЗУ. Запускается в основном на Snapdragon, а также на мощных Dimensity.</string>
+    <string name="preset_dialog_message_b4212">Билд 42.12 и выше. Требует немного других настроек и минимум 8ГБ ОЗУ. Запускается в основном на Snapdragon и новых мощных Dimensity.</string>
+
+    <!-- Settings groups -->
+    <string name="settings_group_rendering">Рендеринг</string>
+    <string name="settings_group_texture">Сжатие текстур</string>
+    <string name="settings_group_advanced">Дополнительно</string>
+    <string name="settings_group_controls">Управление</string>
+    <string name="settings_group_audio">Звук</string>
+
+    <!-- Game files zip help text -->
+    <string name="game_instance_files_help_message">
+        \u2705 Верно:\n\n
+        projectzomboid.zip/\n
+        \u00A0\u00A0ProjectZomboid64.json\n
+        \u00A0\u00A0java/\n
+        \u00A0\u00A0natives/\n
+        \u00A0\u00A0...\n\n
+        \u274C Неверно:\n\n
+        projectzomboid.zip/\n
+        \u00A0\u00A0Project Zomboid/\n
+        \u00A0\u00A0\u00A0\u00A0ProjectZomboid64.json\n
+        \u00A0\u00A0\u00A0\u00A0java/\n
+        \u00A0\u00A0\u00A0\u00A0...\n\n
+        Подойдёт и Linux-установщик GOG (.sh): положите его одного в .zip-архив.
+    </string>
+    <string name="game_instance_files_help_title">Структура ZIP с файлами игры</string>
+
+    <!-- New instance layout names -->
+    <string name="new_game_instance_group_name">Название экземпляра</string>
+    <string name="new_game_instance_group_preset">Пресет</string>
+    <string name="new_game_instance_group_files">Файлы</string>
+
+    <string name="install_mod_group_instance">→ Экземпляр</string>
+    <string name="install_mod_group_file">Файл мода</string>
+    <string name="install_controls_group_file">Файл раскладки</string>
+    <string name="install_saves_group_import">Импорт сохранений</string>
+    <string name="install_saves_group_export">Экспорт сохранений</string>
+    <string name="install_saves_export_hint">Сохранить текущие сохранения в ZIP-архив.</string>
+    <string name="install_controls_group_export">Экспорт раскладки</string>
+    <string name="install_controls_export_hint">Сохранить текущую раскладку кнопок в ZIP-архив.</string>
+    <string name="install_driver_group_import">Импорт драйвера</string>
+    <string name="install_driver_group_export">Экспорт драйвера</string>
+    <string name="install_driver_export_hint">Сохранить установленный кастомный драйвер как .so файл.</string>
+    <string name="export_log_group_export">Экспорт лога</string>
+    <string name="export_log_hint">Экспортирует файл console.txt из выбранного экземпляра.</string>
+
+    <string name="new_game_instance_create">Создать</string>
+    <string name="new_game_instance_select_preset">Выберите пресет…</string>
+    <string name="new_game_instance_no_preset_selected">Выберите пресет. Он должен соответствовать версии игры: у билда 41 один пресет, билд 42 делится на два — выбирайте внимательно.</string>
+    <string name="new_game_instance_no_preset_title">Выберите пресет</string>
+
+    <string name="nav_menu_optimization">Оптимизация</string>
+    <string name="nav_menu_mod_fixes">Фикс модов</string>
+
+    <!-- Optimization page -->
+    <string name="optimization_group_jvm">Аргументы JVM</string>
+    <string name="optimization_jvm_hint">Аргументы по умолчанию настраивают только сборщик мусора и безопасны на любом устройстве: размер кучи и число потоков остаются за JVM, она подбирает их под ваш телефон. Для Build 42 есть более сильный набор — он применяется одной кнопкой в Настройки → Дополнительно → Аргументы JVM.</string>
+    <string name="settings_jvm_args_reset">Сбросить по умолчанию</string>
+    <string name="settings_jvm_args_clear">Очистить</string>
+    <string name="settings_jvm_args_b42_recommendation">Рекомендуется для Build 42: ограничивает кучу Java и возвращает память системе, оставляя место рендереру. В некоторых случаях игра может упасть на старте без некоторых из этих параметров. Не для Build 41 — на устройствах с 4 ГБ вреда больше, чем пользы.</string>
+    <string name="settings_jvm_args_b42_preset_title">Пресет для Build 42 (рекомендуется)</string>
+    <string name="settings_jvm_args_apply">Применить</string>
+    <string name="renderer_ng_build42_only_title">NG_GL4ES — только для Build 42</string>
+    <string name="renderer_ng_build42_only_message">Этот рендерер сделан для Build 42 и на Build 41 не работает — игра не запустится.\n\nЕсли вы играете в Build 41, выберите ZINK или GL4ES.\n\nДля Build 42 нужны ещё и рекомендуемые аргументы JVM: Настройки → Дополнительно → Аргументы JVM.</string>
+    <string name="new_game_instance_b42_jvm_hint">Для Build 42 нужны настроенные аргументы JVM — в настройках для них есть готовый набор в одну кнопку.</string>
+    <string name="new_game_instance_open_settings">Открыть Настройки → Дополнительно → Аргументы JVM →</string>
+    <string name="optimization_jvm_recommended_label">→ Сейчас по умолчанию:</string>
+    <string name="optimization_jvm_4gb_note">⚠️ На устройствах с 4 ГБ ОЗУ игра будет работать, но не идеально: Build 42 там не рекомендуется — играйте в Build 41 и используйте моды оптимизации ниже (BetterFPS, Every Texture Optimized). Они дают куда больше, чем настройки JVM.</string>
+    <string name="optimization_copy">Копировать</string>
+    <string name="optimization_open_settings">→ Открыть Настройки</string>
+    <string name="optimization_group_betterfps">BetterFPS b41</string>
+    <string name="optimization_betterfps_hint">Уменьшает область рендеринга вокруг игрока.  \n\nSteam Workshop ID: 3022543997. Скачайте мод, загрузите ZIP-файл и выберите один из трёх самых популярных режимов.</string>
+    <string name="optimization_betterfps_file_label">Мод BetterFPS (zip-архив)</string>
+    <string name="optimization_install">Установить</string>
+    <string name="optimization_betterfps_help_title">Как работает BetterFPS</string>
+    <string name="optimization_betterfps_help_message">Steam Workshop ID: 3022543997\n\n"Project Zomboid рендерит область 190×190 тайлов вокруг игрока. Этот мод уменьшает размер этой области и не загружает лишние чанки."\n— описание мода\n\nВарианты:\n• PotatoePC — максимальная производительность\n• 1080 — сбалансированный вариант\n• 4k — лучшее качество (всё равно ниже, чем в оригинале)\n• All_Settings — пользовательские размеры области от 30×30 до 190×190; нужно устанавливать вручную\n\nРекомендуем начать с PotatoePC. При необходимости можно вручную выбрать ещё меньший вариант.</string>
+    <string name="optimization_betterfps_installed">BetterFPS успешно установлен</string>
+    <string name="optimization_betterfps_installing">Установка BetterFPS…</string>
+    <string name="optimization_betterfps_mode_label">→ Режим</string>
+    <string name="optimization_betterfps_mode_potato">PotatoPC (рекомендуется)</string>
+    <string name="optimization_betterfps_mode_1080p">1080p</string>
+    <string name="optimization_betterfps_mode_4k">4K</string>
+    <string name="optimization_betterfps_error_not_found">IsoChunkMap.class не найден для режима: %1$s</string>
+
+    <!-- Render Less Zombie (B41) -->
+    <string name="optimization_group_rlz">Render Less Zombie b41</string>
+    <string name="optimization_rlz_hint">Отрисовывает дальних зомби плоскими текстурными анимациями вместо полных моделей — сильно помогает, когда на экране орда.\n\nSteam Workshop ID: 2970823607. Скачайте мод, загрузите ZIP-файл здесь и выберите уровень — это количество зомби, которые всё ещё рисуются полными моделями. Меньше = быстрее.</string>
+    <string name="optimization_rlz_level_label">→ Уровень</string>
+    <string name="optimization_rlz_file_label">Мод RenderLessZombie (zip-архив)</string>
+    <string name="optimization_rlz_installing">Установка Render Less Zombie…</string>
+    <string name="optimization_rlz_installed">Render Less Zombie установлен (уровень %1$s)</string>
+    <string name="optimization_rlz_error_not_found">Уровень %1$s не найден в этом архиве. Убедитесь, что выбрали ZIP мода RenderLessZombie.</string>
+    <string name="optimization_rlz_help_title">Как работает Render Less Zombie</string>
+    <string name="optimization_rlz_help_message">Steam Workshop ID: 2970823607\n\n«Когда зомби слишком много, они отрисовываются как текстурные анимации.»\n— описание мода\n\nУровень — это сколько зомби по-прежнему рисуются полными 3D-моделями; всё сверх этого превращается в дешёвую плоскую анимацию. Доступные уровни: 1, 25, 50, 75, 100, 150 — автор мода рекомендует 50. В оригинальной игре жёсткий предел 510.\n\nПри установке заменяются классы zombie/iso выбранного инстанса; оригиналы сохраняются рядом с расширением .bak, так что при желании их можно вернуть вручную.\n\nТолько для Build 41.</string>
+
+    <!-- ===== Mods fix ===== -->
+    <string name="mod_fix_installing">Установка мода с фиксом…</string>
+    <string name="mod_fix_installed">Мод успешно установлен</string>
+    <string name="mod_fix_error_no_mod_folder">В архиве не найдена папка мода</string>
+    <string name="mod_fix_error_not_b42">Этот мод не является модом для билда 42: %1$s</string>
+    <string name="mod_fix_group_double_path">Фикс двойного пути</string>
+    <string name="mod_fix_double_path_hint">Фикс для модов билда 41/42 с ошибкой пути на Android. Известные моды: Tsar\'s Common Library (ID: 3402491515), Simple Flashlight on Belt (ID: 3394588830).</string>
+    <string name="mod_fix_help_title">Что это за фикс?</string>
+    <string name="mod_fix_help_message">Некоторые моды используют структуру папок, которая вызывает конфликт путей на Android. Игра ищет файлы по двойному пути и не может их найти.\n\nФикс устанавливает мод дважды — один раз с оригинальными именами папок, второй раз со всеми именами в нижнем регистре — чтобы игра находила файлы независимо от того, какой путь использует.\n\nИзвестные проблемные моды:\n• Tsar\'s Common Library — ID: 3402491515\n• [B42] Simple Flashlight on Belt — ID: 3394588830\n\nКак использовать: скачайте мод и загрузите сюда.</string>
+
+    <!-- CPU/GPU autodetect -->
+
+    <!-- Manual mods installation -->
+    <string name="install_mod_manual_group">Ручная установка</string>
+    <string name="install_mod_manual_hint">Скопируйте папку мода в папку mods внутри папки Zomboid. Создайте папку mods, если её нет (строчными буквами). Папка мода не должна содержать лишних вложенных папок.</string>
+    <string name="install_mod_open_folder">Открыть папку модов</string>
+    <string name="install_mod_manual_help_title">Ручная установка</string>
+    <string name="install_mod_manual_help_message">
+        \u2705 Правильная структура:\n\n
+        ModName/\n
+        \u00A0\u00A0mod.info\n
+        \u00A0\u00A0media/\n
+        \u00A0\u00A0scripts/\n\n
+        \u274C Неверно — лишняя папка-обёртка:\n\n
+        Downloads/\n
+        \u00A0\u00A0ModName/\n
+        \u00A0\u00A0\u00A0\u00A0mod.info
+    </string>
+
+    <!-- ===== SMART IMPORT strings ===== -->
+    <string name="install_mod_smart_group">Умный импорт</string>
+    <string name="install_mod_smart_hint">Автоматически находит папку мода внутри ZIP, даже если она обёрнута в лишние папки (например, с Skymods). Применяет фиксы для модов со скриптами или моделями.</string>
+    <string name="install_mod_smart_help_title">Умный импорт</string>
+    <string name="install_mod_smart_help_message">Умный импорт извлекает правильную папку мода из любой структуры ZIP.\n\nКорень мода определяется по наличию mod.info, папок media/ или common/ — вне зависимости от количества вложенных папок.\n\nДля модов с папками scripts/ или models_X/ автоматически создаётся копия в нижнем регистре для исправления проблем с путями на Android.</string>
+    <string name="install_mod_smart_install">Импортировать</string>
+    <string name="install_mod_smart_title">Умный импорт…</string>
+    <string name="install_mod_smart_done">Мод успешно импортирован</string>
+    <string name="install_mod_smart_no_root">Не удалось найти папку мода в этом ZIP. Убедитесь, что архив содержит mod.info, папку media/ или common/.</string>
+    <string name="extracting">Извлечение…</string>
+
+    <!-- ===== CONTROLS EDITOR LAUNCH strings ===== -->
+    <string name="controls_editor_bg_group">Фоновое изображение (необязательно)</string>
+    <string name="controls_editor_bg_hint">Загрузите скриншот из игры как фон редактора. Так легче расставить кнопки именно там, где нужно.</string>
+    <string name="controls_editor_bg_clear">Удалить фон</string>
+    <string name="controls_editor_bg_saved">Фоновое изображение сохранено</string>
+    <string name="controls_editor_bg_cleared">Фон удалён</string>
+    <string name="controls_editor_bg_error">Не удалось сохранить фон: %1$s</string>
+    <string name="controls_editor_open_group">Редактор</string>
+    <string name="controls_editor_open_hint">Откройте редактор управления, чтобы перемещать, масштабировать и настраивать экранные кнопки.</string>
+    <string name="controls_editor_open_btn">Открыть редактор</string>
+
+    <!-- ===== ETO + collapsible strings ===== -->
+    <string name="optimization_group_eto">Every Texture Optimized</string>
+    <string name="optimization_eto_hint">Устанавливает оптимизированные текстуры для повышения производительности. \n⚠️ Может быть установлен как обычный мод через внутриигровой менеджер модов, но для слабых устройств с 4 ГБ ОЗУ настоятельно рекомендуется разовая замена текстур.\n\nВыберите инстанс — нужная версия текстур (B41 или B42) будет применена автоматически.</string>
+    <string name="optimization_eto_help_title">Every Texture Optimized</string>
+    <string name="optimization_eto_help_message">Steam Workshop ID: 3119788162 [B42] и ID: 2812026801 [B41]\n\nСкачайте ZIP-файл мода из Steam Workshop или Skymods.\n\nВыберите игровой инстанс и ZIP-файл, затем нажмите Install. Лаунчер автоматически выберет правильную папку текстур для вашей версии билда и скопирует файлы в каталог media/textures игры, заменив оригинальные.\n\nОригинальная папка textures будет переименована в textures.bak. Чтобы откатить мод, удалите новую папку textures и переименуйте textures.bak обратно в textures.</string>
+    <string name="optimization_eto_installing">Установка текстур…</string>
+    <string name="optimization_eto_installed">Текстуры успешно установлены</string>
+    <string name="optimization_eto_error_no_textures">Не удалось найти папку с текстурами в этом ZIP.</string>
+
+    <!-- ===== ZombieBuddy + ZBBetterFPS strings ===== -->
+    <string name="optimization_group_zombiebuddy">ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_hint">Фреймворк-мод. \n⚠️ Моды, использующие ZombieBuddy, могут быть несовместимы с другими модами. Если возникают проблемы, попробуйте изменить порядок загрузки или использовать другие версии модов.\n\nЧтобы отключить: выключите переключатель здесь и отключите мод в игре, затем перезапустите.</string>
+    <string name="optimization_zombiebuddy_enabled">Включить агент ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_help_title">ZombieBuddy</string>
+    <string name="optimization_zombiebuddy_help_message">Фреймворк для запуска продвинутых Java-модов в Project Zomboid. \n\nСкачайте ZombieBuddy из Steam, Workshop ID: 3619862853, загрузите ZIP здесь и нажмите Установить.</string>
+    <string name="optimization_zombiebuddy_installing">Установка ZombieBuddy…</string>
+    <string name="optimization_zombiebuddy_installed">ZombieBuddy установлен</string>
+     
+    <string name="optimization_group_zbbetterfps">ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_hint">Мод оптимизации. Все опции отключены по умолчанию. Включите их в Настройках модов после установки мода.\n\nЭтот мод модифицирован для Zomdroid для совместимости с Android.\n\n⚠️ ZBBetterFPS и BetterFPS несовместимы, используйте только один из них.</string>
+    <string name="optimization_zbbetterfps_enabled">Включить ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_help_title">ZBBetterFPS</string>
+    <string name="optimization_zbbetterfps_help_message">Комплексный мод для повышения производительности Project Zomboid, оптимизирующий рендеринг, игровую логику и использование CPU. Автор: Zed.\n\nТребуется установленный и включённый ZombieBuddy (+ModOptions для B41).\n⚠️ Моды, использующие ZombieBuddy, могут быть несовместимы с другими модами. Если возникают проблемы, попробуйте изменить порядок загрузки или использовать другие версии модов. \n\nСкачайте ZBBetterFPS из Steam Workshop или Skymods (ID: 3622986450), загрузите ZIP-файл здесь и нажмите Установить.</string>
+    <string name="optimization_zbbetterfps_installing">Установка ZBBetterFPS…</string>
+    <string name="optimization_zbbetterfps_installed">ZBBetterFPS установлен</string>
+    <string name="optimization_zbbetterfps_gl4es_warning">⚠️ ZBBetterFPS работает только с рендерером ZINK. Для GL4ES используйте обычный мод BetterFPS.</string>
+
+    <string name="control_element_sensitivity">Чувствительность</string>
+
+    <!-- ===== Game Settings strings ===== -->
+    <string name="game_settings_menu">Импорт/Экспорт настроек игры</string>
+    <string name="game_settings_import_title">Импорт</string>
+    <string name="game_settings_import_hint">Выберите .zip с options.ini (подойдёт и сам options.ini). Он заменит настройки игры в выбранном инстансе.</string>
+    <string name="game_settings_export_title">Экспорт</string>
+    <string name="game_settings_export_hint">Сохраняет options.ini выбранного инстанса в .zip с текущими датой и временем в названии.</string>
+    <string name="game_settings_importing">Импорт настроек игры…</string>
+    <string name="game_settings_imported">Настройки игры импортированы</string>
+    <string name="game_settings_exporting">Экспорт настроек игры…</string>
+    <string name="game_settings_exported">Настройки игры экспортированы</string>
+    <string name="game_settings_not_found">options.ini не найден. Возможно, игра ещё не запускалась.</string>
+    <string name="game_settings_wrong_format">Выберите файл .zip</string>
+    <string name="game_settings_tab_options">Настройки</string>
+    <string name="game_settings_tab_sandbox">Песочница</string>
+    <string name="game_settings_tab_builds">Билды</string>
+    <string name="game_settings_import_hint_sandbox">Выберите .zip с пресетами песочницы (файлы .cfg). Они добавятся к пресетам выбранного инстанса; пресет с тем же названием будет заменён.</string>
+    <string name="game_settings_export_hint_sandbox">Сохраняет все пресеты песочницы выбранного инстанса в один .zip.</string>
+    <string name="game_settings_import_hint_builds">Выберите .zip с saved_builds.txt и saved_outfits.txt. Билды и наряды персонажа из него добавятся к билдам и нарядам выбранного инстанса; одноимённые будут заменены.</string>
+    <string name="game_settings_export_hint_builds">Сохраняет билды и наряды персонажа выбранного инстанса в .zip.</string>
+    <string name="game_settings_zip_empty">Нечего импортировать: в файле нет %1$s.</string>
+    <string name="game_settings_sandbox_not_found">Пресеты песочницы не найдены. Сначала сохраните пресет в игре.</string>
+    <string name="game_settings_builds_not_found">Сохранённые билды и наряды персонажа не найдены. Сначала сохраните их в игре.</string>
+    <string name="import_label">Импорт</string>
+    <string name="export_label">Экспорт</string>
+
+    <!-- ===== Workshop Download strings ===== -->
+    <string name="install_mod_workshop_section">Скачать из Steam Workshop</string>
+    <string name="install_mod_workshop_disclaimer">Работает через ggntw.com — сторонний сервис, может перестать работать в любой момент.\nПри первом использовании перед скачиванием может появиться много рекламы.</string>
+    <string name="install_mod_workshop_btn">Скачать из Workshop</string>
+    <string name="install_mod_workshop_dialog_title">ID мода в Steam Workshop</string>
+    <string name="install_mod_workshop_dialog_message">Введите ID мода из URL страницы мода.\n\nПример: Workshop ID: 3619862853</string>
+    <string name="install_mod_workshop_download">Скачать</string>
+    <string name="install_mod_workshop_id_empty">Пожалуйста, введите Workshop ID</string>
+    <string name="install_mod_workshop_requesting">Запрос ссылки для скачивания…</string>
+    <string name="install_mod_workshop_error">Не удалось получить ссылку. Попробуйте позже.</string>
+    <string name="install_mod_workshop_webview_title">Завершите скачивание</string>
+    <string name="install_mod_workshop_downloading">Скачивание мода…</string>
+    <string name="install_mod_workshop_downloaded">Мод скачан. Нажмите Установить.</string>
+    <string name="install_mod_workshop_download_failed">Скачивание не удалось. Попробуйте снова.</string>
+
+    <!-- ===== Native Libs strings ===== -->
+    <string name="native_libs_menu">Импорт библиотек для мультиплеера (B41)</string>
+    <string name="native_libs_hint">🎮 Здесь можно установить дополнительные нативные библиотеки libRakNet64.so и libZNetNoSteam64.so для поддержки мультиплеера на Build 41.\n\nЭти библиотеки появились только в Build 42.12+. Для использования на Build 41 скопируйте их из папки инстанса Build 42: game/android/arm64-v8a — это не ошибка.</string>
+    <string name="native_libs_group_file">ZIP-архив с файлами .so</string>
+    <string name="native_libs_install">Установить</string>
+    <string name="native_libs_installing">Установка нативных библиотек…</string>
+    <string name="native_libs_installed">Нативные библиотеки установлены</string>
+
+    <string name="control_element_opacity_all">На все</string>
+
+    <!-- Steam downloader -->
+    <string name="steam_dl_menu">Скачать из Steam</string>
+    <string name="steam_dl_tab_game">Игра</string>
+    <string name="steam_dl_tab_mods">Моды</string>
+    <string name="steam_dl_login_group">Вход в Steam</string>
+    <string name="steam_dl_login_note">Логин отправляется в Steam (так же, как это делает DepotDownloader) и НЕ сохраняется — никакие данные и пароль не хранятся. Подтвердите вход в приложении Steam Mobile или введите код Steam Guard, когда попросят.</string>
+    <string name="steam_dl_slow_warning">⚠️ Скачивание может быть медленным.</string>
+    <string name="steam_dl_build_42">Build 42</string>
+    <string name="steam_dl_build_41">Build 41</string>
+    <string name="steam_dl_manifest_hint_41">id манифеста Build 41 (обязательно)</string>
+    <string name="steam_dl_build41_needs_manifest">Build 41: введите id манифеста.</string>
+    <string name="steam_dl_cancel">Отменить скачивание</string>
+    <string name="steam_dl_cancel_confirm">Отменить скачивание? Уже скачанные файлы сохранятся для докачки позже.</string>
+    <string name="steam_dl_username">Логин Steam</string>
+    <string name="steam_dl_password">Пароль Steam</string>
+    <string name="steam_dl_version_note">Загружает Linux-сборку Project Zomboid в Downloads/zomdroid — без Termux и без ПК. Build 41 весит ~6–7 ГБ, Build 42 ~10–11 ГБ без архива, поэтому качается долго; если прервётся — просто запусти ту же версию снова, и закачка продолжится (докачка). Оставь поле манифеста пустым для последней сборки. Чтобы зафиксировать более старую версию, найди её на https://steamdb.info/depot/108603/manifests/ и скопируй строку «DepotDownloader» (не «Steam Console») — вставь сюда всю строку целиком, вместе с веткой; переключатель Build 41/42 выше в этом случае игнорируется.</string>
+    <string name="steam_dl_manifest_hint">id манифеста или строка DepotDownloader целиком (пусто = последняя)</string>
+    <string name="steam_dl_download_game">Скачать игру</string>
+    <string name="steam_dl_mods_note">Скачивание модов Мастерской по ID (число в URL: …/sharedfiles/filedetails/?id=ЧИСЛО). Логин Steam не нужен. Несколько ID — через пробел. Каждый сохраняется в .zip в Downloads/zomdroid.</string>
+    <string name="steam_dl_mods_hint">ID модов (через пробел)</string>
+    <string name="steam_dl_download_mods">Скачать моды</string>
+    <string name="steam_dl_required">Обязательно</string>
+    <string name="steam_dl_mods_empty">Введите ID мода (число из URL)</string>
+    <string name="steam_dl_storage_title">Нужен доступ к файлам</string>
+    <string name="steam_dl_storage_message">Игра и моды сохраняются в публичную папку Downloads/zomdroid, чтобы их можно было видеть, передавать и импортировать. Дайте Zomdroid «Доступ ко всем файлам» и нажмите «Скачать» снова.</string>
+    <string name="steam_dl_grant">Разрешить</string>
+    <string name="steam_dl_guard_title">Введите код Steam Guard</string>
+    <string name="steam_dl_guard_retry">Неверный код — попробуйте снова</string>
+    <string name="steam_dl_guard_hint">Код Steam Guard</string>
+    <string name="steam_dl_guard_email">Код отправлен на %1$s</string>
+
+    <!-- Appearance / controls / detection -->
+    <string name="settings_group_appearance">Оформление</string>
+    <string name="settings_theme">Тема лаунчера</string>
+    <string name="control_element_style">Стиль</string>
+    <string name="control_element_custom_icon">Своя иконка…</string>
+    <string name="control_element_custom_icon_failed">Не удалось загрузить изображение</string>
+    <string name="control_element_custom_icon_select_button">Сначала выберите кнопку</string>
+    <string name="control_element_icon_no_tint">Сохранить исходные цвета</string>
+    <string name="vibrate_on_touch_switch_label">Вибрация при нажатии</string>
+    <string name="new_game_instance_analyzing">Анализ файла игры, подождите…</string>
+    <string name="new_game_instance_detect_failed">Не удалось прочитать ZIP игры. Убедитесь, что это корректный архив Project Zomboid, и попробуйте снова.</string>
+
+    <!-- NG_GL4ES renderer offer dialog -->
+    <string name="settings_texture_compression_hint">Сжимает большие текстуры с минимальной потерей качества для экранов смартфонов и даже таблетов. Включает в себя систему кэша, которую можно очищать самостоятельно. Первый заход в игру создаёт кэш и может быть чуть дольше. Кэш общий для ZINK и NG_GL4ES. <b>Примечание:</b> включённая ETC2 делает почти бесполезным включение переменной LIBGL_SHRINK и не рисует «решётку» на текстурах.</string>
+    <string name="settings_texture_compression_short">Сжимает большие текстуры почти без потери качества. Держит кэш, который можно очистить.</string>
+    <string name="settings_texture_compression">Сжатие текстур (ETC2)</string>
+    <!-- Appended to the Build 42 compatibility preset dialog. -->
+    <string name="preset_confirm_compat_note">\n\nВыставляет рендерер NG_GL4ES: ему не нужно подбирать драйвер, и он совместим со всеми известными GPU.</string>
+    <string name="preset_confirm_title">Применить %1$s?</string>
+    <string name="preset_name_b42_compat">Build 42 — совместимость</string>
+    <string name="preset_confirm_nothing_to_do">Ваши настройки уже совпадают с этим пресетом.</string>
+    <string name="preset_change_renderer">Рендерер: %1$s → %2$s</string>
+    <string name="preset_change_shrink">Ужатие текстур: %1$s → %2$s</string>
+    <string name="preset_change_jvm_args">Аргументы Java: установлены рекомендуемые</string>
+    <string name="preset_change_render_scale">Масштаб разрешения: %1$s → %2$s</string>
+    <string name="preset_change_vulkan_driver">Драйвер Vulkan: %1$s → %2$s</string>
+    <string name="preset_change_memory_saver_on">Экономия памяти: включена</string>
+    <string name="preset_change_memory_saver_off">Экономия памяти: выключена</string>
+    <string name="preset_applied">Пресет применён: %1$s</string>
+    <string name="preset_dialog_gpu_ng">Обнаружено: %1$s. Выставлен рендерер NG_GL4ES — он работает на любом GPU и не требует драйвера. Текстуры сжимаются через ETC2 в полном разрешении, поэтому память экономится без потери качества картинки.</string>
+    <string name="preset_dialog_gpu_ng_unnamed">Выставлен рендерер NG_GL4ES — он работает на любом GPU и не требует драйвера. Текстуры сжимаются через ETC2 в полном разрешении, поэтому память экономится без потери качества картинки.</string>
+    <string name="preset_card_title">Рекомендуемые пресеты</string>
+    <string name="preset_card_subtitle">Рендерер, ужатие текстур, аргументы Java и разрешение, выставленные за вас разом</string>
+    <string name="preset_name_b41">Build 41</string>
+    <string name="preset_name_b42">Build 42</string>
+    <string name="settings_backup_switch">Быстрое сохранение (F10)</string>
+    <string name="settings_etc2_cache_clear">Очистить</string>
+    <string name="settings_etc2_cache_hint">Общий для всех инстансов. Очищать можно в любой момент: рендерер заново сожмёт нужное, это займёт несколько секунд при следующей загрузке.</string>
+    <string name="settings_features_title">Функции</string>
+    <string name="settings_jvm_args_title">Аргументы JVM</string>
+    <string name="launcher_empty_title">С чего начать</string>
+    <string name="launcher_empty_body">Чтобы начать играть, создайте инстанс — установленную копию Project Zomboid. Добавьте файлы игры кнопкой + вверху или скачайте игру из Steam или GOG через боковое меню. Загрузку из Steam сначала нужно упаковать в .zip; из GOG после загрузки нажмите «Создать инстанс».</string>
+    <string name="launcher_empty_quick_start">Быстрый старт</string>
+</resources>

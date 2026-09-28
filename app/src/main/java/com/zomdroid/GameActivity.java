@@ -1,0 +1,859 @@
+package com.zomdroid;
+
+import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.graphics.PixelFormat;
+import android.os.Bundle;
+import android.system.ErrnoException;
+import android.util.Log;
+
+import android.view.InputDevice;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.PointerIcon;
+import android.view.ScaleGestureDetector;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
+import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.zomdroid.input.GLFWBinding;
+import com.zomdroid.input.GamepadManager;
+import com.zomdroid.input.InputNativeInterface;
+import com.zomdroid.databinding.ActivityGameBinding;
+import com.zomdroid.game.GameInstance;
+import com.zomdroid.game.GameInstanceManager;
+import com.zomdroid.input.InputControlsView;
+import com.zomdroid.input.KeyboardManager;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import android.Manifest;
+
+import org.fmod.FMOD;
+
+/**
+ * Main game activity. Handles UI, surface, and input.
+ * Integrates GamepadManager for hotplug and routes all gamepad input to the native interface.
+ * Hides the virtual controller UI when a physical gamepad is connected.
+ */
+public class GameActivity extends AppCompatActivity implements GamepadManager.GamepadListener, KeyboardManager.KeyboardListener {
+    public static final String EXTRA_GAME_INSTANCE_NAME = "com.zomdroid.GameActivity.EXTRA_GAME_INSTANCE_NAME";
+    public static final String EXTRA_SERVER_PROBE_CLIENT = "com.zomdroid.SERVER_PROBE_CLIENT";
+    public static final String EXTRA_COOP_HOST_TEST = "com.zomdroid.COOP_HOST_TEST";
+    private AutoCloseable coopHostBridge;
+    private boolean serverProbeBound;
+    private final android.content.ServiceConnection serverProbeConnection = new android.content.ServiceConnection() {
+        @Override public void onServiceConnected(android.content.ComponentName name, android.os.IBinder service) {
+            Log.i("ServerProbeClient", "Bound to server process");
+        }
+        @Override public void onServiceDisconnected(android.content.ComponentName name) {
+            Log.w("ServerProbeClient", "Server process disconnected");
+        }
+    };
+    private static final String LOG_TAG = GameActivity.class.getName();
+
+    private ActivityGameBinding binding;
+    private Surface gameSurface;
+    private static boolean isGameStarted = false;
+    static boolean hasGameJvm() { return isGameStarted; }
+
+    // Handles all gamepad connection/disconnection and input events
+    private GamepadManager gamepadManager;
+    private KeyboardManager keyboardManager;
+
+    // Tracks whether a physical gamepad/kb is currently connected (for UI logic)
+    private boolean isGamepadConnected = false;
+    private boolean isKeyboardConnected = false;
+
+    private boolean leftMouseDown  = false;
+    private boolean rightMouseDown = false;
+    // Pinch-to-zoom on the game surface: two fingers become mouse-wheel notches, which is
+    // what the game zooms on. While a pinch is in progress single-finger mouse emulation is
+    // suspended, so the second finger is not taken for a click and the spread is not a drag.
+    private ScaleGestureDetector pinchDetector;
+    private boolean pinching = false;
+
+    private boolean systemKeyboardVisible = false;
+    // Helps to calculate mouse cursor position
+    private float renderScale = 1f;
+
+    // Launch settings of the instance being played. Resolved from the intent extra in onCreate();
+    // with a null name it reads the global values, which is the same thing it did before.
+    private com.zomdroid.game.InstanceSettings instanceSettings;
+
+    // In-game overlay (instance setting, see InstanceSettings.getHudMode): the classic counter or the
+    // performance bar ported from ValDroid. Both count real presented frames (glfwSwapBuffers).
+    private android.widget.TextView fpsText;            // classic "FPS: XX", top-left
+    private long fpsLastCount = 0, fpsLastTimeMs = 0;
+    private PerfOverlayView perfView;                   // full performance bar, top-centre
+    private PerfSampler perfSampler;                    // its numbers, sampled off the UI thread
+    private android.os.HandlerThread perfThread;
+    private android.os.Handler perfHandler;
+    private final android.os.Handler hudHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+
+    @SuppressLint({"UnsafeDynamicallyLoadedCode", "ClickableViewAccessibility"})
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (DedicatedServerService.active(this)) {
+            android.widget.Toast.makeText(this, R.string.ds_busy, android.widget.Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        final boolean serverProbeClient = BuildConfig.DEBUG
+                && getIntent().getBooleanExtra(EXTRA_SERVER_PROBE_CLIENT, false);
+        if (serverProbeClient) {
+            android.content.Intent server = new android.content.Intent().setClassName(this,
+                    "com.zomdroid.ServerProbeBindingService");
+            serverProbeBound = bindService(server, serverProbeConnection,
+                    Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT);
+            if (!serverProbeBound) {
+                throw new IllegalStateException("Could not bind the server test process");
+            }
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
+                    0);
+        }
+
+        binding = ActivityGameBinding.inflate(getLayoutInflater());
+        // Give focus to game surface to ensure it receives input events
+        setContentView(binding.getRoot());
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // set instanceName before any inputControlsV calls
+        String gameInstanceName = getIntent().getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName != null) {
+            binding.inputControlsV.setInstanceName(gameInstanceName);
+        }
+        // Render scale and the two on-screen-control toggles belong to the instance being played.
+        // The control elements never read preferences themselves — they ask the view — so handing
+        // the view these two values here is the whole of it.
+        instanceSettings = new com.zomdroid.game.InstanceSettings(gameInstanceName);
+        binding.inputControlsV.setVibrateOnTouch(instanceSettings.isVibrateOnTouch());
+
+        binding.gameSv.setFocusable(true);
+        binding.gameSv.setFocusableInTouchMode(true);
+        binding.gameSv.requestFocus();
+
+        // Initializing the cursor calsulation pos helper
+        renderScale = instanceSettings.getRenderScale();
+
+        setUpHud(instanceSettings.getHudMode());
+
+        // Initialize and register GamepadManager for gamepad hotplug and input events
+        try {
+            gamepadManager = new GamepadManager(this, this);
+            //gamepadManager.register();
+
+            // Apply touch override based on saved preference
+            boolean isTouchEnabled = instanceSettings.isTouchControlsEnabled();
+            GamepadManager.setTouchOverride(isTouchEnabled);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to initialize GamepadManager", e);
+            gamepadManager = null;
+        }
+        // Initialize KeyboardManager
+        try {
+            keyboardManager = new KeyboardManager(this, this);
+            //keyboardManager.register();
+
+          // Apply touch override based on saved preference
+          boolean isTouchEnabled = instanceSettings.isTouchControlsEnabled();
+          KeyboardManager.setTouchOverride(isTouchEnabled);
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to initialize keyboardManager", Toast.LENGTH_SHORT).show();
+            keyboardManager = null;
+        }
+        // Display on/off buttons overlay
+        applyInputOverlay();
+        binding.inputControlsV.setKeyboardToggleListener(() -> toggleSystemKeyboard());
+        binding.inputControlsV.setRenderScale(renderScale);
+
+        getWindow().setDecorFitsSystemWindows(false);
+        final WindowInsetsController controller = getWindow().getInsetsController();
+        if (controller != null) {
+            controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+            controller.setSystemBarsBehavior(
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
+
+        // Orientation is fixed in the manifest (screenOrientation + configChanges) rather than here.
+        // Calling setRequestedOrientation() from onCreate() on a phone held in portrait recreated the
+        // activity immediately, so onCreate() ran twice and fired the RECORD_AUDIO request twice —
+        // Android drops the second one ("Can request only one set of permissions at a time", present
+        // in every bug report we have). The manifest form starts the activity in landscape to begin
+        // with, and configChanges keeps a rotation from tearing down the GL surface underneath us.
+
+        //String gameInstanceName = getIntent().getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        gameInstanceName = getIntent().getStringExtra(EXTRA_GAME_INSTANCE_NAME);
+        if (gameInstanceName == null)
+            throw new RuntimeException("Expected game instance name to be passed as intent extra");
+        GameInstance gameInstance = GameInstanceManager.requireSingleton().getInstanceByName(gameInstanceName);
+        if (gameInstance == null)
+            throw new RuntimeException("Game instance with name " + gameInstanceName + " not found");
+
+        final String coopBridgePath;
+        if (new com.zomdroid.game.InstanceSettings(gameInstanceName).isCoopHostingEnabled()
+                || (BuildConfig.DEBUG && getIntent().getBooleanExtra(EXTRA_COOP_HOST_TEST, false))) {
+            try {
+                CoopHostBridge bridge = CoopHostBridge.start(this, gameInstance);
+                coopHostBridge = bridge;
+                coopBridgePath = bridge.getPath();
+            } catch (java.io.IOException e) { throw new IllegalStateException("Cannot prepare COOP bridge", e); }
+        } else coopBridgePath = null;
+
+        // Build 42.20 binds trigger actions to thresholds that assume a real pad's axis range,
+        // e.g. "Melee > -0.80" on the left trigger. A released trigger has to read as -1 for that
+        // to mean "not pressed"; sending 0 like we do everywhere else leaves Melee permanently on.
+        // Scoped to 42.20+ on purpose: the older builds work with the current range and are frozen,
+        // so they keep the exact code path they have today and need no retesting.
+        GamepadManager.setBipolarTriggers(gameInstance.isBuild4220Plus());
+
+        // The game keeps its options in the profile it runs on: hosting and the server test client
+        // get their own cache folders (GameLauncher), so their options.ini is not Zomboid's.
+        cursorOptionsFile = new java.io.File(gameInstance.getHomePath(), (coopBridgePath != null
+                ? "coop-probe" : serverProbeClient ? "client-probe" : "Zomboid") + "/options.ini");
+        followGameCursorOption();
+
+        System.loadLibrary("zomdroid");
+
+        System.load(AppStorage.requireSingleton().getHomePath() + "/" + gameInstance.getFmodLibraryPath() + "/libfmod.so");
+        System.load(AppStorage.requireSingleton().getHomePath() + "/" + gameInstance.getFmodLibraryPath() + "/libfmodstudio.so");
+
+        FMOD.init(this);
+
+        binding.gameSv.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(@NonNull SurfaceHolder holder) {
+                Log.d(LOG_TAG, "Game surface created.");
+                renderScale = instanceSettings.getRenderScale();
+                int width = (int) (binding.gameSv.getWidth() * renderScale);
+                int height = (int) (binding.gameSv.getHeight() * renderScale);
+                binding.gameSv.getHolder().setFixedSize(width, height);
+                binding.inputControlsV.setRenderScale(renderScale);
+            }
+
+            @Override
+            public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
+                Log.d(LOG_TAG, "Game surface changed.");
+                gameSurface = binding.gameSv.getHolder().getSurface();
+                //gameSurface = holder.getSurface();
+                if (gameSurface == null) throw new RuntimeException();
+
+                if (format != PixelFormat.RGBA_8888) {
+                    Log.w(LOG_TAG, "Using unsupported pixel format " + format); // LIAMELUI seems like default is RGB_565
+                }
+
+                GameLauncher.setSurface(gameSurface, width, height);
+
+                if (!isGameStarted) {
+                    Thread thread = new Thread(() -> {
+                        try {
+                            GameLauncher.launch(gameInstance, serverProbeClient, coopBridgePath);
+                        } catch (ErrnoException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                    thread.start();
+                    isGameStarted = true;
+                }
+            }
+
+            @Override
+            public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+                Log.d(LOG_TAG, "Game surface destroyed.");
+                GameLauncher.destroySurface();
+            }
+        });
+
+      pinchDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+          // One wheel notch per 10% of spread, either way. The game's zoom is a stepped wheel
+          // zoom, so the smooth factor has to be quantised somewhere. RimDroid uses 15%; on
+          // the phone that felt one step too coarse for this game, 10% was picked by hand.
+          private static final float NOTCH = 0.10f;
+          private float accumulated = 0f;
+
+          @Override
+          public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
+              accumulated = 0f;
+              return true;
+          }
+
+          @Override
+          public boolean onScale(@NonNull ScaleGestureDetector detector) {
+              accumulated += detector.getScaleFactor() - 1f;
+              while (accumulated > NOTCH) {
+                  accumulated -= NOTCH;
+                  InputNativeInterface.sendMouseScroll(0.0, 1.0);
+              }
+              while (accumulated < -NOTCH) {
+                  accumulated += NOTCH;
+                  InputNativeInterface.sendMouseScroll(0.0, -1.0);
+              }
+              return true;
+          }
+      });
+      // A double-tap-and-drag must stay a double click for the game's inventory, not a zoom.
+      pinchDetector.setQuickScaleEnabled(false);
+
+      binding.gameSv.setOnTouchListener(new View.OnTouchListener() {
+        //float renderScale = instanceSettings.getRenderScale();
+        int activePointerId = -1;
+        boolean leftPressedFinger = false;
+
+        @Override
+        public boolean onTouch(View v, MotionEvent e) {
+            if (binding.inputControlsV != null
+                    && binding.inputControlsV.getVisibility() == View.VISIBLE
+                    && binding.inputControlsV.onTouchEvent(e)) {
+                //Log.v("ZomdroidTouch", "inputControlsV consumed event");
+                return true;
+            }
+            //Log.v("ZomdroidTouch", "inputControlsV did NOT consume, visibility="  + binding.inputControlsV.getVisibility());
+
+          int action = e.getActionMasked();
+          int idx = e.getActionIndex();
+
+          // Fingers only: a real mouse or touchpad has its own wheel and buttons, handled below.
+          if (!isMouseEvent(e, idx)) {
+              pinchDetector.onTouchEvent(e);
+              if (action == MotionEvent.ACTION_POINTER_DOWN && e.getPointerCount() == 2) {
+                  // Second finger down: this is a pinch, not another click. Let go of the
+                  // button the first finger is holding so the spread does not drag anything.
+                  if (leftPressedFinger || leftMouseDown) {
+                      InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, false);
+                      leftPressedFinger = false;
+                      leftMouseDown = false;
+                  }
+                  pinching = true;
+                  return true;
+              }
+              if (pinching) {
+                  // Stay silent until every finger is up; only the detector sees the moves.
+                  if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                      pinching = false;
+                      activePointerId = -1;
+                  }
+                  return true;
+              }
+          }
+
+          switch (action) {
+              case MotionEvent.ACTION_DOWN:
+              case MotionEvent.ACTION_POINTER_DOWN: {
+                activePointerId = e.getPointerId(idx);
+                float x = e.getX(idx), y = e.getY(idx);
+                InputNativeInterface.sendCursorPos(x * renderScale, y * renderScale);
+
+                leftPressedFinger = true;
+                leftMouseDown = true;
+                InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, true);
+                if (isMouseEvent(e, idx)) {
+                    syncMouseReleaseFromMask(e.getButtonState()); // тихий релиз, press не генерим
+                }
+                return true;
+              }
+              case MotionEvent.ACTION_MOVE: {
+                if (activePointerId < 0) return false;
+                int p = e.findPointerIndex(activePointerId);
+                if (p < 0) { activePointerId = -1; return false; }
+                float x = e.getX(p), y = e.getY(p);
+                //dbg("ACTION_MOVE");
+                InputNativeInterface.sendCursorPos(x * renderScale, y * renderScale);
+                if (isMouseEvent(e, p)) {
+                    syncMouseReleaseFromMask(e.getButtonState());
+                }
+
+                return true;
+              }
+              case MotionEvent.ACTION_UP:
+              case MotionEvent.ACTION_POINTER_UP: {
+                if (activePointerId < 0) return false;
+                float x = e.getX(idx), y = e.getY(idx);
+                if (leftPressedFinger) {
+                  InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, false);
+                  leftPressedFinger = false;
+                }
+                leftMouseDown = false;
+                InputNativeInterface.sendCursorPos(x * renderScale, y * renderScale);
+                if (isMouseEvent(e, idx)) {
+                    syncMouseReleaseFromMask(e.getButtonState());
+                }
+                activePointerId = -1;
+                return true;
+              }
+              case MotionEvent.ACTION_CANCEL: {
+                if (leftPressedFinger || leftMouseDown) {
+                    InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, false);
+                    leftPressedFinger = false;
+                    leftMouseDown = false;
+                }
+                activePointerId = -1;
+                return true;
+            }
+          }
+          return false;
+        }
+      });
+    }
+
+    /** Adds the chosen in-game overlay on top of the game surface and the on-screen controls. */
+    private void setUpHud(int mode) {
+        android.widget.FrameLayout root = (android.widget.FrameLayout) binding.getRoot();
+        final float dp = getResources().getDisplayMetrics().density;
+        if (mode == com.zomdroid.game.InstanceSettings.HUD_FPS) {
+            fpsText = new android.widget.TextView(this);
+            fpsText.setText("FPS: --");
+            fpsText.setTextColor(0xFF00FF66);                 // green, readable over any scene
+            fpsText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11);
+            fpsText.setShadowLayer(4f, 0f, 0f, 0xFF000000);   // outline so it reads on light scenes
+            android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                    android.view.Gravity.TOP | android.view.Gravity.START);
+            int m = Math.round(8 * dp);
+            lp.setMargins(m, m, 0, 0);
+            root.addView(fpsText, lp);
+        } else if (mode == com.zomdroid.game.InstanceSettings.HUD_FULL) {
+            // First segment names the graphics path: VK = ZINK (OpenGL on Vulkan), GL = the GLES
+            // translators (GL4ES, NG_GL4ES, MobileGlues).
+            LauncherPreferences.Renderer renderer = instanceSettings.getRenderer();
+            String api = renderer == LauncherPreferences.Renderer.ZINK_OSMESA
+                    || renderer == LauncherPreferences.Renderer.ZINK_ZFA ? "VK" : "GL";
+            perfView = new PerfOverlayView(this, api);
+            android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                    android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL);
+            lp.setMargins(0, Math.round(4 * dp), 0, 0);
+            root.addView(perfView, lp);   // not clickable: touches reach the controls underneath
+            perfSampler = new PerfSampler(this);
+            perfThread = new android.os.HandlerThread("PerfOverlay");
+            perfThread.start();
+            perfHandler = new android.os.Handler(perfThread.getLooper());
+        }
+    }
+
+    private final Runnable fpsTextTick = new Runnable() {
+        @Override public void run() {
+            if (fpsText == null) return;
+            long now = android.os.SystemClock.elapsedRealtime();
+            long count = GameLauncher.getPresentedFrameCount();
+            if (fpsLastTimeMs != 0 && now > fpsLastTimeMs)
+                fpsText.setText("FPS: " + Math.round((count - fpsLastCount) * 1000.0 / (now - fpsLastTimeMs)));
+            fpsLastCount = count;
+            fpsLastTimeMs = now;
+            hudHandler.postDelayed(this, 1000);
+        }
+    };
+
+    private final Runnable perfTick = new Runnable() {
+        @Override public void run() {
+            if (perfView == null || perfSampler == null || perfHandler == null) return;
+            final PerfSampler.Stats stats = perfSampler.sample(GameLauncher.getPresentedFrameCount());
+            hudHandler.post(() -> { if (perfView != null) perfView.setStats(stats); });
+            perfHandler.postDelayed(this, 1000);
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+      super.onDestroy();
+      if (perfThread != null) { perfThread.quitSafely(); perfThread = null; perfHandler = null; }
+      if (coopHostBridge != null) {
+          try { coopHostBridge.close(); }
+          catch (Exception e) { Log.e("CoopHostBridge", "Cannot close bridge", e); }
+      }
+      if (serverProbeBound) {
+          unbindService(serverProbeConnection);
+          serverProbeBound = false;
+      }
+      // Unregister GamepadManager to avoid leaks
+      if (gamepadManager != null) {
+          gamepadManager.unregister();
+      }
+
+      // Unregister Keyboard to avoid leaks
+      if (keyboardManager != null) {
+          keyboardManager.unregister();
+      }
+    }
+
+    // GamepadManager.GamepadListener implementation
+
+    // Called when any physical gamepad is connected: hide the virtual controller UI
+    @Override
+    public void onGamepadConnected() {
+        runOnUiThread(() -> {
+            isGamepadConnected = true;
+            applyInputOverlay();
+        });
+    }
+
+    // Called when all physical gamepads are disconnected: show the virtual controller UI
+    @Override
+    public void onGamepadDisconnected() {
+        runOnUiThread(() -> {
+            isGamepadConnected = false;
+            applyInputOverlay();
+        });
+    }
+
+    // Forward every gamepad button event to the native input interface
+    @Override
+    public void onGamepadButton(int button, boolean pressed) {
+        InputNativeInterface.sendJoystickButton(button, pressed);
+    }
+
+    // Forward every gamepad axis event to the native input interface
+    @Override
+    public void onGamepadAxis(int axis, float value) {
+        InputNativeInterface.sendJoystickAxis(axis, value);
+    }
+
+    // Forward every gamepad dpad event to the native input interface
+    @Override
+    public void onGamepadDpad(int dpad, char state) {
+        InputNativeInterface.sendJoystickDpad(dpad, state);
+    }
+
+    // Handle gamepad key events
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        boolean handled = false;
+        //if (isKeyboardConnected && (keyboardManager != null)) handled |= keyboardManager.handleKeyEvent(event);
+        if (keyboardManager != null) handled |= keyboardManager.handleKeyEvent(event);
+        if (isGamepadConnected && (gamepadManager  != null)) handled |= gamepadManager.handleKeyEvent(event);
+        if (handled) return true;
+        //if (isKeyboardConnected) return true; // if physical kb connected not sending to typing
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        boolean handled = false;
+        //if (isKeyboardConnected && (keyboardManager != null)) handled |= keyboardManager.handleKeyEvent(event);
+        if (keyboardManager != null) handled |= keyboardManager.handleKeyEvent(event);
+        if (isGamepadConnected && (gamepadManager  != null)) handled |= gamepadManager.handleKeyEvent(event);
+        if (handled) return true;
+        //if (isKeyboardConnected) return true;
+        return super.onKeyUp(keyCode, event);
+    }
+
+
+    // Handle gamepad/keyboard motion events
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent event) {
+      //float renderScale = instanceSettings.getRenderScale();
+
+      boolean isPointerDevice = event.isFromSource(InputDevice.SOURCE_MOUSE) || event.isFromSource(InputDevice.SOURCE_TOUCHPAD) || event.getToolType(0) == MotionEvent.TOOL_TYPE_MOUSE;
+
+      if (!isPointerDevice) {
+          if (gamepadManager != null && gamepadManager.handleMotionEvent(event)) return true;
+          return super.onGenericMotionEvent(event);
+      }
+
+      int action = event.getActionMasked();
+      int btn = event.getActionButton();
+
+      // Cursor movement: always update position and if LMB/RMB is held — it's a drag of crosshair/objects
+      //if (action == MotionEvent.ACTION_HOVER_MOVE || action == MotionEvent.ACTION_MOVE) {
+      if (action == MotionEvent.ACTION_HOVER_MOVE) {
+        float x = event.getX();
+        float y = event.getY();
+        InputNativeInterface.sendCursorPos(x * renderScale, y * renderScale);
+        syncMouseReleaseFromMask(event.getButtonState());
+
+        if (leftMouseDown || rightMouseDown) {
+          //dbg("DRAG move");
+          return true;
+        }
+        return true;
+      }
+
+      if (action == MotionEvent.ACTION_SCROLL) {
+        float v = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
+        if (v == 0) {
+            v = event.getAxisValue(MotionEvent.AXIS_WHEEL);
+        }
+
+        if (v != 0) {
+            InputNativeInterface.sendMouseScroll(0.0, v > 0 ? 1.0 : -1.0);
+        }
+        return true;
+      }
+
+      if (action == MotionEvent.ACTION_BUTTON_PRESS || action == MotionEvent.ACTION_BUTTON_RELEASE) {
+          boolean pressed = (action == MotionEvent.ACTION_BUTTON_PRESS);
+          InputNativeInterface.sendCursorPos(event.getX() * renderScale, event.getY() * renderScale);
+
+        if (btn == MotionEvent.BUTTON_PRIMARY) {
+          //dbg(pressed ? "LMB PRESS" : "LMB RELEASE");
+          leftMouseDown = pressed;
+          InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, pressed);
+          syncMouseReleaseFromMask(event.getButtonState());
+          return true;
+        } else if (btn == MotionEvent.BUTTON_SECONDARY) {
+          //dbg(pressed ? "RMB PRESS" : "RMB RELEASE");
+          rightMouseDown = pressed;
+          InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_RIGHT.code, pressed);
+          syncMouseReleaseFromMask(event.getButtonState());
+          return true;
+        }
+      }
+      return super.onGenericMotionEvent(event);
+    }
+
+    @Override
+    public void onKeyboardConnected() {
+        runOnUiThread(() -> {
+            if (binding == null) return;
+            isKeyboardConnected = true;
+            // 1) Жёстко выключаем IME-режим SurfaceView
+            systemKeyboardVisible = false;
+            if (binding.gameSv != null) {
+                binding.gameSv.setAcceptingTextInput(false);
+            }
+            hideSystemKeyboard(); // на всякий случай
+            binding.inputControlsV.setKeyboardConnected(true);
+            reapplyImmersiveMode();
+            applyInputOverlay();
+        });
+    }
+
+    @Override
+    public void onKeyboardDisconnected() {
+        runOnUiThread(() -> {
+            if (binding == null) return;
+            isKeyboardConnected = false;
+            binding.inputControlsV.setKeyboardConnected(false);
+            applyInputOverlay();
+        });
+    }
+
+    @Override
+    public void onKeyboardKey(int glfwCode, boolean pressed) {
+      InputNativeInterface.sendKeyboard(glfwCode, pressed);
+    }
+
+    private void applyInputOverlay() {
+      if (binding.inputControlsV == null) return;
+      binding.inputControlsV.setGamepadConnected(isGamepadConnected);
+
+      if (isKeyboardConnected) {
+        binding.inputControlsV.setVisibility(View.GONE);
+      } else if (isGamepadConnected) {
+        binding.inputControlsV.setVisibility(View.VISIBLE);
+        binding.inputControlsV.applyInputMode(InputControlsView.InputMode.MNK);
+      } else {
+        binding.inputControlsV.setVisibility(View.VISIBLE);
+        binding.inputControlsV.applyInputMode(InputControlsView.InputMode.ALL);
+      }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (gamepadManager != null)  gamepadManager.register();
+        if (keyboardManager != null) keyboardManager.register();
+        if (cursorOptionsFile != null) {
+            cursorHandler.removeCallbacks(cursorOptionCheck);
+            cursorHandler.postDelayed(cursorOptionCheck, CURSOR_OPTION_CHECK_MS);
+        }
+        if (fpsText != null) {
+            fpsLastTimeMs = 0;                          // the first interval after a pause is not a rate
+            hudHandler.removeCallbacks(fpsTextTick);
+            hudHandler.postDelayed(fpsTextTick, 1000);
+        }
+        if (perfHandler != null) {
+            perfHandler.removeCallbacks(perfTick);
+            perfHandler.post(perfTick);                 // the first sample only primes the deltas
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (gamepadManager != null)  gamepadManager.unregister();
+        if (keyboardManager != null) keyboardManager.unregister();
+        cursorHandler.removeCallbacks(cursorOptionCheck);
+        hudHandler.removeCallbacks(fpsTextTick);
+        if (perfHandler != null) perfHandler.removeCallbacks(perfTick);
+        super.onPause();
+    }
+
+    /** The options.ini of the profile this session runs on; null until onCreate picks it. */
+    private java.io.File cursorOptionsFile;
+    private long cursorOptionsModified = Long.MIN_VALUE;
+    private Boolean gameDrawsCursorApplied; // null = not applied yet
+    private static final long CURSOR_OPTION_CHECK_MS = 2000;
+    private final android.os.Handler cursorHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable cursorOptionCheck = new Runnable() {
+        @Override public void run() {
+            followGameCursorOption();
+            cursorHandler.postDelayed(this, CURSOR_OPTION_CHECK_MS);
+        }
+    };
+
+    /**
+     * With a mouse attached Android draws its own pointer on top of the game. The game has a
+     * cursor of its own - {@code Mouse.renderCursorTexture()} draws media/ui/cursor_white.png at
+     * the mouse position - but only when its "Lock cursor to window" option is on, and it cannot
+     * hide the system pointer itself: every cursor entry point in our GLFW backend is a stub
+     * ({@code _glfwSetCursorMode} is a NOOP, {@code _glfwCreateCursor} returns false), and the
+     * game never calls them anyway.
+     *
+     * <p>So we hide the system pointer - but only while the game's option is actually on. Hiding
+     * it unconditionally would leave a player who never enabled that option with no cursor at all,
+     * which is worse than two. The option lives in the profile's options.ini. It used to be read
+     * once at launch, from Zomboid/ only: switching it in the game's settings gave two cursors (or
+     * none) until a restart, and on the hosting profile it was never seen at all (vivo report,
+     * 2026-09-17). Now the file's modification time is checked every two seconds while the game is
+     * in front - one stat call - and the file is read only when the game has saved it.
+     */
+    private void followGameCursorOption() {
+        java.io.File ini = cursorOptionsFile;
+        if (ini == null) return;
+        long modified = ini.lastModified(); // 0 when the file does not exist yet
+        if (modified == cursorOptionsModified && gameDrawsCursorApplied != null) return;
+        cursorOptionsModified = modified;
+        boolean gameDraws = readsLockCursorToWindow(ini);
+        if (gameDrawsCursorApplied != null && gameDrawsCursorApplied == gameDraws) return;
+        gameDrawsCursorApplied = gameDraws;
+        // Same rule for the on-screen mouse: the game's cursor follows it, so its own arrow goes.
+        binding.inputControlsV.gameDrawsCursor = gameDraws;
+        binding.inputControlsV.invalidate();
+        // Both views: the pointer is resolved from the view under it, so the controls overlay
+        // would bring the arrow back over itself. null restores the default arrow.
+        PointerIcon icon = gameDraws ? PointerIcon.getSystemIcon(this, PointerIcon.TYPE_NULL) : null;
+        binding.gameSv.setPointerIcon(icon);
+        binding.inputControlsV.setPointerIcon(icon);
+        Log.i(LOG_TAG, gameDraws
+                ? "Lock cursor to window is on - hiding the system pointer and the on-screen mouse arrow, the game draws its own"
+                : "Lock cursor to window is off - the system pointer and the on-screen mouse arrow are shown");
+    }
+
+    /** {@code lockCursorToWindow=true} in the given options.ini. Absent file = false. */
+    private static boolean readsLockCursorToWindow(java.io.File ini) {
+        if (!ini.isFile()) return false;
+        try {
+            for (String line : java.nio.file.Files.readAllLines(ini.toPath(),
+                    java.nio.charset.StandardCharsets.UTF_8)) {
+                String s = line.trim();
+                if (s.startsWith("lockCursorToWindow"))
+                    return s.endsWith("true");
+            }
+        } catch (Exception e) {
+            Log.w(LOG_TAG, "Could not read options.ini, leaving the system pointer alone", e);
+        }
+        return false;
+    }
+
+    private boolean isMouseEvent(MotionEvent e, int pointerIndex) {
+        return e.isFromSource(InputDevice.SOURCE_MOUSE)
+            || e.isFromSource(InputDevice.SOURCE_TOUCHPAD)
+            || (pointerIndex >= 0 && pointerIndex < e.getPointerCount()
+                && e.getToolType(pointerIndex) == MotionEvent.TOOL_TYPE_MOUSE);
+    }
+
+    private void syncMouseReleaseFromMask(int mask) {
+        boolean leftNow  = (mask & MotionEvent.BUTTON_PRIMARY)   != 0;
+        boolean rightNow = (mask & MotionEvent.BUTTON_SECONDARY) != 0;
+
+        if (!leftNow && leftMouseDown) {
+            leftMouseDown = false;
+            InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, false);
+        }
+        if (!rightNow && rightMouseDown) {
+            rightMouseDown = false;
+            InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_RIGHT.code, false);
+        }
+    }
+
+    public void showSystemKeyboard() {
+        binding.gameSv.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.showSoftInput(binding.gameSv, InputMethodManager.SHOW_FORCED);
+        }
+    }
+
+    public void hideSystemKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(binding.gameSv.getWindowToken(), 0);
+        }
+    }
+
+    private void toggleSystemKeyboard() {
+        if (isKeyboardConnected) return; // физическая клавиатура — не трогаем
+        boolean next = !systemKeyboardVisible;
+        binding.gameSv.setAcceptingTextInput(next);
+        systemKeyboardVisible = next;
+    }
+
+    private void reapplyImmersiveMode() {
+        final WindowInsetsController controller = getWindow().getInsetsController();
+        if (controller != null) {
+            controller.hide(WindowInsets.Type.statusBars()
+                    | WindowInsets.Type.navigationBars()
+                    | WindowInsets.Type.ime());
+            controller.setSystemBarsBehavior(
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
+        binding.gameSv.requestFocus();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int kc = event.getKeyCode();
+        if (kc == KeyEvent.KEYCODE_BACK
+                || kc == KeyEvent.KEYCODE_VOLUME_UP
+                || kc == KeyEvent.KEYCODE_VOLUME_DOWN
+                || kc == KeyEvent.KEYCODE_VOLUME_MUTE) {
+            return super.dispatchKeyEvent(event);
+        }
+
+        boolean physicalKeyboardEvent = isTruePhysicalKeyboardEvent(event);
+        boolean textInputMode = binding != null
+                && binding.gameSv != null
+                && binding.gameSv.isAcceptingTextInput();
+
+        // Блокируем "утечку" физических клавиш в IME только когда НЕ идёт осознанный text input.
+        if (isKeyboardConnected && physicalKeyboardEvent && !textInputMode) {
+            if (keyboardManager != null && keyboardManager.handleKeyEvent(event)) {
+                return true;
+            }
+            return true; // глушим, чтобы Gboard не превращал аппаратный ввод в typing
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
+
+    private boolean isTruePhysicalKeyboardEvent(KeyEvent event) {
+        InputDevice device = event.getDevice();
+        if (device == null) return false;
+
+        // Геймпад тоже репортит SOURCE_KEYBOARD для кнопок A/B/X/Y/Start —
+        // исключаем его явно, иначе геймпадные кнопки тоже будут заглушены
+        boolean isGamepad = (device.getSources() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD;
+        if (isGamepad) return false;
+
+        return !device.isVirtual()
+                && (event.isFromSource(InputDevice.SOURCE_KEYBOARD)
+                || (device.getSources() & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD);
+    }
+}

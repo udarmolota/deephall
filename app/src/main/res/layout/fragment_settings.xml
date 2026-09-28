@@ -1,0 +1,1033 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Group 0: Suggested presets.
+             Deliberately the first thing on the screen: it writes to every control below it, so
+             reading order matches causality, and someone who opened Settings because something is
+             wrong meets the answer before the knobs. -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/preset_card_title"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="13sp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/preset_card_subtitle"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                <!-- No style attribute on purpose: the theme's materialButtonStyle is
+                     AppTheme.Button, the filled orange one. These are the primary action of the
+                     screen, so they wear the primary colour rather than the tonal grey the
+                     secondary buttons below use. -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/settings_preset_b42_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:text="@string/preset_name_b42"/>
+
+                <!-- Adreno only: there ZINK is the default, so the compatibility set needs its own
+                     way in. Hidden everywhere else, where it IS the default. -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/settings_preset_b42_compat_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:visibility="gone"
+                    android:text="@string/preset_name_b42_compat"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/settings_preset_b41_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/preset_name_b41"/>
+
+                <TextView
+                    android:id="@+id/settings_preset_current_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Currently applied: Build 42"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Group 1: Rendering -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/settings_group_rendering"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="13sp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/settings_renderer_tv"
+                    android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/settings_renderer"/>
+
+                    <ImageButton
+                        style="@style/AppTheme.ImageButton"
+                        android:id="@+id/settings_renderer_tv_info"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/mt_icon_help"/>
+                        </LinearLayout>
+                        
+                <Spinner
+                    android:id="@+id/settings_renderer_s"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/settings_vulkan_driver_tv"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:text="@string/settings_vulkan_driver"/>
+
+                <Spinner
+                    android:id="@+id/settings_vulkan_driver_s"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/settings_resolution_scale_tv"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:text="@string/settings_resolution_scale"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <SeekBar
+                        android:id="@+id/settings_resolution_scale_sb"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:min="25"
+                        android:max="100"/>
+
+                    <TextView
+                        android:id="@+id/settings_resolution_scale_percent_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        tools:text="100%"/>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Group 1c: In-game display. What the launcher draws on top of the running game:
+             nothing, the plain FPS counter, or the full performance bar. -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/settings_hud"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="13sp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:text="@string/settings_hud_hint"/>
+
+                <RadioGroup
+                    android:id="@+id/settings_hud_rg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/settings_hud_off_rb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_hud_off"/>
+
+                    <RadioButton
+                        android:id="@+id/settings_hud_fps_rb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_hud_fps"/>
+
+                    <RadioButton
+                        android:id="@+id/settings_hud_full_rb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_hud_full"/>
+                </RadioGroup>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Group 1b: Texture compression. Everything that trades texture memory for quality:
+             the ETC2 switch for the renderers that have an encoder (NG_GL4ES, both ZINKs), the
+             cache it fills - folded, the size on the fold - and the GL4ES/NG_GL4ES shrink
+             presets that used to hide under Advanced. Rows show only for the renderer that
+             uses them, so nobody on GL4ES stares at a greyed-out ETC2 switch. -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/settings_texture_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/settings_group_texture"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="13sp"/>
+
+                <!-- Title with the "?" glued to it, toggle at the right edge. A ConstraintLayout so a long
+                     title (Russian) wraps instead of pushing the toggle off the screen. -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/settings_texture_compression_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/settings_texture_compression_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/settings_texture_compression"
+                        app:layout_constrainedWidth="true"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/settings_texture_compression_info"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                    <ImageButton
+                        android:id="@+id/settings_texture_compression_info"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/mt_icon_help"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/settings_texture_compression"
+                        app:layout_constraintStart_toEndOf="@id/settings_texture_compression_title"
+                        app:layout_constraintEnd_toStartOf="@id/settings_texture_compression_switch"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/settings_texture_compression_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/settings_texture_compression_hint_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:text="@string/settings_texture_compression_short"/>
+
+                <!-- The cache, folded: the header carries the size, the fold holds the button
+                     and the explanation. -->
+                <LinearLayout
+                    android:id="@+id/settings_etc2_cache_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/settings_etc2_cache_label_tv"
+                    android:textStyle="bold"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        tools:text="Texture cache: 879 MB"/>
+
+                    <ImageView
+                        android:id="@+id/settings_etc2_cache_expand_iv"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/mt_icon_expand_more"
+                        android:scaleType="fitCenter"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/settings_etc2_cache_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/settings_etc2_cache_hint_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/settings_etc2_cache_hint"/>
+
+                    <!-- Tonal, like every other secondary button on this screen; the filled
+                         primary colour is reserved for the preset buttons at the top. -->
+                    <Button
+                        android:id="@+id/settings_etc2_cache_clear_btn"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/settings_etc2_cache_clear"/>
+
+                </LinearLayout>
+
+                <!-- Texture shrink presets (GL4ES / NG_GL4ES only). The value lands in the env
+                     field under Advanced rather than behind a hidden switch, so the player can
+                     see what was turned on, edit it, and reach the modes we do not offer. -->
+                <LinearLayout
+                    android:id="@+id/settings_texture_shrink_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_texture_shrink_title"
+                            android:textStyle="bold"
+                            android:textAppearance="?attr/textAppearanceBodySmall"/>
+
+                        <ImageButton
+                            android:id="@+id/settings_texture_shrink_info"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="8dp"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/mt_icon_help"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/settings_texture_shrink_title"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/settings_texture_shrink_desc"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textSize="11sp"/>
+
+                    <Spinner
+                        android:id="@+id/settings_texture_shrink_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- The Appearance card moved to fragment_app_settings.xml: the theme is the only
+             app-wide setting left, and this screen now edits one instance. -->
+
+        <!-- Group: Features. New player-facing capabilities live here, not under Advanced -
+             Advanced is for people tuning internals, a feature toggle is for everyone. -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/settings_features_title"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="13sp"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/settings_backup_switch"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:text="@string/settings_backup_switch"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Group: Multiplayer -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/settings_multiplayer_title"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="13sp"/>
+
+                <!-- Title with the "?" glued to it, toggle at the right edge. A ConstraintLayout so a long
+                     title (Russian) wraps instead of pushing the toggle off the screen. -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/settings_coop_hosting_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/settings_coop_hosting"
+                        app:layout_constrainedWidth="true"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/settings_coop_hosting_info"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                    <ImageButton
+                        android:id="@+id/settings_coop_hosting_info"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/mt_icon_help"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/settings_coop_hosting"
+                        app:layout_constraintStart_toEndOf="@id/settings_coop_hosting_title"
+                        app:layout_constraintEnd_toStartOf="@id/settings_coop_hosting_switch"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/settings_coop_hosting_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:text="@string/settings_coop_hosting_short"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/settings_macos_card"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp" app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/additional_libraries_title"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="13sp" />
+                <TextView android:id="@+id/settings_mp_title"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:text="@string/mp_libs_title" android:visibility="gone" />
+                <!-- Title with the "?" glued to it. No toggle since 2026-09-16: installed libraries are
+                     used, single ones are turned off under "Libraries in use". A ConstraintLayout so a
+                     long title (Russian) wraps instead of pushing the "?" off the screen. -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/settings_macos_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:id="@+id/settings_macos_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/macos_libs_title"
+                        app:layout_constrainedWidth="true"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/settings_macos_info"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                    <ImageButton
+                        android:id="@+id/settings_macos_info"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/mt_icon_help"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/macos_libs_title"
+                        app:layout_constraintStart_toEndOf="@id/settings_macos_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView android:id="@+id/settings_libraries_hint" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/macos_libs_short" android:textAppearance="?attr/textAppearanceBodySmall" />
+                <TextView android:id="@+id/settings_macos_status"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:textAppearance="?attr/textAppearanceBodySmall" />
+                <!-- No style attribute, like the preset buttons: the theme's filled orange. These
+                     are the actions of this card, not secondary tools. -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+                    <com.google.android.material.button.MaterialButton android:id="@+id/settings_macos_download"
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/macos_libs_download" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/settings_macos_import"
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/macos_libs_import" />
+                </LinearLayout>
+
+                <!-- The three libraries, folded. All on by default; one can be turned off to send
+                     that library back to its regular path without losing the other two. -->
+                <LinearLayout android:id="@+id/settings_macos_modules_header"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true" android:focusable="true">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textStyle="bold"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/macos_libs_modules" />
+                    <ImageView android:id="@+id/settings_macos_modules_expand_iv"
+                        android:layout_width="20dp" android:layout_height="20dp"
+                        android:src="@drawable/mt_icon_expand_more" android:scaleType="fitCenter" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/settings_macos_modules_content"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:visibility="gone" tools:visibility="visible">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/macos_libs_modules_hint" />
+                    <androidx.appcompat.widget.SwitchCompat android:id="@+id/settings_macos_lighting_switch"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/macos_module_lighting" />
+                    <androidx.appcompat.widget.SwitchCompat android:id="@+id/settings_macos_pathfind_switch"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/macos_module_pathfind" />
+                    <androidx.appcompat.widget.SwitchCompat android:id="@+id/settings_macos_popman_switch"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/macos_module_popman" />
+                    <!-- Not a macOS library: the game's own Android ARM64 build, in this list
+                         because the card is "additional libraries", not "macOS libraries". -->
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/settings_native_fmod_switch"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/native_fmod_title" />
+                    <TextView android:id="@+id/settings_native_fmod_hint"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:text="@string/native_fmod_hint" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Group 3: Advanced (collapsible) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Collapsible header -->
+                <LinearLayout
+                    android:id="@+id/settings_advanced_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="12dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_group_advanced"
+                        android:textAppearance="?attr/textAppearanceLabelSmall"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="13sp"/>
+
+                    <ImageView
+                        android:id="@+id/settings_advanced_expand_iv"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/mt_icon_expand_more"
+                        android:scaleType="fitCenter"/>
+
+                </LinearLayout>
+
+                <!-- Collapsible content -->
+                <LinearLayout
+                    android:id="@+id/settings_advanced_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="12dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/settings_jargs_tv"
+                    android:textStyle="bold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:text="@string/settings_jvm_args_title"/>
+
+                        <ImageButton
+                            android:id="@+id/settings_jargs_info"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="8dp"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/mt_icon_help"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="About"/>
+
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/settings_jargs_et"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:hint=" -Xms2G -Xmx3G -Xmn1G"
+                        android:textSize="11sp"
+                        android:inputType="textMultiLine|textNoSuggestions"
+                        android:lines="2"
+                        android:maxLines="3"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:gravity="end"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/settings_jargs_clear_btn"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:minWidth="0dp"
+                            android:text="@string/settings_jvm_args_clear"
+                            android:textSize="11sp"/>
+
+                        <Button
+                            android:id="@+id/settings_jargs_reset_btn"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:text="@string/settings_jvm_args_reset"
+                            android:textSize="11sp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold"
+                                android:text="@string/settings_jvm_args_b42_preset_title"
+                                android:textAppearance="?attr/textAppearanceBodySmall"/>
+
+                            <ImageButton
+                        android:id="@+id/settings_jargs_b42_info"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/mt_icon_help"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/settings_jvm_args_b42_preset_title"/>
+
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/settings_jargs_apply_b42_btn"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:minWidth="0dp"
+                            android:text="@string/settings_jvm_args_apply"
+                            android:textSize="11sp"/>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="?attr/colorOutlineVariant"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/settings_env_vars_tv"
+                    android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:text="@string/settings_env_vars"/>
+
+                        <ImageButton
+                            android:id="@+id/settings_env_vars_info"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="8dp"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/mt_icon_help"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="About"/>
+
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/settings_env_vars_et"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:hint="@string/settings_env_vars_hint"
+                        android:textSize="11sp"
+                        android:inputType="textMultiLine|textNoSuggestions"
+                        android:lines="2"
+                        android:maxLines="5"
+                        android:gravity="top"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:gravity="end"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/settings_env_vars_clear_btn"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:text="@string/settings_jvm_args_clear"
+                            android:textSize="11sp"/>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="?attr/colorOutlineVariant"/>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/settings_debug_switch"
+                    android:textStyle="bold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/settings_debug_mode"/>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/settings_memory_saver_switch"
+                    android:textStyle="bold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:text="@string/settings_memory_saver"/>
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/settings_memory_saver_hint"
+                        android:textSize="11sp"
+                        android:textColor="?android:attr/textColorSecondary"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Group 3: Controls -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/settings_group_controls"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="13sp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/touch_controls_description"
+                    android:textSize="12sp"
+                    android:textColor="?android:attr/textColorSecondary"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/touch_controls_switch"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:text="@string/touch_controls_switch_label"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/vibrate_on_touch_switch"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:text="@string/vibrate_on_touch_switch_label"/>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Group 4 (Sound) removed together with the Audio API selector: AAudio is the only
+             backend now, so the card had nothing left in it. -->
+
+    </LinearLayout>
+</ScrollView>
