@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The debug build is the Deephall launcher and installs next to Zomdroid, so it needs
+         its own name in the app drawer. -->
+    <string name="app_name" translatable="false">Deephall</string>
+</resources>

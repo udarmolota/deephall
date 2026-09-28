@@ -87,7 +87,11 @@ android {
         val variant = this
         outputs.all {
             val outputImpl = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            outputImpl.outputFileName = "zomdroid-${variant.buildType.name}-${variant.versionName}.apk"
+            // The debug build is the Deephall launcher (see the buildTypes block below), so it
+            // should not come out of the build with Zomdroid's name on it.
+            val launcherName = if (variant.buildType.name == "debug") "deephall"
+                    else "zomdroid-${variant.buildType.name}"
+            outputImpl.outputFileName = "$launcherName-${variant.versionName}.apk"
         }
     }
 
@@ -104,6 +108,10 @@ android {
         }
         debug {
             isDebuggable = true
+            // A debug build must be able to sit next to the Zomdroid the phone already plays
+            // Project Zomboid on: same application id would mean a signature clash on install,
+            // and the two content provider authorities below must be unique across the device.
+            applicationIdSuffix = ".deephall"
         }
     }
     compileOptions {
