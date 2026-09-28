@@ -119,10 +119,15 @@ public class AttackCreatureCombatAction extends CombatAction implements Particle
 	private void triggerAttack(Entity targetedEntity, MessageDispatcher messageDispatcher) {
 		CreatureCombat creatureCombat = new CreatureCombat(parentEntity);
 		ItemEntityAttributes ammoAttributes = decrementAmmoFromInventory(creatureCombat.getEquippedWeapon().getRequiresAmmoType(), messageDispatcher);
+		// An unarmed attacker (bare hands, a beast, a settler swinging at a training
+		// dummy) carries no weapon item, so it has no material either. WeaponAttack
+		// already treats a null material as "no material bonus"; reading through it
+		// here is what crashed the game whenever a fight started (upstream #90).
+		ItemEntityAttributes weaponAttributes = creatureCombat.getEquippedWeaponAttributes();
 		messageDispatcher.dispatchMessage(MessageType.MAKE_ATTACK_WITH_WEAPON, new CombatAttackMessage(
 				parentEntity, targetedEntity, new WeaponAttack(creatureCombat.getEquippedWeapon(),
 				creatureCombat.getEquippedWeaponQuality(),
-				creatureCombat.getEquippedWeaponAttributes().getPrimaryMaterial()),
+				weaponAttributes == null ? null : weaponAttributes.getPrimaryMaterial()),
 				ammoAttributes));
 		attackMade = true;
 	}
