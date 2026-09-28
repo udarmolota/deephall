@@ -1,6 +1,7 @@
 package technology.rocketjump.mountaincore.audio.model;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.backends.lwjgl3.audio.OpenALSound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.RandomXS128;
@@ -34,7 +35,15 @@ public class ActiveSoundEffect implements Disposable {
 		this.asset = asset;
 
 		String filename = asset.getFilenames().get(RANDOM.nextInt(asset.getFilenames().size()));
-		this.resource = (OpenALSound) Gdx.audio.newSound(new FileHandle(filename));
+		Sound sound = Gdx.audio.newSound(new FileHandle(filename));
+		if (!(sound instanceof OpenALSound)) {
+			// With audio disabled, or with no audio device to open, LibGDX hands out silent
+			// stand-ins instead. They have no duration, which completed() needs, so this is the
+			// same situation as having no audio at all - and every caller already handles that.
+			sound.dispose();
+			throw new GdxAudioException();
+		}
+		this.resource = (OpenALSound) sound;
 	}
 
 	public void play() {
