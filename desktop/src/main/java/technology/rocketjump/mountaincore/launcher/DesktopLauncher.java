@@ -30,15 +30,44 @@ import static technology.rocketjump.mountaincore.screens.menus.options.GraphicsO
 
 public class DesktopLauncher {
 
+    /**
+     * A phone gives the game one surface to draw on and no OpenAL. There is no second window
+     * for the game to move into once the splash screen has had its moment, and the audio
+     * device would fail to open before anything is drawn at all. With
+     * -Dmountaincore.android=true the game goes straight into a single silent window instead.
+     * Nothing about the desktop launch changes.
+     */
+    private static final boolean SINGLE_SILENT_WINDOW = Boolean.getBoolean("mountaincore.android");
+
     public static void main(String[] args) {
         try {
             checkDefaultCharset();
-            launchMainWindow();
+            if (SINGLE_SILENT_WINDOW) {
+                launchSingleWindow();
+            } else {
+                launchMainWindow();
+            }
         } catch (Throwable e) {
             Logger.error(e);
             CrashHandler.logCrash(e);
             System.exit(-1);
         }
+    }
+
+    private static void launchSingleWindow() {
+        Injector preInjector = Guice.createInjector(new MountaincoreGuiceModule());
+        UserPreferences userPreferences = preInjector.getInstance(UserPreferences.class);
+        preInjector.getInstance(LocalModRepository.class).packageActiveMods();
+
+        Resolution displayResolution = getDisplayResolution(userPreferences);
+
+        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+        config.setTitle("Mountaincore");
+        config.disableAudio(true);
+        config.setDecorated(false);
+        config.setWindowedMode(displayResolution.width, displayResolution.height);
+
+        new Lwjgl3Application(new MountaincoreApplicationAdapter(), config);
     }
 
     private static void launchMainWindow() {
