@@ -18,7 +18,10 @@ import technology.rocketjump.mountaincore.assets.TextureAtlasRepository;
 import technology.rocketjump.mountaincore.audio.AudioUpdater;
 import technology.rocketjump.mountaincore.constants.ConstantsRepo;
 import technology.rocketjump.mountaincore.entities.tags.TagProcessor;
+import technology.rocketjump.mountaincore.dev.DevTrace;
+import technology.rocketjump.mountaincore.environment.model.GameSpeed;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
+import technology.rocketjump.mountaincore.messaging.types.StartNewGameMessage;
 import technology.rocketjump.mountaincore.gamecontext.GameContextRegister;
 import technology.rocketjump.mountaincore.gamecontext.GameUpdateRegister;
 import technology.rocketjump.mountaincore.gamecontext.Updatable;
@@ -143,6 +146,22 @@ public class MountaincoreApplicationAdapter extends ApplicationAdapter {
 			messageDispatcher.dispatchMessage(MessageType.SWITCH_SCREEN, "MAIN_MENU");
 
 			messageDispatcher.dispatchMessage(MessageType.LANGUAGE_CHANGED);
+
+			if (DevTrace.AUTOSTART) {
+				// Development only: start a settlement without anybody clicking, so the
+				// game can be left running while a trace records what the settlers do.
+				messageDispatcher.dispatchMessage(MessageType.START_NEW_GAME,
+						new StartNewGameMessage("Trace", System.currentTimeMillis(), 200, 200, true));
+				if (DevTrace.SPEED > 0) {
+					GameSpeed speed = switch (DevTrace.SPEED) {
+						case 1 -> GameSpeed.NORMAL;
+						case 2 -> GameSpeed.SPEED2;
+						case 3 -> GameSpeed.SPEED3;
+						default -> GameSpeed.SPEED4;
+					};
+					messageDispatcher.dispatchMessage(MessageType.SET_GAME_SPEED, speed);
+				}
+			}
 
 			LocalModRepository localModRepository = injector.getInstance(LocalModRepository.class);
 			List<ParsedMod> incompatibleMods = localModRepository.getIncompatibleMods();

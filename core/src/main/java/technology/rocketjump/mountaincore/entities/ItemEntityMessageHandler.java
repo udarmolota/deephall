@@ -24,6 +24,7 @@ import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
 import technology.rocketjump.mountaincore.jobs.JobStore;
 import technology.rocketjump.mountaincore.jobs.JobTypeDictionary;
+import technology.rocketjump.mountaincore.dev.DevTrace;
 import technology.rocketjump.mountaincore.jobs.model.Job;
 import technology.rocketjump.mountaincore.jobs.model.JobPriority;
 import technology.rocketjump.mountaincore.jobs.model.JobState;
@@ -402,6 +403,15 @@ public class ItemEntityMessageHandler implements GameContextAware, Telegraph {
 		return null;
 	}
 
+	private static String describe(Entity entity) {
+		if (entity.getPhysicalEntityComponent().getAttributes() instanceof ItemEntityAttributes itemAttributes) {
+			return itemAttributes.getItemType().getItemTypeName() + "/" +
+					(itemAttributes.getPrimaryMaterial() == null ? "?" : itemAttributes.getPrimaryMaterial().getMaterialName()) +
+					" x" + itemAttributes.getQuantity();
+		}
+		return entity.getType().name();
+	}
+
 	public static Job createHaulingJob(HaulingAllocation haulingAllocation, Entity itemEntity, JobType haulingJobType, JobPriority jobPriority) {
 
 		Job haulingJob = new Job(haulingJobType);
@@ -412,6 +422,14 @@ public class ItemEntityMessageHandler implements GameContextAware, Telegraph {
 			haulingJob.setJobPriority(JobPriority.LOWEST);
 		} else {
 			haulingJob.setJobPriority(jobPriority);
+		}
+		if (DevTrace.enabled()) {
+			DevTrace.log("haul", "entity=" + itemEntity.getId() +
+					" what=" + describe(itemEntity) +
+					" from=" + haulingAllocation.getSourcePosition() + "(" + haulingAllocation.getSourcePositionType() + ")" +
+					" to=" + haulingAllocation.getTargetPosition() + "(" + haulingAllocation.getTargetPositionType() + ")" +
+					" targetPriority=" + haulingAllocation.getTargetPriority() +
+					" jobPriority=" + haulingJob.getJobPriority());
 		}
 		return haulingJob;
 	}
