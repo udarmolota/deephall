@@ -10,9 +10,12 @@ import com.google.inject.Singleton;
 import org.pmw.tinylog.Logger;
 import technology.rocketjump.mountaincore.cooking.model.FoodAllocation;
 import technology.rocketjump.mountaincore.entities.ai.goap.actions.CancelLiquidAllocationAction;
+import technology.rocketjump.mountaincore.entities.behaviour.furniture.ProductionImportFurnitureBehaviour;
 import technology.rocketjump.mountaincore.entities.components.*;
+import technology.rocketjump.mountaincore.entities.components.creature.StatusComponent;
 import technology.rocketjump.mountaincore.entities.model.Entity;
 import technology.rocketjump.mountaincore.entities.model.EntityType;
+import technology.rocketjump.mountaincore.entities.model.physical.creature.status.DyingOfHunger;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemEntityAttributes;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
@@ -124,6 +127,9 @@ public class FoodAllocationMessageHandler implements Telegraph, GameContextAware
 		}
 		if (allocation == null && requesterFaction.equals(Faction.SETTLEMENT)) {
 			allocation = findAnyAvailableFood(requestMessage.requestingEntity);
+		}
+		if (allocation == null && requesterFaction.equals(Faction.SETTLEMENT) && isDyingOfHunger(requestMessage.requestingEntity)) {
+			allocation = findProductionImportFood(requestMessage.requestingEntity);
 		}
 
 		requestMessage.callback.foodAssigned(allocation);
@@ -250,11 +256,7 @@ public class FoodAllocationMessageHandler implements Telegraph, GameContextAware
 		final int requesterRegionId = requesterTile.getRegionId();
 
 		Optional<Entity> unallocatedEdibleItem = settlementItemTracker.getUnallocatedEdibleItems().stream()
-				.filter(item -> {
-					Vector2 position = item.getLocationComponent().getWorldOrParentPosition();
-					MapTile positionTile = gameContext.getAreaMap().getTile(position);
-					return positionTile != null && positionTile.getRegionId() == requesterRegionId;
-				})
+				.filter(item -> getNavigableRegionId(item) == requesterRegionId)
 				.sorted((i1, i2) ->
 					Math.round(i1.getLocationComponent().getWorldOrParentPosition().dst2(requesterPosition) - i2.getLocationComponent().getWorldOrParentPosition().dst2(requesterPosition))
 				)
@@ -269,6 +271,64 @@ public class FoodAllocationMessageHandler implements Telegraph, GameContextAware
 			return null;
 		}
 
+	}
+
+	private boolean isDyingOfHunger(Entity entity) {
+		StatusComponent statusComponent = entity.getComponent(StatusComponent.class);
+		return statusComponent != null && statusComponent.contains(DyingOfHunger.class);
+	}
+
+	/**
+	 * Last resort for a settler about to starve: food reserved on an import pallet for a workshop.
+	 * One unit is taken out of the pallet's reservation and the rest stays reserved. Food already
+	 * moved into a crafting station is left alone so a recipe in progress is not broken.
+	 */
+	private FoodAllocation findProductionImportFood(Entity requestingEntity) {
+		Vector2 requesterPosition = requestingEntity.getLocationComponent().getWorldOrParentPosition();
+		MapTile requesterTile = gameContext.getAreaMap().getTile(requesterPosition);
+		if (requesterTile == null) {
+			Logger.error("Requesting food from null tile");
+			return null;
+		}
+		final int requesterRegionId = requesterTile.getRegionId();
+
+		Optional<Entity> reservedFood = settlementItemTracker.getEdibleItems().stream()
+				.filter(item -> {
+					Entity containerEntity = item.getLocationComponent().getContainerEntity();
+					return containerEntity != null && containerEntity.getBehaviourComponent() instanceof ProductionImportFurnitureBehaviour;
+				})
+				.filter(item -> {
+					ItemAllocationComponent itemAllocationComponent = item.getComponent(ItemAllocationComponent.class);
+					return itemAllocationComponent != null && itemAllocationComponent.getAllocationForPurpose(ItemAllocation.Purpose.PRODUCTION_IMPORT) != null;
+				})
+				.filter(item -> getNavigableRegionId(item) == requesterRegionId)
+				.min(Comparator.comparingDouble(item -> item.getLocationComponent().getWorldOrParentPosition().dst2(requesterPosition)));
+
+		if (reservedFood.isEmpty()) {
+			return null;
+		}
+
+		Entity foodEntity = reservedFood.get();
+		ItemAllocationComponent itemAllocationComponent = foodEntity.getComponent(ItemAllocationComponent.class);
+		ItemAllocation reservation = itemAllocationComponent.getAllocationForPurpose(ItemAllocation.Purpose.PRODUCTION_IMPORT);
+		if (reservation.getAllocationAmount() > 1) {
+			reservation.setAllocationAmount(reservation.getAllocationAmount() - 1);
+		} else {
+			itemAllocationComponent.cancel(reservation);
+		}
+		ItemAllocation itemAllocation = itemAllocationComponent.createAllocation(1, requestingEntity, ItemAllocation.Purpose.FOOD_ALLOCATION);
+		return new FoodAllocation(LOOSE_ITEM, foodEntity, itemAllocation);
+	}
+
+	/**
+	 * Food stored in movement-blocking furniture (a kitchen worktop, a fish barrel) sits on a tile
+	 * whose region differs from the floor around it, so the region is taken from where the
+	 * furniture is reached from, as it is for feasting hall furniture.
+	 */
+	private int getNavigableRegionId(Entity item) {
+		Entity containerEntity = item.getLocationComponent().getContainerEntity();
+		Entity regionEntity = containerEntity != null ? containerEntity : item;
+		return gameContext.getAreaMap().getNavigableRegionId(regionEntity, regionEntity.getLocationComponent().getWorldOrParentPosition());
 	}
 
 	@Override

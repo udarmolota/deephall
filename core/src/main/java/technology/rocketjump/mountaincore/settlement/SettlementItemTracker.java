@@ -122,6 +122,10 @@ public class SettlementItemTracker implements GameContextAware {
 		return itemTypesToMaterialsToEntitiesMap;
 	}
 
+	public List<Entity> getEdibleItems() {
+		return new ArrayList<>(edibleItems.values());
+	}
+
 	public List<Entity> getUnallocatedEdibleItems() {
 		List<Entity> found = new ArrayList<>();
 		for (Entity entity : edibleItems.values()) {
