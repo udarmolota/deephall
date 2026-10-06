@@ -2,9 +2,9 @@
   "name" : "Orc invasion",
   "triggeredBy" : "POPULATION",
   "objective" : "PILLAGE",
-  "minDaysUntilFirstInvasion" : 50,
-  "minDaysBetweenInvasions" : 28,
-  "invasionHappensWithinDays" : 40,
+  "minDaysUntilFirstInvasion" : 15,
+  "minDaysBetweenInvasions" : 15,
+  "invasionHappensWithinDays" : 10,
   "participants" : [ {
     "raceName" : "Orc",
     "basePointsCost" : 50,

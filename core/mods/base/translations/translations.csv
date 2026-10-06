@@ -1016,6 +1016,10 @@ NEEDS.SLEEP,,Sleep
 
 NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration
+NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off."
+NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through
+NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.
+NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}."
 NOTIFICATION.DEATH.KILLED_BY_DESCRIPTION,,Killed by {{killer}}
 NOTIFICATION.DEATH.SHORT_DESCRIPTION,,Died due to {{reason}}
@@ -1026,8 +1030,10 @@ NOTIFICATION.FISH_EXHAUSTED.DESCRIPTION,,You have over-fished the river to such 
 NOTIFICATION.FISH_EXHAUSTED.TITLE,,Fish Depopulated
 NOTIFICATION.GAME_OVER.DESCRIPTION,,All things must come to an end. Your settlement lies abandoned.
 NOTIFICATION.GAME_OVER.TITLE,,Game Over
-NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,The prosperity of your settlement has attracted a number of new immigrants to boost your population.
-NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,Immigration
+NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,"A new settler has arrived, drawn by the prosperity of your settlement."
+NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,New arrival
+NOTIFICATION.IMMIGRANT_BLOCKED.DESCRIPTION,,A newcomer cannot reach your settlement: there is no open path from the edge of the map. They will try again tomorrow. Go to the location to see where the way is cut off.
+NOTIFICATION.IMMIGRANT_BLOCKED.TITLE,,No way in
 NOTIFICATION.INVASION.DESCRIPTION,,A raiding party of orcs has arrived. Prepare yourselves! They will attack after preparing for a while.
 NOTIFICATION.INVASION.TITLE,,You are being invaded!
 NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of pillars and supports.

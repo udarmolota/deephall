@@ -56,6 +56,8 @@ public class SettlementState implements Persistable {
 
 	private InvasionDefinition incomingInvasion;
 	private Double hoursUntilInvasion;
+	// Days a due invasion has waited at the map edge for a way in; the raid grows while it waits
+	private int daysInvasionHeldBack;
 	private boolean peacefulMode;
 
 	private final TraderInfo traderInfo = new TraderInfo();
@@ -150,6 +152,14 @@ public class SettlementState implements Persistable {
 
 	public void setHoursUntilInvasion(Double hoursUntilInvasion) {
 		this.hoursUntilInvasion = hoursUntilInvasion;
+	}
+
+	public int getDaysInvasionHeldBack() {
+		return daysInvasionHeldBack;
+	}
+
+	public void setDaysInvasionHeldBack(int daysInvasionHeldBack) {
+		this.daysInvasionHeldBack = daysInvasionHeldBack;
 	}
 
 	public boolean isPeacefulMode() {
@@ -298,6 +308,9 @@ public class SettlementState implements Persistable {
 		if (hoursUntilInvasion != null) {
 			asJson.put("hoursUntilInvasion", hoursUntilInvasion);
 		}
+		if (daysInvasionHeldBack != 0) {
+			asJson.put("daysInvasionHeldBack", daysInvasionHeldBack);
+		}
 
 		JSONObject traderInfoJson = new JSONObject(true);
 		traderInfo.writeTo(traderInfoJson, savedGameStateHolder);
@@ -431,6 +444,7 @@ public class SettlementState implements Persistable {
 			}
 		}
 		this.hoursUntilInvasion = asJson.getDouble("hoursUntilInvasion");
+		this.daysInvasionHeldBack = asJson.getIntValue("daysInvasionHeldBack");
 
 		JSONObject traderInfoJson = asJson.getJSONObject("traderInfo");
 		traderInfo.readFrom(traderInfoJson, savedGameStateHolder, relatedStores);

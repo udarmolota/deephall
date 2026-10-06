@@ -53,19 +53,17 @@ public class ImmigrationManager implements Updatable, Telegraph {
 	private final SettlerFactory settlerFactory;
 	private final SkillDictionary skillDictionary;
 	private final CreaturePopulator creaturePopulator;
-	private final int baseImmigrationVarianceIterations;
-	private final int baseImmigrationExtraFixedAmount;
+	// Newcomers arrive one at a time, every few days, rather than as one group a year
+	private final boolean arrivalsEnabled;
+	private final int minDaysBetweenArrivals;
+	private final int maxDaysBetweenArrivals;
 	private final boolean extraFoodImmigrationEnabled;
-	private final float extraFoodImmigrationSettlersPerYearSupplyOfBonusFood;
-	private final boolean immigrationCapsEnabled;
-	private final int immigrationCapsMinAmountForCapsToApply;
-	private final float immigrationCapMaxImmigrationPerPopulation;
+	private final int minDaysBetweenArrivalsWithExtraFood;
 	private GameContext gameContext;
 
-	private final boolean baseImmigrationEnabled;
-	private final int baseImmigrationVariance;
-
 	private float timeSinceLastUpdate;
+	// Not saved: after loading a game the player is simply told again
+	private boolean playerToldArrivalIsBlocked;
 
 	@Inject
 	public ImmigrationManager(MessageDispatcher messageDispatcher, SettlementItemTracker settlementItemTracker, SettlerTracker settlerTracker,
@@ -74,17 +72,14 @@ public class ImmigrationManager implements Updatable, Telegraph {
 		FileHandle settingsJsonFile = new FileHandle("assets/settings/immigrationSettings.json");
 		JSONObject immigrationSettings = JSON.parseObject(settingsJsonFile.readString());
 
-		baseImmigrationEnabled = immigrationSettings.getJSONObject("baseImmigration").getBooleanValue("enabled");
-		baseImmigrationVariance = immigrationSettings.getJSONObject("baseImmigration").getIntValue("varianceNumber");
-		baseImmigrationVarianceIterations = immigrationSettings.getJSONObject("baseImmigration").getIntValue("varianceIterations");
-		baseImmigrationExtraFixedAmount = immigrationSettings.getJSONObject("baseImmigration").getIntValue("extraFixedAmount");
+		JSONObject arrivals = immigrationSettings.getJSONObject("arrivals");
+		arrivalsEnabled = arrivals.getBooleanValue("enabled");
+		minDaysBetweenArrivals = arrivals.getIntValue("minDaysBetweenArrivals");
+		maxDaysBetweenArrivals = arrivals.getIntValue("maxDaysBetweenArrivals");
 
-		extraFoodImmigrationEnabled = immigrationSettings.getJSONObject("extraFoodImmigration").getBooleanValue("enabled");
-		extraFoodImmigrationSettlersPerYearSupplyOfBonusFood = immigrationSettings.getJSONObject("extraFoodImmigration").getFloatValue("settlersPerYearSupplyOfBonusFood");
-
-		immigrationCapsEnabled = immigrationSettings.getJSONObject("immigrationCaps").getBooleanValue("enabled");
-		immigrationCapsMinAmountForCapsToApply = immigrationSettings.getJSONObject("immigrationCaps").getIntValue("minAmountForCapsToApply");
-		immigrationCapMaxImmigrationPerPopulation = immigrationSettings.getJSONObject("immigrationCaps").getFloatValue("maxImmigrationPerPopulation");
+		JSONObject extraFood = immigrationSettings.getJSONObject("extraFoodImmigration");
+		extraFoodImmigrationEnabled = extraFood.getBooleanValue("enabled");
+		minDaysBetweenArrivalsWithExtraFood = extraFood.getIntValue("minDaysBetweenArrivals");
 
 		this.messageDispatcher = messageDispatcher;
 		this.settlementItemTracker = settlementItemTracker;
@@ -99,7 +94,6 @@ public class ImmigrationManager implements Updatable, Telegraph {
 	public boolean handleMessage(Telegram msg) {
 		switch (msg.message) {
 			case MessageType.YEAR_ELAPSED: {
-				calculateNextImmigration();
 				creaturePopulator.addAnimalsAtEdge(gameContext);
 				return true;
 			}
@@ -124,6 +118,10 @@ public class ImmigrationManager implements Updatable, Telegraph {
 		if (timeSinceLastUpdate > 1.44f) {
 			timeSinceLastUpdate = 0f;
 
+			if (gameContext != null && arrivalsEnabled && gameContext.getSettlementState().getNextImmigrationGameTime() == null) {
+				gameContext.getSettlementState().setNextImmigrationGameTime(pickNextImmigrationTime());
+			}
+
 			if (gameContext != null && gameContext.getSettlementState().getNextImmigrationGameTime() != null &&
 					gameContext.getSettlementState().getNextImmigrationGameTime() < gameContext.getGameClock().getCurrentGameTime() &&
 					!gameContext.getSettlementState().isGameOver()) {
@@ -143,74 +141,66 @@ public class ImmigrationManager implements Updatable, Telegraph {
 		return false;
 	}
 
-	private void calculateNextImmigration() {
-		int numImmigrantsDue = calculateNumNewSettlers();
-		if (numImmigrantsDue > 0) {
-			gameContext.getSettlementState().setImmigrantsDue(numImmigrantsDue);
-			gameContext.getSettlementState().setNextImmigrationGameTime(pickNextImmigrationTime());
-		}
-	}
-
+	/**
+	 * The next newcomer is due some days from now, during the working day (09:00 to 17:00).
+	 * A surplus of food brings them sooner.
+	 */
 	private Double pickNextImmigrationTime() {
-		// Assuming this has triggered at midnight at the stroke of a new year
-		// Want settlers to arrive between 09:00 and 17:00
-		double timeOfDay = 9.0 + (gameContext.getRandom().nextDouble() * 8.0);
-		double dayNumber = gameContext.getRandom().nextInt(gameContext.getGameClock().DAYS_IN_SEASON) / 3;
-		double hoursFromNow = (gameContext.getGameClock().HOURS_IN_DAY * dayNumber) + timeOfDay;
+		GameClock clock = gameContext.getGameClock();
+		int days = minDaysBetweenArrivals + gameContext.getRandom().nextInt(maxDaysBetweenArrivals - minDaysBetweenArrivals + 1);
+		if (extraFoodImmigrationEnabled) {
+			days = Math.max(minDaysBetweenArrivalsWithExtraFood, days - numSurplusSettlersFed());
+		}
 
-		return gameContext.getGameClock().getCurrentGameTime() + hoursFromNow;
+		double arrivalTimeOfDay = 9.0 + (gameContext.getRandom().nextDouble() * 8.0);
+		double hoursFromNow = (clock.HOURS_IN_DAY * days) + (arrivalTimeOfDay - clock.getGameTimeInHours());
+		return clock.getCurrentGameTime() + hoursFromNow;
 	}
 
-	private int calculateNumNewSettlers() {
-		if (!baseImmigrationEnabled) {
-			return 0;
+	/**
+	 * How many more settlers the spare food could feed. Each settler is meant to have food for
+	 * about three seasons: 2 meals a day, and one edible item makes about 4 meals.
+	 */
+	private int numSurplusSettlersFed() {
+		int foodAmount = 0;
+		for (Entity entity : settlementItemTracker.getUnallocatedEdibleItems()) {
+			foodAmount += entity.getOrCreateComponent(ItemAllocationComponent.class).getNumUnallocated();
 		}
 
-		int totalNumImmigrants = baseImmigrationExtraFixedAmount;
-		for (int iteration = 0; iteration < baseImmigrationVarianceIterations; iteration++) {
-			totalNumImmigrants += gameContext.getRandom().nextInt(baseImmigrationVariance);
-		}
-
-		int currentNumSettlers = settlerTracker.count();
-
-		if (extraFoodImmigrationEnabled) {
-			int foodAmount = 0;
-			for (Entity entity : settlementItemTracker.getUnallocatedEdibleItems()) {
-				foodAmount += entity.getOrCreateComponent(ItemAllocationComponent.class).getNumUnallocated();
-			}
-
-			GameClock clock = gameContext.getGameClock();
-
-			// Need enough food to last each settler ~3 seasons -> 2 meals/day * 30 days -> 60 meals
-			// 1 edible item should be able to prepare 4 meals (or one if it is already prepared)
-			int foodNeededPerSettler = (clock.DAYS_IN_SEASON * 3 * 2) / 4;
-			int surplusFood = foodAmount - (currentNumSettlers * foodNeededPerSettler);
-			int numSettlersDueToExtraFood = (int)(((float)surplusFood / (float)foodNeededPerSettler) * extraFoodImmigrationSettlersPerYearSupplyOfBonusFood);
-			totalNumImmigrants += numSettlersDueToExtraFood;
-		}
-
-		if (immigrationCapsEnabled && currentNumSettlers >= immigrationCapsMinAmountForCapsToApply) {
-			int maxImmigration = Math.round((float)currentNumSettlers * immigrationCapMaxImmigrationPerPopulation);
-			totalNumImmigrants = Math.min(totalNumImmigrants, maxImmigration);
-		}
-
-		return totalNumImmigrants;
+		int foodNeededPerSettler = (gameContext.getGameClock().DAYS_IN_SEASON * 3 * 2) / 4;
+		int surplusFood = foodAmount - (settlerTracker.count() * foodNeededPerSettler);
+		return Math.max(0, surplusFood / foodNeededPerSettler);
 	}
 
 	public void triggerImmigration() {
-		int numImmigrants = gameContext.getSettlementState().getImmigrantsDue();
-		gameContext.getSettlementState().setImmigrantsDue(0);
-		gameContext.getSettlementState().setNextImmigrationGameTime(null);
-		if (gameContext.getSettlementState().isAllowImmigration()) {
-			gameContext.getSettlementState().setImmigrantCounter(numImmigrants);
-			gameContext.getSettlementState().setImmigrationPoint(pickImmigrationPoint());
-			if (gameContext.getSettlementState().getImmigrationPoint() == null) {
-				Logger.warn("Could not find valid map edge to spawn immigration from");
-			} else {
-				Notification notification = new Notification(NotificationType.IMMIGRANTS_ARRIVED, gameContext.getSettlementState().getImmigrationPoint(), null);
-				messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, notification);
-			}
+		SettlementState settlementState = gameContext.getSettlementState();
+		// Left over from saves made when a whole year's group arrived at once
+		settlementState.setImmigrantsDue(0);
+
+		if (!settlementState.isAllowImmigration()) {
+			// The player turned immigration off: this newcomer stays away, the next one is scheduled
+			settlementState.setNextImmigrationGameTime(null);
+			return;
 		}
+
+		Vector2 immigrationPoint = pickImmigrationPoint();
+		if (immigrationPoint == null) {
+			// Nobody is lost: the same newcomer tries again tomorrow
+			settlementState.setNextImmigrationGameTime(gameContext.getGameClock().getCurrentGameTime() + gameContext.getGameClock().HOURS_IN_DAY);
+			if (!playerToldArrivalIsBlocked) {
+				Logger.warn("Could not find valid map edge to spawn immigration from");
+				messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION,
+						new Notification(NotificationType.IMMIGRANT_BLOCKED, MapEntry.findBlockage(gameContext), null));
+				playerToldArrivalIsBlocked = true;
+			}
+			return;
+		}
+
+		playerToldArrivalIsBlocked = false;
+		settlementState.setNextImmigrationGameTime(null);
+		settlementState.setImmigrantCounter(1);
+		settlementState.setImmigrationPoint(immigrationPoint);
+		messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, new Notification(NotificationType.IMMIGRANTS_ARRIVED, immigrationPoint, null));
 	}
 
 	private Vector2 pickImmigrationPoint() {

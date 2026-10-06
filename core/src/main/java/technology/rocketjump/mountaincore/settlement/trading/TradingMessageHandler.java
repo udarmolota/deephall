@@ -12,14 +12,19 @@ import technology.rocketjump.mountaincore.environment.model.Season;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
 import technology.rocketjump.mountaincore.messaging.MessageType;
+import technology.rocketjump.mountaincore.settlement.MapEntry;
 import technology.rocketjump.mountaincore.settlement.SettlerTracker;
+import technology.rocketjump.mountaincore.settlement.notifications.Notification;
+import technology.rocketjump.mountaincore.settlement.notifications.NotificationType;
 import technology.rocketjump.mountaincore.settlement.trading.model.TraderInfo;
 
-import static technology.rocketjump.mountaincore.invasions.InvasionMessageHandler.selectInvasionWorldPosition;
 import static technology.rocketjump.mountaincore.messaging.MessageType.*;
 
 @Singleton
 public class TradingMessageHandler implements Telegraph, GameContextAware {
+
+	// A caravan with no way in waits this long at the map edge before it gives up
+	private static final int DAYS_CARAVAN_WAITS_AT_EDGE = 3;
 
 	private final MessageDispatcher messageDispatcher;
 	private final SettlerTracker settlerTracker;
@@ -59,6 +64,9 @@ public class TradingMessageHandler implements Telegraph, GameContextAware {
 
 	private void onHourElapsed() {
 		TraderInfo traderInfo = gameContext.getSettlementState().getTraderInfo();
+		if (traderInfo.getHoursCaravanWaitsAtEdge() != null) {
+			updateCaravanWaitingAtEdge(traderInfo);
+		}
 		Double hoursUntilTraderArrives = traderInfo.getHoursUntilTraderArrives();
 		if (hoursUntilTraderArrives != null) {
 			hoursUntilTraderArrives -= 1.0;
@@ -108,14 +116,39 @@ public class TradingMessageHandler implements Telegraph, GameContextAware {
 	}
 
 	private void triggerTradeCaravan() {
-		Vector2 tradeSpawnLocation = selectInvasionWorldPosition(gameContext, settlerTracker);
+		if (settlerTracker.getLiving().isEmpty()) {
+			Logger.warn("No settlers left for traders to visit");
+			return;
+		}
+		TraderInfo traderInfo = gameContext.getSettlementState().getTraderInfo();
+		Vector2 tradeSpawnLocation = MapEntry.findEntry(gameContext, traderInfo.getTradeRouteEntry());
 		if (tradeSpawnLocation == null) {
-			// Should only happen when all settlers are dead or map edge is not navigable
-			Logger.warn("Could not find a valid position to spawn traders to");
+			// No way in: the caravan waits at the edge and the player is told where the way is cut off
+			if (traderInfo.getHoursCaravanWaitsAtEdge() == null) {
+				traderInfo.setHoursCaravanWaitsAtEdge((double) DAYS_CARAVAN_WAITS_AT_EDGE * gameContext.getGameClock().HOURS_IN_DAY);
+				messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION,
+						new Notification(NotificationType.CARAVAN_BLOCKED, MapEntry.findBlockage(gameContext), null));
+			}
 			return;
 		}
 
-		tradeCaravanGenerator.generateTradeCaravan(tradeSpawnLocation, gameContext.getSettlementState().getTraderInfo());
+		traderInfo.setHoursCaravanWaitsAtEdge(null);
+		traderInfo.setTradeRouteEntry(tradeSpawnLocation);
+		tradeCaravanGenerator.generateTradeCaravan(tradeSpawnLocation, traderInfo);
+	}
+
+	private void updateCaravanWaitingAtEdge(TraderInfo traderInfo) {
+		if (MapEntry.findEntry(gameContext, traderInfo.getTradeRouteEntry()) != null) {
+			triggerTradeCaravan();
+			return;
+		}
+		double hoursLeft = traderInfo.getHoursCaravanWaitsAtEdge() - 1.0;
+		if (hoursLeft <= 0) {
+			traderInfo.setHoursCaravanWaitsAtEdge(null);
+			messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, new Notification(NotificationType.CARAVAN_LEFT, null, null));
+		} else {
+			traderInfo.setHoursCaravanWaitsAtEdge(hoursLeft);
+		}
 	}
 
 	@Override

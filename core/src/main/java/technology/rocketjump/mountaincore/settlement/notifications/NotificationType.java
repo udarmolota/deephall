@@ -5,6 +5,7 @@ import technology.rocketjump.mountaincore.audio.model.SoundAsset;
 public enum NotificationType {
 
 	IMMIGRANTS_ARRIVED("NOTIF_NEW_ARRIVALS.png", null),
+	IMMIGRANT_BLOCKED("NOTIF_NEW_ARRIVALS.png", null),
 	AREA_REVEALED("NOTIF_CAVE_DISCOVERED.png", null),
 	MINING_COLLAPSE("NOTIF_COLLAPSE.png", "MiningCollapse"),
 	ROOFING_COLLAPSE("NOTIF_COLLAPSE.png", "MiningCollapse"),
@@ -17,6 +18,8 @@ public enum NotificationType {
 	INVASION("NOTIF_INVASION.png", null),
 	TRADER_ARRIVED("NOTIF_TRADING_CARAVAN.png", null),
 	TRADER_ARRIVED_NO_DEPOT("NOTIF_TRADING_CARAVAN.png", null),
+	CARAVAN_BLOCKED("NOTIF_TRADING_CARAVAN.png", null),
+	CARAVAN_LEFT("NOTIF_TRADING_CARAVAN.png", null),
 	GAME_OVER("NOTIF_GAME_OVER.png", null),
 	SETTLER_STUCK("NOTIF_DWARF_STUCK.png", null);
 

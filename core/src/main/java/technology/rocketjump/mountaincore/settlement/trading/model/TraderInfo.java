@@ -2,7 +2,9 @@ package technology.rocketjump.mountaincore.settlement.trading.model;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.badlogic.gdx.math.Vector2;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemTypeWithMaterial;
+import technology.rocketjump.mountaincore.persistence.JSONUtils;
 import technology.rocketjump.mountaincore.persistence.SavedGameDependentDictionaries;
 import technology.rocketjump.mountaincore.persistence.model.ChildPersistable;
 import technology.rocketjump.mountaincore.persistence.model.InvalidSaveException;
@@ -17,6 +19,10 @@ public class TraderInfo implements ChildPersistable {
 
 	private Integer nextVisitDayOfYear; // when null, initialise to a day near the start of next season from now (not winter)
 	private Double hoursUntilTraderArrives;
+	// A caravan that found no way in waits at the map edge for this long, then leaves
+	private Double hoursCaravanWaitsAtEdge;
+	// Where the last caravan came onto the map; later caravans and invaders use the same road
+	private Vector2 tradeRouteEntry;
 
 	private final List<ItemTypeWithMaterial> requestedItemsForNextVisit = new ArrayList<>();
 
@@ -44,6 +50,22 @@ public class TraderInfo implements ChildPersistable {
 		this.hoursUntilTraderArrives = hoursUntilTraderArrives;
 	}
 
+	public Double getHoursCaravanWaitsAtEdge() {
+		return hoursCaravanWaitsAtEdge;
+	}
+
+	public void setHoursCaravanWaitsAtEdge(Double hoursCaravanWaitsAtEdge) {
+		this.hoursCaravanWaitsAtEdge = hoursCaravanWaitsAtEdge;
+	}
+
+	public Vector2 getTradeRouteEntry() {
+		return tradeRouteEntry;
+	}
+
+	public void setTradeRouteEntry(Vector2 tradeRouteEntry) {
+		this.tradeRouteEntry = tradeRouteEntry;
+	}
+
 	public List<ItemTypeWithMaterial> getRequestedItemsForNextVisit() {
 		return requestedItemsForNextVisit;
 	}
@@ -62,6 +84,13 @@ public class TraderInfo implements ChildPersistable {
 			asJson.put("hoursUntilTraderArrives", hoursUntilTraderArrives);
 		}
 
+		if (hoursCaravanWaitsAtEdge != null) {
+			asJson.put("hoursCaravanWaitsAtEdge", hoursCaravanWaitsAtEdge);
+		}
+		if (tradeRouteEntry != null) {
+			asJson.put("tradeRouteEntry", JSONUtils.toJSON(tradeRouteEntry));
+		}
+
 		JSONArray requestedItemsForNextVisitJson = new JSONArray();
 		for (ItemTypeWithMaterial itemTypeWithMaterial : requestedItemsForNextVisit) {
 			JSONObject itemJson = new JSONObject(true);
@@ -76,6 +105,8 @@ public class TraderInfo implements ChildPersistable {
 		this.hostilityCooldownInHours = asJson.getDouble("hostilityCooldownInHours");
 		this.nextVisitDayOfYear = asJson.getInteger("nextVisitDayOfYear");
 		this.hoursUntilTraderArrives = asJson.getDouble("hoursUntilTraderArrives");
+		this.hoursCaravanWaitsAtEdge = asJson.getDouble("hoursCaravanWaitsAtEdge");
+		this.tradeRouteEntry = JSONUtils.vector2(asJson.getJSONObject("tradeRouteEntry"));
 
 		JSONArray requestedItemsForNextVisitJson = asJson.getJSONArray("requestedItemsForNextVisit");
 		for (int index = 0; index < requestedItemsForNextVisitJson.size(); index++) {

@@ -1026,6 +1026,10 @@ NEEDS.SLEEP,,Sleep,Усталость
 
 NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!,Ваши шахтеры открыли новую территорию!
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration,Исследование
+NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off.","Торговый караван ждет у края карты, но к вам нет прохода. Откройте путь за три дня, иначе караван уйдет. Нажмите «Показать на карте», чтобы увидеть, где перекрыт путь."
+NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through,Караван не может пройти
+NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.,Торговцы не дождались прохода и ушли.
+NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left,Караван ушел
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}.",Погиб поселенец: {{character}}. Причина: {{reason}}.
 NOTIFICATION.DEATH.KILLED_BY_DESCRIPTION,,Killed by {{killer}},Убийца: {{killer}}
 NOTIFICATION.DEATH.SHORT_DESCRIPTION,,Died due to {{reason}},Причина смерти: {{reason}}
@@ -1036,8 +1040,10 @@ NOTIFICATION.FISH_EXHAUSTED.DESCRIPTION,,You have over-fished the river to such 
 NOTIFICATION.FISH_EXHAUSTED.TITLE,,Fish Depopulated,Рыба закончилась
 NOTIFICATION.GAME_OVER.DESCRIPTION,,All things must come to an end. Your settlement lies abandoned.,Все должно закончиться. Ваше поселение заброшено.
 NOTIFICATION.GAME_OVER.TITLE,,Game Over,Игра окончена
-NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,The prosperity of your settlement has attracted a number of new immigrants to boost your population.,Процветание поселения привлекло новых переселенцев.
-NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,Immigration,Иммиграция
+NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,"A new settler has arrived, drawn by the prosperity of your settlement.",Процветание поселения привлекло нового переселенца.
+NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,New arrival,Новый переселенец
+NOTIFICATION.IMMIGRANT_BLOCKED.DESCRIPTION,,A newcomer cannot reach your settlement: there is no open path from the edge of the map. They will try again tomorrow. Go to the location to see where the way is cut off.,"Переселенец не может к вам попасть: от края карты нет открытого пути. Он попробует снова завтра. Нажмите «Показать на карте», чтобы увидеть, где перекрыт путь."
+NOTIFICATION.IMMIGRANT_BLOCKED.TITLE,,No way in,Нет прохода
 NOTIFICATION.INVASION.DESCRIPTION,,A raiding party of orcs has arrived. Prepare yourselves! They will attack after preparing for a while.,"Прибыл отряд орков-налетчиков. Готовьтесь! Немного подготовившись, они нападут."
 NOTIFICATION.INVASION.TITLE,,You are being invaded!,Вторжение!
 NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of pillars and supports.,Участок обрушился: не хватило колонн и опор.

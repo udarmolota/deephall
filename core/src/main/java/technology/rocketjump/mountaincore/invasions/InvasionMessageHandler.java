@@ -8,14 +8,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.commons.lang3.NotImplementedException;
 import org.pmw.tinylog.Logger;
-import technology.rocketjump.mountaincore.entities.model.Entity;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
 import technology.rocketjump.mountaincore.invasions.model.InvasionDefinition;
 import technology.rocketjump.mountaincore.invasions.model.InvasionTrigger;
 import technology.rocketjump.mountaincore.mapping.tile.MapTile;
 import technology.rocketjump.mountaincore.messaging.MessageType;
-import technology.rocketjump.mountaincore.misc.VectorUtils;
+import technology.rocketjump.mountaincore.settlement.MapEntry;
 import technology.rocketjump.mountaincore.settlement.SettlerTracker;
 import technology.rocketjump.mountaincore.settlement.notifications.Notification;
 import technology.rocketjump.mountaincore.settlement.notifications.NotificationType;
@@ -28,7 +27,9 @@ import java.util.Map;
 @Singleton
 public class InvasionMessageHandler implements Telegraph, GameContextAware {
 
-	private static final int MIN_SETTLERS_TO_TRIGGER_POPULATION_INVASION = 20;
+	// A raid kept out by a sealed settlement grows by this share for every day it waits, up to the cap
+	private static final float RAID_GROWTH_PER_DAY_HELD_BACK = 0.15f;
+	private static final float MAX_RAID_GROWTH = 3f;
 	private final MessageDispatcher messageDispatcher;
 	private final SettlerTracker settlerTracker;
 	private final InvasionGenerator invasionGenerator;
@@ -71,26 +72,41 @@ public class InvasionMessageHandler implements Telegraph, GameContextAware {
 		if (hoursUntilInvasion != null) {
 			hoursUntilInvasion -= 1.0;
 			if (hoursUntilInvasion < 0) {
-				messageDispatcher.dispatchMessage(MessageType.TRIGGER_INVASION, gameContext.getSettlementState().getIncomingInvasion());
-				gameContext.getSettlementState().setHoursUntilInvasion(null);
-				gameContext.getSettlementState().setIncomingInvasion(null);
+				if (triggerInvasion(gameContext.getSettlementState().getIncomingInvasion())) {
+					gameContext.getSettlementState().setHoursUntilInvasion(null);
+					gameContext.getSettlementState().setIncomingInvasion(null);
+					gameContext.getSettlementState().setDaysInvasionHeldBack(0);
+				} else {
+					// No way in: the raid waits at the edge, quietly, and tries again tomorrow
+					gameContext.getSettlementState().setHoursUntilInvasion(gameContext.getGameClock().HOURS_IN_DAY);
+					gameContext.getSettlementState().setDaysInvasionHeldBack(gameContext.getSettlementState().getDaysInvasionHeldBack() + 1);
+				}
 			} else {
 				gameContext.getSettlementState().setHoursUntilInvasion(hoursUntilInvasion);
 			}
 		}
 	}
 
-	private void triggerInvasion(InvasionDefinition invasionDefinition) {
-		Vector2 invasionLocation = selectInvasionWorldPosition(gameContext, settlerTracker);
+	/**
+	 * Invaders come along the trade road, where the last caravan entered the map. Returns false
+	 * when there is no way in, so the raid can wait for one.
+	 */
+	private boolean triggerInvasion(InvasionDefinition invasionDefinition) {
+		if (invasionDefinition == null || settlerTracker.getLiving().isEmpty()) {
+			return true;
+		}
+		Vector2 invasionLocation = MapEntry.findEntry(gameContext, gameContext.getSettlementState().getTraderInfo().getTradeRouteEntry());
 		if (invasionLocation == null) {
-			// Should only happen when all settlers are dead or map edge is not navigable
-			Logger.warn("Could not find a valid position to launch invasion from");
-			return;
+			Logger.info("Invasion held back: no way in from the map edge");
+			return false;
 		}
 
-		invasionGenerator.generateInvasionParticipants(invasionDefinition, invasionLocation, calculatePointsBudget(invasionDefinition.getTriggeredBy()));
+		float growth = Math.min(MAX_RAID_GROWTH, 1f + RAID_GROWTH_PER_DAY_HELD_BACK * gameContext.getSettlementState().getDaysInvasionHeldBack());
+		int pointsBudget = Math.round(calculatePointsBudget(invasionDefinition.getTriggeredBy()) * growth);
+		invasionGenerator.generateInvasionParticipants(invasionDefinition, invasionLocation, pointsBudget);
 
 		messageDispatcher.dispatchMessage(4.5f, MessageType.POST_NOTIFICATION, new Notification(NotificationType.INVASION, invasionLocation, null));
+		return true;
 	}
 
 	private void onDayElapsed() {
@@ -130,7 +146,10 @@ public class InvasionMessageHandler implements Telegraph, GameContextAware {
 
 	private boolean shouldTrigger(InvasionDefinition invasionDefinition) {
 		if (invasionDefinition.getTriggeredBy().equals(InvasionTrigger.POPULATION)) {
-			return settlerTracker.getLiving().size() >= MIN_SETTLERS_TO_TRIGGER_POPULATION_INVASION;
+			// Raids follow the trade road, so none come before the first caravan has found it,
+			// and a raid already waiting at the edge is not replaced by a new one
+			return gameContext.getSettlementState().getIncomingInvasion() == null &&
+					gameContext.getSettlementState().getTraderInfo().getTradeRouteEntry() != null;
 		} else {
 			throw new NotImplementedException(invasionDefinition.getTriggeredBy().name());
 		}
@@ -141,37 +160,6 @@ public class InvasionMessageHandler implements Telegraph, GameContextAware {
 			return settlerTracker.getLiving().size() * 10;
 		} else {
 			throw new NotImplementedException(invasionTrigger.name());
-		}
-	}
-
-	public static Vector2 selectInvasionWorldPosition(GameContext gameContext, SettlerTracker settlerTracker) {
-		if (settlerTracker.getLiving().isEmpty()) {
-			return null;
-		}
-
-		MapTile randomSettlerTile = null;
-		while (randomSettlerTile == null) {
-			Entity randomSettler = new ArrayList<>(settlerTracker.getLiving()).get(gameContext.getRandom().nextInt(settlerTracker.getLiving().size()));
-			randomSettlerTile = gameContext.getAreaMap().getTile(randomSettler.getLocationComponent().getWorldOrParentPosition());
-		}
-
-		int targetRegionId = randomSettlerTile.getRegionId();
-		List<MapTile> eligibleBorderTiles = getNavigableMapEdgeTiles(targetRegionId, gameContext);
-
-		if (eligibleBorderTiles.isEmpty()) {
-			return null;
-		} else {
-			MapTile invasionTile = eligibleBorderTiles.get(gameContext.getRandom().nextInt(eligibleBorderTiles.size()));
-			// Figure out which edge is map edge
-			if (gameContext.getAreaMap().getTile(invasionTile.getTileX(), invasionTile.getTileY() + 1) == null) {
-				return VectorUtils.toVector(invasionTile.getTilePosition()).add(0, 0.48f);
-			} else if (gameContext.getAreaMap().getTile(invasionTile.getTileX(), invasionTile.getTileY() - 1) == null) {
-				return VectorUtils.toVector(invasionTile.getTilePosition()).add(0, -0.48f);
-			} else if (gameContext.getAreaMap().getTile(invasionTile.getTileX() - 1, invasionTile.getTileY()) == null) {
-				return VectorUtils.toVector(invasionTile.getTilePosition()).add(-0.48f, 0f);
-			} else {
-				return VectorUtils.toVector(invasionTile.getTilePosition()).add(0.48f, 0f);
-			}
 		}
 	}
 
