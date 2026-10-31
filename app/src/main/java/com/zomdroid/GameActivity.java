@@ -81,6 +81,9 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
     // suspended, so the second finger is not taken for a click and the spread is not a drag.
     private ScaleGestureDetector pinchDetector;
     private boolean pinching = false;
+    // Two fingers moving together pan the map, which the game does with a middle-button drag.
+    private boolean twoFingerPanning = false;
+    private float twoFingerStartX, twoFingerStartY, twoFingerStartSpan;
 
     private boolean systemKeyboardVisible = false;
     // Helps to calculate mouse cursor position
@@ -99,6 +102,30 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
     private android.os.HandlerThread perfThread;
     private android.os.Handler perfHandler;
     private final android.os.Handler hudHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+
+    private void updateTwoFingerPan(MotionEvent e) {
+        float midX = (e.getX(0) + e.getX(1)) / 2f;
+        float midY = (e.getY(0) + e.getY(1)) / 2f;
+        if (!twoFingerPanning) {
+            float slop = android.view.ViewConfiguration.get(this).getScaledTouchSlop() * 2f;
+            float span = (float) Math.hypot(e.getX(0) - e.getX(1), e.getY(0) - e.getY(1));
+            boolean moved = Math.hypot(midX - twoFingerStartX, midY - twoFingerStartY) > slop;
+            if (!moved || Math.abs(span - twoFingerStartSpan) > slop) {
+                return;
+            }
+            InputNativeInterface.sendCursorPos(twoFingerStartX * renderScale, twoFingerStartY * renderScale);
+            InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_WHEEL.code, true);
+            twoFingerPanning = true;
+        }
+        InputNativeInterface.sendCursorPos(midX * renderScale, midY * renderScale);
+    }
+
+    private void endTwoFingerPan() {
+        if (twoFingerPanning) {
+            InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_WHEEL.code, false);
+            twoFingerPanning = false;
+        }
+    }
 
     @SuppressLint({"UnsafeDynamicallyLoadedCode", "ClickableViewAccessibility"})
     @Override
@@ -346,10 +373,19 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
                       leftMouseDown = false;
                   }
                   pinching = true;
+                  twoFingerPanning = false;
+                  twoFingerStartX = (e.getX(0) + e.getX(1)) / 2f;
+                  twoFingerStartY = (e.getY(0) + e.getY(1)) / 2f;
+                  twoFingerStartSpan = (float) Math.hypot(e.getX(0) - e.getX(1), e.getY(0) - e.getY(1));
                   return true;
               }
               if (pinching) {
-                  // Stay silent until every finger is up; only the detector sees the moves.
+                  // Stay silent until every finger is up, apart from a two-finger pan.
+                  if (action == MotionEvent.ACTION_MOVE && e.getPointerCount() >= 2) {
+                      updateTwoFingerPan(e);
+                  } else if (action != MotionEvent.ACTION_MOVE) {
+                      endTwoFingerPan();
+                  }
                   if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
                       pinching = false;
                       activePointerId = -1;
