@@ -22,7 +22,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import static technology.rocketjump.mountaincore.persistence.UserPreferences.PreferenceKey.CRASH_REPORTING;
 import static technology.rocketjump.mountaincore.persistence.UserPreferences.PreferenceKey.ENABLE_TUTORIAL;
 
 @Singleton
@@ -102,16 +101,6 @@ public class OptionsMenu extends BannerMenu implements DisplaysText {
 			buttonsTable.add(tabButton).spaceBottom(44f).row();
 		}
 
-		CheckBox crashReportCheckbox = widgetFactory.createLeftLabelledCheckbox("GUI.OPTIONS.MISC.CRASH_REPORTING_ENABLED", menuSkin, 524f);
-		crashReportCheckbox.setProgrammaticChangeEvents(false); // Used so that message triggered below does not loop endlessly
-		crashReportCheckbox.setChecked(Boolean.parseBoolean(userPreferences.getPreference(CRASH_REPORTING)));
-		crashReportCheckbox.addListener((event) -> {
-			if (event instanceof ChangeListener.ChangeEvent) {
-				messageDispatcher.dispatchMessage(MessageType.CRASH_REPORTING_OPT_IN_MODIFIED, crashReportCheckbox.isChecked());
-			}
-			return true;
-		});
-
 		CheckBox tutorialCheckbox = widgetFactory.createLeftLabelledCheckbox("GUI.OPTIONS.MISC.TUTORIAL_ENABLED", menuSkin, 524f);
 		tutorialCheckbox.setProgrammaticChangeEvents(false); // Used so that message triggered below does not loop endlessly
 		tutorialCheckbox.setChecked(Boolean.parseBoolean(userPreferences.getPreference(ENABLE_TUTORIAL)));
@@ -122,7 +111,6 @@ public class OptionsMenu extends BannerMenu implements DisplaysText {
 			return true;
 		});
 
-		buttonsTable.add(crashReportCheckbox).fillX().padBottom(46f).row();
 		buttonsTable.add(tutorialCheckbox).fillX().padBottom(142f).row();
 
 		mainBanner.add(buttonsTable).row();

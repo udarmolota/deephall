@@ -2,7 +2,6 @@ package technology.rocketjump.mountaincore.screens.menus;
 
 public enum MenuType {
 
-	PRIVACY_OPT_IN_MENU(PrivacyOptInMenu.class),
 	TOP_LEVEL_MENU(TopLevelMenu.class),
 	EMBARK_MENU(EmbarkMenu.class),
 	LOAD_GAME_MENU(LoadGameMenu.class),

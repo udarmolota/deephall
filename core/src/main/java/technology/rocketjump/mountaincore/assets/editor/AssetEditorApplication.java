@@ -108,7 +108,6 @@ public class AssetEditorApplication extends ApplicationAdapter implements Telegr
 				uiFactoryMapBinder.addBinding(EntityType.PLANT).to(PlantUIFactory.class);
 			}
 		});
-		injector.getInstance(CrashHandler.class); //ensure we load user preferences for crash
 		messageDispatcher = injector.getInstance(MessageDispatcher.class);
 		//Do nothing handlers
 		messageDispatcher.addListener(this, MessageType.ENTITY_CREATED);

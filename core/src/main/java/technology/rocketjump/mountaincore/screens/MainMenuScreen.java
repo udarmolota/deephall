@@ -22,7 +22,6 @@ import com.google.inject.Singleton;
 import org.apache.commons.lang3.NotImplementedException;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
-import technology.rocketjump.mountaincore.logging.CrashHandler;
 import technology.rocketjump.mountaincore.messaging.MessageType;
 import technology.rocketjump.mountaincore.misc.twitch.TwitchDataStore;
 import technology.rocketjump.mountaincore.misc.twitch.model.TwitchAccountInfo;
@@ -80,7 +79,6 @@ public class MainMenuScreen extends AbstractGameScreen implements Telegraph, Dis
 	public MainMenuScreen(MessageDispatcher messageDispatcher, ScreenWriter screenWriter, EmbarkMenu embarkMenu,
 						  LoadGameMenu loadGameMenu, GuiSkinRepository guiSkinRepository,
 						  UserPreferences userPreferences, TopLevelMenu topLevelMenu, OptionsMenu optionsMenu,
-						  PrivacyOptInMenu privacyOptInMenu, CrashHandler crashHandler,
 						  TwitchDataStore twitchDataStore, I18nTranslator i18nTranslator,
 						  CreditsMenu creditsMenu) {
 		super(userPreferences, messageDispatcher);
@@ -110,9 +108,6 @@ public class MainMenuScreen extends AbstractGameScreen implements Telegraph, Dis
 		versionTable.left().bottom();
 
 		setCurrentMenu(topLevelMenu);
-		if (crashHandler.isOptInConfirmationRequired()) {
-			setCurrentMenu(privacyOptInMenu);
-		}
 		showCurrentMenu();
 
 		messageDispatcher.addListener(this, MessageType.SWITCH_MENU);
@@ -150,7 +145,6 @@ public class MainMenuScreen extends AbstractGameScreen implements Telegraph, Dis
 							break;
 						case TWITCH_OPTIONS_MENU:
 							optionsMenu.setCurrentTab(OptionsTabName.TWITCH);
-						case PRIVACY_OPT_IN_MENU:
 						case OPTIONS_MENU:
 							setCurrentMenu(optionsMenu);
 							break;
