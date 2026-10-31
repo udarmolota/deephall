@@ -4,6 +4,9 @@ Mountaincore was developed by Rocket Jump Technology, and has now been released 
 
 [You can play it for free on Steam!](https://store.steampowered.com/app/2370310/Mountaincore/)
 
+## Credits
+
+Many of the gameplay and performance fixes in this fork come from Augustin ([gusasas](https://github.com/gusasas)) and the `bugfixes` branch of [MountainCorePatches.](https://github.com/gusasas/MountainCorePatches./tree/bugfixes), used under the MIT license.
 ## Setup
 
 Download and extract Adoptium JDK releases from https://adoptium.net/temurin/releases 
