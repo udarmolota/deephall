@@ -641,7 +641,7 @@ GUI.MILITARY.SET_FORMATION,,Set Formation,Строй
 GUI.MILITARY.SET_ORDERS,,Set Orders,Приказы
 GUI.MILITARY.TAB.DWARVES,,Military Dwarves,Военные гномы
 GUI.MILITARY.TAB.SQUADS,,Military Squads,Отряды
-GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Trained Civilians,Обученные гражданские
+GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Civilians,Гражданские
 GUI.MINIMAP.LABEL,,Minimap,Миникарта
 GUI.MUSIC_VOLUME,,Music,Музыка
 GUI.NEXT_LABEL,,Next,Далее
@@ -1038,11 +1038,10 @@ NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool
 NOTIFICATION.TOOL_MISSING.TITLE,,No free tool,Нет инструмента
 NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else.","Работа стоит: профессия «{{profession}}» есть только у солдат, а солдаты не работают. Уберите такого поселенца из отряда или дайте профессию другому."
 NOTIFICATION.WORKER_IN_SQUAD.TITLE,,The worker is in a squad,Работник в отряде
-NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: nobody in the settlement has the {{profession}} profession. Give it to a settler.,Работа стоит: в поселении никто не владеет профессией «{{profession}}». Назначьте ее поселенцу.
-NOTIFICATION.WORKER_MISSING.TITLE,,Nobody to do the work,Некому работать
-WORKER_SHORTAGE.IN_SQUAD,,The {{profession}} is in a squad and does not work,Работник «{{profession}}» в отряде и не работает
+NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: no civilian has the {{profession}} profession.,Работа стоит: среди гражданских нет профессии «{{profession}}».
+NOTIFICATION.WORKER_MISSING.TITLE,,No civilian for this work,Некому работать
 WORKER_SHORTAGE.NO_TOOL,,No free tool: {{tool}},Нет свободного инструмента: {{tool}}
-WORKER_SHORTAGE.NO_WORKER,,No worker with the {{profession}} profession,Нет работника с профессией «{{profession}}»
+WORKER_SHORTAGE.NO_WORKER,,No civilian has the {{profession}} profession,Среди гражданских нет профессии: {{profession}}
 NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.,Торговцы не дождались прохода и ушли.
 NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left,Караван ушел
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}.",Погиб поселенец: {{character}}. Причина: {{reason}}.

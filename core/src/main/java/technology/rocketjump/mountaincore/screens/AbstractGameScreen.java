@@ -21,12 +21,12 @@ public abstract class AbstractGameScreen implements GameScreen {
 	protected final Stage stage;
 
 	protected AbstractGameScreen(UserPreferences userPreferences, MessageDispatcher messageDispatcher) {
-		Vector2 viewportDimensions = ViewportUtils.scaledViewportDimensions(userPreferences);
+		Vector2 viewportDimensions = ViewportUtils.fullPageViewportDimensions(userPreferences);
 		this.viewport = new ExtendViewport(viewportDimensions.x, viewportDimensions.y);
 		this.stage = new Stage(viewport);
 		messageDispatcher.addListener(msg -> {
 			if (MessageType.GUI_SCALE_CHANGED == msg.message) {
-				Vector2 updatedDimensions = ViewportUtils.scaledViewportDimensions(userPreferences);
+				Vector2 updatedDimensions = ViewportUtils.fullPageViewportDimensions(userPreferences);
 				viewport.setMinWorldWidth(updatedDimensions.x);
 				viewport.setMinWorldHeight(updatedDimensions.y);
 				resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

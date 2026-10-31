@@ -630,7 +630,7 @@ GUI.MILITARY.SET_FORMATION,,Set Formation
 GUI.MILITARY.SET_ORDERS,,Set Orders
 GUI.MILITARY.TAB.DWARVES,,Military Dwarves
 GUI.MILITARY.TAB.SQUADS,,Military Squads
-GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Trained Civilians
+GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Civilians
 GUI.MINIMAP.LABEL,,Minimap
 GUI.MUSIC_VOLUME,,Music
 GUI.NEXT_LABEL,,Next
@@ -1028,11 +1028,10 @@ NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool
 NOTIFICATION.TOOL_MISSING.TITLE,,No free tool
 NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else."
 NOTIFICATION.WORKER_IN_SQUAD.TITLE,,The worker is in a squad
-NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: nobody in the settlement has the {{profession}} profession. Give it to a settler.
-NOTIFICATION.WORKER_MISSING.TITLE,,Nobody to do the work
-WORKER_SHORTAGE.IN_SQUAD,,The {{profession}} is in a squad and does not work
+NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: no civilian has the {{profession}} profession.
+NOTIFICATION.WORKER_MISSING.TITLE,,No civilian for this work
 WORKER_SHORTAGE.NO_TOOL,,No free tool: {{tool}}
-WORKER_SHORTAGE.NO_WORKER,,No worker with the {{profession}} profession
+WORKER_SHORTAGE.NO_WORKER,,No civilian has the {{profession}} profession
 NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.
 NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}."

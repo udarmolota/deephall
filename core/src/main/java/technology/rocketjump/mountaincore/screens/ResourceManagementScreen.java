@@ -68,6 +68,7 @@ public class ResourceManagementScreen extends AbstractGameScreen implements Game
 	private final Image fullScreenOverlay;
 	private final LabelFactory labelFactory;
 	private final ButtonFactory buttonFactory;
+	private final CompactLayout compactLayout;
 
 	private Stack stack;
 	private Actor currentInfoPane;
@@ -82,7 +83,8 @@ public class ResourceManagementScreen extends AbstractGameScreen implements Game
 	public ResourceManagementScreen(MessageDispatcher messageDispatcher, GuiSkinRepository guiSkinRepository,
 									I18nTranslator i18nTranslator, SettlementItemTracker settlementItemTracker,
 									EntityRenderer entityRenderer, StockpileGroupDictionary stockpileGroupDictionary,
-									LabelFactory labelFactory, ButtonFactory buttonFactory, UserPreferences userPreferences) {
+									LabelFactory labelFactory, ButtonFactory buttonFactory, UserPreferences userPreferences,
+								   CompactLayout compactLayout) {
 		super(userPreferences, messageDispatcher);
 		this.messageDispatcher = messageDispatcher;
 		this.i18nTranslator = i18nTranslator;
@@ -94,6 +96,7 @@ public class ResourceManagementScreen extends AbstractGameScreen implements Game
 		this.managementSkin = guiSkinRepository.getManagementSkin();
 		this.labelFactory = labelFactory;
 		this.buttonFactory = buttonFactory;
+		this.compactLayout = compactLayout;
 
 		this.qualityStars = Map.of(
 				ItemQuality.AWFUL, managementSkin.getDrawable("asset_quality_star_01"),
@@ -204,7 +207,7 @@ public class ResourceManagementScreen extends AbstractGameScreen implements Game
 				}
 			});
 
-			stockpileButtons.add(stockpileButton).padLeft(2f).padRight(2f);
+			compactLayout.icon(stockpileButtons.add(stockpileButton).padLeft(2f).padRight(2f));
 			if (stockpileGroup.equals(selectedStockpileGroup)) {
 				stockpileButton.setChecked(true);
 			}
@@ -267,7 +270,7 @@ public class ResourceManagementScreen extends AbstractGameScreen implements Game
 		mainTable.add(scrollPane).grow();
 
 		Table table = new Table();
-		table.add(titleLabel).padTop(54f).row();
+		compactLayout.header(table.add(titleLabel).padTop(54f)).row();
 		table.add(mainTable).padLeft(38f).padRight(38f).spaceTop(48f).fill().growY();
 		return table;
 	}

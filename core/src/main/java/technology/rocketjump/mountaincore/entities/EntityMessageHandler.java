@@ -69,6 +69,7 @@ import technology.rocketjump.mountaincore.rooms.Room;
 import technology.rocketjump.mountaincore.rooms.RoomStore;
 import technology.rocketjump.mountaincore.rooms.components.StockpileRoomComponent;
 import technology.rocketjump.mountaincore.rooms.constructions.Construction;
+import technology.rocketjump.mountaincore.settlement.ImmigrationManager;
 import technology.rocketjump.mountaincore.settlement.*;
 import technology.rocketjump.mountaincore.settlement.notifications.Notification;
 import technology.rocketjump.mountaincore.settlement.notifications.NotificationType;
@@ -475,6 +476,7 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 					} else if (!constructedEntityComponent.isBeingDeconstructed()) {
 						Job deconstructionJob = jobFactory.deconstructionJob(entityTile);
 						if (deconstructionJob != null) {
+							deconstructionJob.setJobLocation(reachableFurnitureTile(entity, entityTile));
 							constructedEntityComponent.setDeconstructionJob(deconstructionJob);
 							messageDispatcher.dispatchMessage(MessageType.JOB_CREATED, deconstructionJob);
 
@@ -715,6 +717,30 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 
 		messageDispatcher.dispatchMessage(MessageType.ENTITY_ASSET_UPDATE_REQUIRED, changeProfessionMessage.entity);
 		return true;
+	}
+
+	// Large furniture can have its main tile against a wall, with only its other tiles open to a worker
+	private GridPoint2 reachableFurnitureTile(Entity furniture, MapTile mainTile) {
+		List<MapTile> tiles = new ArrayList<>();
+		tiles.add(mainTile);
+		if (furniture.getPhysicalEntityComponent().getAttributes() instanceof FurnitureEntityAttributes attributes) {
+			for (GridPoint2 extraOffset : attributes.getCurrentLayout().getExtraTiles()) {
+				MapTile tile = gameContext.getAreaMap().getTile(mainTile.getTilePosition().cpy().add(extraOffset));
+				if (tile != null) {
+					tiles.add(tile);
+				}
+			}
+		}
+
+		int settlementRegion = ImmigrationManager.determineSettlementRegionId(gameContext, true);
+		for (MapTile tile : tiles) {
+			for (MapTile neighbour : gameContext.getAreaMap().getOrthogonalNeighbours(tile.getTileX(), tile.getTileY()).values()) {
+				if (neighbour.isNavigable(null) && neighbour.getRegionId() == settlementRegion) {
+					return tile.getTilePosition();
+				}
+			}
+		}
+		return mainTile.getTilePosition();
 	}
 
 	private boolean handle(MessageType.RemoveProfessionMessage message) {

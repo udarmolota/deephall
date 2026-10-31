@@ -651,7 +651,9 @@ public class JobMessageHandler implements GameContextAware, Telegraph {
 						if (targetEntity == null) {
 							Logger.error("Could not find furniture entity to deconstruct in " + targetTile);
 						} else {
-							deconstructFurniture(targetEntity, targetTile, messageDispatcher, gameContext, itemTypeDictionary, itemEntityAttributesFactory, itemEntityFactory, deconstructParticleEffect, poofSoundAsset);
+							// The job may stand on any tile of the furniture, the layout offsets count from its main tile
+							MapTile mainFurnitureTile = gameContext.getAreaMap().getTile(targetEntity.getLocationComponent().getWorldPosition());
+							deconstructFurniture(targetEntity, mainFurnitureTile, messageDispatcher, gameContext, itemTypeDictionary, itemEntityAttributesFactory, itemEntityFactory, deconstructParticleEffect, poofSoundAsset);
 						}
 					} else if (targetTile.hasFloor() && targetTile.getFloor().getFloorType().isConstructed()) {
 						messageDispatcher.dispatchMessage(MessageType.UNDO_REPLACE_FLOOR, targetTile.getTilePosition());

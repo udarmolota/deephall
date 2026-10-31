@@ -8,6 +8,8 @@ public class ViewportUtils {
     // Lower means a bigger interface. Below 0.9 is for small screens, where the 4K layout is tiny
     public static final float MIN_VIEWPORT_SCALE = 0.6f;
     private static final float MIN_FONT_SCALED_VIEWPORT = 0.9f;
+    // Full page screens lay out wide rows, which run off the sides of a phone below this
+    private static final float MIN_FULL_PAGE_VIEWPORT_SCALE = 0.78f;
     public static final float MAX_VIEWPORT_SCALE = 1.15f;
     private final static Vector2 VIEWPORT_DIMENSIONS = new Vector2(3840, 2160);
     public static final float DEFAULT_FONT_SCALE = 2.0f;
@@ -15,6 +17,14 @@ public class ViewportUtils {
 
     public static Vector2 scaledViewportDimensions(UserPreferences userPreferences) {
         return VIEWPORT_DIMENSIONS.cpy().scl(getViewportScale(userPreferences));
+    }
+
+    public static boolean isSmallScreenScale(UserPreferences userPreferences) {
+        return getViewportScale(userPreferences) < MIN_FONT_SCALED_VIEWPORT;
+    }
+
+    public static Vector2 fullPageViewportDimensions(UserPreferences userPreferences) {
+        return VIEWPORT_DIMENSIONS.cpy().scl(Math.max(getViewportScale(userPreferences), MIN_FULL_PAGE_VIEWPORT_SCALE));
     }
 
     public static float defaultFontScaleForViewportScale(UserPreferences userPreferences) {

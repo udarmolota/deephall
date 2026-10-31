@@ -35,7 +35,6 @@ public class WorkerAvailability implements GameContextAware {
 	public enum Problem {
 
 		NO_WORKER("WORKER_SHORTAGE.NO_WORKER", NotificationType.WORKER_MISSING),
-		WORKER_IN_SQUAD("WORKER_SHORTAGE.IN_SQUAD", NotificationType.WORKER_IN_SQUAD),
 		NO_TOOL("WORKER_SHORTAGE.NO_TOOL", NotificationType.TOOL_MISSING);
 
 		public final String i18nKey;
@@ -73,12 +72,12 @@ public class WorkerAvailability implements GameContextAware {
 			return Optional.empty();
 		}
 
-		List<Entity> workers = settlerTracker.getLiving().stream().filter(settler -> hasProfession(settler, profession)).toList();
-		List<Entity> civilianWorkers = workers.stream().filter(settler -> !isInMilitary(settler)).toList();
+		List<Entity> civilianWorkers = settlerTracker.getLiving().stream()
+				.filter(settler -> hasProfession(settler, profession) && !isInMilitary(settler))
+				.toList();
 
 		if (civilianWorkers.isEmpty()) {
-			Problem problem = workers.isEmpty() ? Problem.NO_WORKER : Problem.WORKER_IN_SQUAD;
-			return Optional.of(new Shortage(problem, profession, null));
+			return Optional.of(new Shortage(Problem.NO_WORKER, profession, null));
 		}
 		if (tool != null && !toolIsAvailable(civilianWorkers, tool, toolMaterial)) {
 			return Optional.of(new Shortage(Problem.NO_TOOL, profession, tool));

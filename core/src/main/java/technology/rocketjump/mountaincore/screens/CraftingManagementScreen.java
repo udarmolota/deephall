@@ -72,6 +72,7 @@ public class CraftingManagementScreen extends AbstractGameScreen implements Game
 	private final Image fullScreenOverlay;
 	private final LabelFactory labelFactory;
 	private final ButtonFactory buttonFactory;
+	private final CompactLayout compactLayout;
 	private final RoomEditorItemMap roomEditorItemMap;
 	private final GameInteractionStateContainer gameInteractionStateContainer;
 	private final WidgetFactory widgetFactory;
@@ -86,7 +87,8 @@ public class CraftingManagementScreen extends AbstractGameScreen implements Game
 									EntityRenderer entityRenderer, CraftingRecipeDictionary craftingRecipeDictionary,
 									LabelFactory labelFactory, ButtonFactory buttonFactory, RoomEditorItemMap roomEditorItemMap,
 									GameInteractionStateContainer gameInteractionStateContainer, UserPreferences userPreferences,
-									CraftingTypeDictionary craftingTypeDictionary, WidgetFactory widgetFactory) {
+									CraftingTypeDictionary craftingTypeDictionary, WidgetFactory widgetFactory,
+								   CompactLayout compactLayout) {
 		super(userPreferences, messageDispatcher);
 		this.messageDispatcher = messageDispatcher;
 		this.i18nTranslator = i18nTranslator;
@@ -96,6 +98,7 @@ public class CraftingManagementScreen extends AbstractGameScreen implements Game
 		this.craftingRecipeDictionary = craftingRecipeDictionary;
 		this.labelFactory = labelFactory;
 		this.buttonFactory = buttonFactory;
+		this.compactLayout = compactLayout;
 		this.roomEditorItemMap = roomEditorItemMap;
 		this.gameInteractionStateContainer = gameInteractionStateContainer;
 		this.craftingTypeDictionary = craftingTypeDictionary;
@@ -212,7 +215,7 @@ public class CraftingManagementScreen extends AbstractGameScreen implements Game
 		mainTable.add(scrollPane).grow();
 
 		Table table = new Table();
-		table.add(titleLabel).padTop(54f).row();
+		compactLayout.header(table.add(titleLabel).padTop(54f)).row();
 		table.add(mainTable).spaceTop(48f).padLeft(35).padRight(35).grow();
 		return table;
 	}

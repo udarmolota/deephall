@@ -84,7 +84,7 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 		@Override
 		public boolean test(Entity entity) {
 			SkillsComponent skillsComponent = entity.getComponent(SkillsComponent.class);
-			if (IS_CIVILIAN.test(entity) && skillsComponent != null) {
+			if (skillsComponent != null) {
 				for (SkillsComponent.QuantifiedSkill activeProfession : skillsComponent.getActiveProfessions()) {
 					if (skill.equals(activeProfession.getSkill())) {
 						return true;
@@ -94,6 +94,8 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 			return false;
 		}
 	}
+
+	private static final float SOLDIER_PROFESSION_ICON_SIZE = 72f;
 
 	private static final Comparator<Entity> SORT_HAPPINESS = Comparator.comparingInt(settler -> {
 		if (IS_MILITARY.test(settler)) {
@@ -122,6 +124,7 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 	private final I18nTranslator i18nTranslator;
 	private final LabelFactory labelFactory;
 	private final ButtonFactory buttonFactory;
+	private final CompactLayout compactLayout;
 	private final WidgetFactory widgetFactory;
 	private final SkillDictionary skillDictionary;
 	private final SettlerTracker settlerTracker;
@@ -150,13 +153,15 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 								   WidgetFactory widgetFactory, SkillDictionary skillDictionary, SettlerTracker settlerTracker,
 								   EntityRenderer entityRenderer, TooltipFactory tooltipFactory, SettlerProfessionFactory settlerProfessionFactory,
 								   SettlementFurnitureTracker settlementFurnitureTracker, SettlementItemTracker settlementItemTracker,
-								   SoundAssetDictionary soundAssetDictionary, UserPreferences userPreferences) {
+								   SoundAssetDictionary soundAssetDictionary, UserPreferences userPreferences,
+								   CompactLayout compactLayout) {
 		super(userPreferences, messageDispatcher);
 		this.menuSkin = guiSkinRepository.getMenuSkin();
 		this.managementSkin = guiSkinRepository.getManagementSkin();
 		this.i18nTranslator = i18nTranslator;
 		this.labelFactory = labelFactory;
 		this.buttonFactory = buttonFactory;
+		this.compactLayout = compactLayout;
 		this.widgetFactory = widgetFactory;
 		this.skillDictionary = skillDictionary;
 		this.messageDispatcher = messageDispatcher;
@@ -321,8 +326,8 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 		filters.add(sortByMilitaryCivilian).spaceRight(38);
 
 		Table table = new Table();
-		table.add(titleLabel).padTop(54).row();
-		table.add(professionButtons).padTop(80).row();
+		compactLayout.header(table.add(titleLabel).padTop(54)).row();
+		table.add(professionButtons).padTop(40).row();
 		table.add(populationRow).right().row();
 		table.add(filters).left().row();
 		table.add(new Image(managementSkin.getDrawable("asset_line"))).height(12f).padTop(40f).row();
@@ -344,7 +349,7 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 			}
 		});
 		tooltipFactory.simpleTooltip(button, i18nKey, TooltipLocationHint.ABOVE);
-		professionButtons.add(button);
+		compactLayout.icon(professionButtons.add(button));
 		professionButtonGroup.add(button);
 	}
 
@@ -509,7 +514,7 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 			buttonFactory.attachClickCursor(weaponSelectButton, GameCursor.SELECT);
 			Table weaponProgress = settlerProfessionFactory.buildProgressBarRow(skillsComponent, weaponSkill, false);
 			weaponColumn.add(weaponIcon).row();
-			weaponColumn.add(weaponSelectButton).spaceTop(10f).spaceBottom(6f).row();
+			compactLayout.icon(weaponColumn.add(weaponSelectButton).spaceTop(10f).spaceBottom(6f)).row();
 			weaponColumn.add(weaponProgress);
 
 			Table shieldColumn = new Table();
@@ -527,7 +532,7 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 			};
 			buttonFactory.attachClickCursor(shieldSelectButton, GameCursor.SELECT);
 			shieldColumn.add(shieldIcon).expandX().row();
-			shieldColumn.add(shieldSelectButton).spaceTop(10f).spaceBottom(6f).row();
+			compactLayout.icon(shieldColumn.add(shieldSelectButton).spaceTop(10f).spaceBottom(6f)).row();
 
 			Table armourColumn = new Table();
 			Image armourIcon = new Image(managementSkin.getDrawable("icon_military_equip_armour"));
@@ -544,7 +549,7 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 			};
 			buttonFactory.attachClickCursor(armourSelectButton, GameCursor.SELECT);
 			armourColumn.add(armourIcon).expandX().row();
-			armourColumn.add(armourSelectButton).spaceTop(10f).spaceBottom(6f).row();
+			compactLayout.icon(armourColumn.add(armourSelectButton).spaceTop(10f).spaceBottom(6f)).row();
 
 
 			if (assignedWeapon != null) {
@@ -866,10 +871,28 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 
 			Label squadName = new Label(squad.getName(), managementSkin, "military_squad_name_ribbon");
 			squadName.setAlignment(Align.center);
-			table.add(squadName).padBottom(5).row();
-			table.add(emblem);
+			table.add(squadName).colspan(2).padBottom(5).row();
+			compactLayout.icon(table.add(emblem));
+			table.add(soldierProfessions(settler)).padLeft(20f);
 		}
 
+		return table;
+	}
+
+	// Soldiers keep their professions but cannot use them, these only show what they are
+	private Table soldierProfessions(Entity settler) {
+		Table table = new Table();
+		SkillsComponent skillsComponent = settler.getComponent(SkillsComponent.class);
+		if (skillsComponent != null) {
+			for (SkillsComponent.QuantifiedSkill activeProfession : skillsComponent.getActiveProfessions()) {
+				Skill profession = activeProfession.getSkill();
+				if (!profession.equals(SkillDictionary.NULL_PROFESSION)) {
+					Image icon = new Image(managementSkin.getDrawable(profession.getIcon()));
+					tooltipFactory.simpleTooltip(icon, profession.getI18nKey(), TooltipLocationHint.BELOW);
+					table.add(icon).size(SOLDIER_PROFESSION_ICON_SIZE).padRight(6f);
+				}
+			}
+		}
 		return table;
 	}
 

@@ -42,6 +42,7 @@ import technology.rocketjump.mountaincore.ui.eventlistener.TooltipFactory;
 import technology.rocketjump.mountaincore.ui.eventlistener.TooltipLocationHint;
 import technology.rocketjump.mountaincore.ui.i18n.I18nText;
 import technology.rocketjump.mountaincore.ui.i18n.I18nTranslator;
+import technology.rocketjump.mountaincore.ui.widgets.CompactLayout;
 import technology.rocketjump.mountaincore.ui.skins.GuiSkinRepository;
 import technology.rocketjump.mountaincore.ui.skins.MainGameSkin;
 import technology.rocketjump.mountaincore.ui.skins.ManagementSkin;
@@ -118,12 +119,15 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 		}
 	}
 
+	private final CompactLayout compactLayout;
+
 	@Inject
 	public SquadSelectedGuiView(GuiSkinRepository guiSkinRepository, GameInteractionStateContainer gameInteractionStateContainer,
 	                            I18nTranslator i18nTranslator, MessageDispatcher messageDispatcher,
 	                            ButtonFactory buttonFactory,
 	                            TooltipFactory tooltipFactory, SoundAssetDictionary soundAssetDictionary, WidgetFactory widgetFactory,
-	                            SettlerTracker settlerTracker, SettlerManagementScreen settlerManagementScreen, SkillDictionary skillDictionary) {
+	                            SettlerTracker settlerTracker, SettlerManagementScreen settlerManagementScreen, SkillDictionary skillDictionary,
+	                            CompactLayout compactLayout) {
 
 		this.i18nTranslator = i18nTranslator;
 		this.gameInteractionStateContainer = gameInteractionStateContainer;
@@ -132,6 +136,7 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 		this.managementSkin = guiSkinRepository.getManagementSkin();
 		this.menuSkin = guiSkinRepository.getMenuSkin();
 		this.buttonFactory = buttonFactory;
+		this.compactLayout = compactLayout;
 		this.tooltipFactory = tooltipFactory;
 		this.soundAssetDictionary = soundAssetDictionary;
 		this.widgetFactory = widgetFactory;
@@ -165,7 +170,7 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 		outerTable.setTouchable(Touchable.enabled);
 		outerTable.setBackground(managementSkin.getDrawable("bg_military")); //Doesn't fill screen due to aspect ratio
 
-		outerTable.add(title).padTop(40).width(800).row();
+		compactLayout.header(outerTable.add(title).padTop(40).width(800)).row();
 		outerTable.add(squadSummaryGrid.getActor()).padTop(20).row();
 		outerTable.add(tabButtons).padTop(20).row();
 		outerTable.add(currentTab.getActor()).padTop(20).grow().row();
@@ -215,7 +220,7 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 		subtitle.setAlignment(Align.center);
 
 		Table subtitleLine = new Table();
-		subtitleLine.add(subtitle).padLeft(30).padRight(30);
+		compactLayout.header(subtitleLine.add(subtitle).padLeft(30).padRight(30));
 
 		Table civiliansTable = new Table();
 		civiliansTable.top();
@@ -295,7 +300,7 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 		subtitle.setAlignment(Align.center);
 
 		Table subtitleLine = new Table();
-		subtitleLine.add(subtitle).padLeft(30).padRight(30);
+		compactLayout.header(subtitleLine.add(subtitle).padLeft(30).padRight(30));
 
 		Table soldiersTable = new Table();
 		soldiersTable.top();
@@ -367,7 +372,7 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 
 		Table subtitleLine = new Table();
 		subtitleLine.add(new Container<>()).width(addSquadButton.getActor().getMinWidth());
-		subtitleLine.add(subtitle).padLeft(30).padRight(30);
+		compactLayout.header(subtitleLine.add(subtitle).padLeft(30).padRight(30));
 		subtitleLine.add(addSquadButton.getActor());
 
 
@@ -398,7 +403,7 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 		table.add(subtitleLine).padTop(30).padBottom(30f).row();
 		table.add(cardsScrollPane).grow().row();
 
-		table.add(ordersLabel).padTop(30).padBottom(30f).row();
+		compactLayout.header(table.add(ordersLabel).padTop(30).padBottom(30f)).row();
 		table.add(orderButtons.getActor()).padBottom(30f).row();
 		return table;
 	}
@@ -462,15 +467,10 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 		Updatable<Button> removeSquadButton = removeSquadButton(squad);
 		updatables.add(removeSquadButton);
 
-		Updatable<SelectBox<SquadCommand>> squadCommandSelect = squadCommandSelect(squad);
-		updatables.add(squadCommandSelect);
-
 		Table squadActionColumn = new Table();
 		squadActionColumn.add(shiftToggle(squad)).row();
 		squadActionColumn.add(new Label(i18nTranslator.translate("GUI.MILITARY.SET_FORMATION"), managementSkin, "default-font-16-label-white")).padTop(24).row();
 		squadActionColumn.add(widgetFactory.createSquadFormationSelectBox(menuSkin, squad.getFormation(), squad::setFormation)).width(440).padTop(16f).row();
-		squadActionColumn.add(new Label(i18nTranslator.translate("GUI.MILITARY.SET_ORDERS"), managementSkin, "default-font-16-label-white")).padTop(24).row();
-		squadActionColumn.add(squadCommandSelect.getActor()).padTop(16f).growX();
 
 
 		Table titleRow = new Table();
@@ -488,49 +488,6 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 		card.add(contentsRow).top().left().expandY();
 
 		return card;
-	}
-
-	private Updatable<SelectBox<SquadCommand>> squadCommandSelect(Squad squad) {
-		SelectBox<SquadCommand> select = new SelectBox<>(menuSkin, "select_narrow") {
-			@Override
-			protected String toString(SquadCommand item) {
-				return translate(item);
-			}
-		};
-		select.setAlignment(Align.center);
-		select.getList().setAlignment(Align.center);
-
-		select.setItems(SquadCommand.values());
-
-		select.getSelection().setProgrammaticChangeEvents(false);
-		select.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				select.getSelected().apply(gameInteractionStateContainer, messageDispatcher);
-			}
-		});
-
-		buttonFactory.attachClickCursor(select, GameCursor.SELECT);
-		Updatable<SelectBox<SquadCommand>> updatable = Updatable.of(select);
-		updatable.regularly(new Runnable() {
-			SquadOrderType previousOrder = null;
-
-			@Override
-			public void run() {
-				if (previousOrder != squad.getCurrentOrderType()) {
-					previousOrder = squad.getCurrentOrderType();
-					switch (squad.getCurrentOrderType()) {
-						case TRAINING -> select.setSelected(SquadCommand.TRAIN);
-						case GUARDING -> select.setSelected(SquadCommand.GUARD);
-						case COMBAT -> select.setSelected(SquadCommand.ATTACK);
-						case RETREATING -> select.setSelected(SquadCommand.RETREAT);
-					}
-
-				}
-			}
-		});
-		updatable.update();
-		return updatable;
 	}
 
 	private String translate(SquadCommand item) {
@@ -845,7 +802,7 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 			});
 			tooltipFactory.simpleTooltip(button, tab.i18nKey, TooltipLocationHint.ABOVE);
 			buttonGroup.add(button);
-			table.add(button);
+			compactLayout.icon(table.add(button));
 		}
 
 		return table;
@@ -867,7 +824,7 @@ public class SquadSelectedGuiView implements GuiView, GameContextAware, Telegrap
 			});
 			tooltipFactory.simpleTooltip(button, translate(squadCommand), TooltipLocationHint.ABOVE);
 			buttonGroup.add(button);
-			table.add(button);
+			compactLayout.icon(table.add(button));
 			commandToButton.put(squadCommand, button);
 		}
 
