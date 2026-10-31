@@ -595,6 +595,12 @@ GUI.KEY_BINDING.GAME_SPEED_FAST,,Game speed fast,Скорость: быстра�
 GUI.KEY_BINDING.GAME_SPEED_FASTER,,Game speed faster,Скорость: очень быстрая
 GUI.KEY_BINDING.GAME_SPEED_FASTEST,,Game speed fastest,Скорость: максимальная
 GUI.KEY_BINDING.GAME_SPEED_NORMAL,,Game speed normal,Скорость: обычная
+GUI.KEY_BINDING.OPEN_CONSTRUCTION,,Open construction menu,Меню строительства
+GUI.KEY_BINDING.OPEN_ORDERS,,Open orders menu,Меню приказов
+GUI.KEY_BINDING.OPEN_PRIORITY,,Open priority menu,Меню приоритетов
+GUI.KEY_BINDING.OPEN_ROOMS,,Open rooms menu,Меню комнат
+GUI.KEY_BINDING.ORDER_CANCEL,,Cancel orders,Отменить приказы
+GUI.KEY_BINDING.ORDER_MINE,,Mine,Копать
 GUI.KEY_BINDING.PAN_CAMERA_DOWN,,Pan camera down,Камера вниз
 GUI.KEY_BINDING.PAN_CAMERA_LEFT,,Pan camera left,Камера влево
 GUI.KEY_BINDING.PAN_CAMERA_RIGHT,,Pan camera right,Камера вправо

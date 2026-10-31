@@ -17,10 +17,14 @@ public class FurnitureAssignmentRequest {
 	public final Consumer<Entity> callback;
 
 	public static FurnitureAssignmentRequest requestBed(Entity requestingEntity, boolean wantsToSleepOnFloor, FurnitureAssignmentCallback callback) {
+		return requestBed(requestingEntity, wantsToSleepOnFloor, false, callback);
+	}
+
+	public static FurnitureAssignmentRequest requestBed(Entity requestingEntity, boolean wantsToSleepOnFloor, boolean ignoreBedAssignmentType, FurnitureAssignmentCallback callback) {
 		return new FurnitureAssignmentRequest(BedSleepingPositionTag.class, requestingEntity, entity -> {
 					SleepingPositionComponent sleepingPositionComponent = entity.getComponent(SleepingPositionComponent.class);
 					return sleepingPositionComponent.getBedCreaturePosition().equals(wantsToSleepOnFloor ? BedSleepingPositionTag.BedCreaturePosition.ON_GROUND : BedSleepingPositionTag.BedCreaturePosition.INSIDE_FURNITURE) &&
-							sleepingPositionComponent.isApplicableTo(requestingEntity);
+							(ignoreBedAssignmentType || sleepingPositionComponent.isApplicableTo(requestingEntity));
 				}, callback::furnitureAssigned);
 	}
 

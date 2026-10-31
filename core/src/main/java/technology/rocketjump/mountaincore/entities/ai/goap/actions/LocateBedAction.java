@@ -1,6 +1,7 @@
 package technology.rocketjump.mountaincore.entities.ai.goap.actions;
 
 import com.alibaba.fastjson.JSONObject;
+import technology.rocketjump.mountaincore.entities.components.creature.MilitaryComponent;
 import technology.rocketjump.mountaincore.entities.ai.goap.AssignedGoal;
 import technology.rocketjump.mountaincore.entities.components.Faction;
 import technology.rocketjump.mountaincore.entities.components.FactionComponent;
@@ -19,12 +20,14 @@ public class LocateBedAction extends Action implements FurnitureAssignmentCallba
 	}
 
 	boolean willingToSleepOnFloor = false;
+	// Military settlers use the barracks first, then any bed that is free tonight
+	boolean willingToUseAnyBed = false;
 
 	@Override
 	public void update(float deltaTime, GameContext gameContext) {
 		if (parent.parentEntity.isSettler()) {
 			parent.messageDispatcher.dispatchMessage(MessageType.REQUEST_FURNITURE_ASSIGNMENT,
-					FurnitureAssignmentRequest.requestBed(parent.parentEntity, willingToSleepOnFloor, this::furnitureAssigned));
+					FurnitureAssignmentRequest.requestBed(parent.parentEntity, willingToSleepOnFloor, willingToUseAnyBed, this::furnitureAssigned));
 		} else {
 			// For animals / non-settlers
 			completionType = CompletionType.FAILURE;
@@ -36,8 +39,11 @@ public class LocateBedAction extends Action implements FurnitureAssignmentCallba
 		if (furnitureEntity == null) {
 			if (!willingToSleepOnFloor) {
 				willingToSleepOnFloor = true;
-				parent.messageDispatcher.dispatchMessage(MessageType.REQUEST_FURNITURE_ASSIGNMENT,
-						FurnitureAssignmentRequest.requestBed(parent.parentEntity, willingToSleepOnFloor, this));
+				requestBedAgain();
+			} else if (!willingToUseAnyBed && isInMilitary()) {
+				willingToUseAnyBed = true;
+				willingToSleepOnFloor = false;
+				requestBedAgain();
 			} else {
 				completionType = CompletionType.FAILURE;
 			}
@@ -45,6 +51,16 @@ public class LocateBedAction extends Action implements FurnitureAssignmentCallba
 			parent.setAssignedFurnitureId(furnitureEntity.getId());
 			completionType = CompletionType.SUCCESS;
 		}
+	}
+
+	private void requestBedAgain() {
+		parent.messageDispatcher.dispatchMessage(MessageType.REQUEST_FURNITURE_ASSIGNMENT,
+				FurnitureAssignmentRequest.requestBed(parent.parentEntity, willingToSleepOnFloor, willingToUseAnyBed, this));
+	}
+
+	private boolean isInMilitary() {
+		MilitaryComponent militaryComponent = parent.parentEntity.getComponent(MilitaryComponent.class);
+		return militaryComponent != null && militaryComponent.isInMilitary();
 	}
 
 	@Override

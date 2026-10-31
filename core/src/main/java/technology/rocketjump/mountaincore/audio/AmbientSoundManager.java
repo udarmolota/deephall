@@ -143,8 +143,10 @@ public class AmbientSoundManager implements Updatable, AssetDisposable {
 			weatherActiveSound.stop();
 			weatherActiveSound.dispose();
 		}
-		riverActiveSound.stop();
-		riverActiveSound.dispose();
+		if (riverActiveSound != null) {
+			riverActiveSound.stop();
+			riverActiveSound.dispose();
+		}
 	}
 
 	@Override

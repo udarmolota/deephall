@@ -2,6 +2,7 @@ package technology.rocketjump.mountaincore.entities.ai.goap.actions;
 
 import com.alibaba.fastjson.JSONObject;
 import com.badlogic.gdx.math.Vector2;
+import technology.rocketjump.mountaincore.entities.components.creature.MilitaryComponent;
 import technology.rocketjump.mountaincore.entities.ai.goap.AssignedGoal;
 import technology.rocketjump.mountaincore.entities.ai.goap.actions.location.GoToLocationAction;
 import technology.rocketjump.mountaincore.entities.ai.goap.actions.location.GoToRandomLocationAction;
@@ -23,6 +24,8 @@ public class IdleAction extends Action {
 
 	private static final double MAX_HOURS_TO_IDLE = 0.2;
 	public static final float MAX_SEPARATION_FROM_CREATURE_GROUP = 7f;
+	// Soldiers with nothing to do have no job to bring them back, so they would drift off across the map
+	private static final float MAX_MILITARY_WANDER_FROM_SETTLEMENT = 15f;
 
 	public IdleAction(AssignedGoal parent) {
 		super(parent);
@@ -97,6 +100,13 @@ public class IdleAction extends Action {
 			}
 			if (centralPosition == null) {
 				return null;
+			}
+			MilitaryComponent militaryComponent = entity.getComponent(MilitaryComponent.class);
+			if (militaryComponent != null && militaryComponent.isInMilitary()) {
+				Vector2 settlementCentre = toVector(gameContext.getAreaMap().getEmbarkPoint());
+				if (centralPosition.dst(settlementCentre) > MAX_MILITARY_WANDER_FROM_SETTLEMENT) {
+					centralPosition = settlementCentre;
+				}
 			}
 
 			MapTile randomCell = gameContext.getAreaMap().getTile(

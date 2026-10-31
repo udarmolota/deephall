@@ -14,6 +14,9 @@ import technology.rocketjump.mountaincore.environment.model.GameSpeed;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
 import technology.rocketjump.mountaincore.messaging.MessageType;
+import technology.rocketjump.mountaincore.ui.GameInteractionMode;
+import technology.rocketjump.mountaincore.ui.GameViewMode;
+import technology.rocketjump.mountaincore.ui.views.GuiViewName;
 import technology.rocketjump.mountaincore.messaging.types.MouseChangeMessage;
 import technology.rocketjump.mountaincore.persistence.UserPreferences;
 import technology.rocketjump.mountaincore.rendering.DebugRenderingOptions;
@@ -87,6 +90,12 @@ public class GameWorldInputHandler implements InputProcessor, GameContextAware, 
 		keyUpActions.put(CommandName.GAME_SPEED_FASTER, () -> messageDispatcher.dispatchMessage(MessageType.SET_GAME_SPEED, GameSpeed.SPEED3));
 		keyUpActions.put(CommandName.GAME_SPEED_FASTEST, () -> messageDispatcher.dispatchMessage(MessageType.SET_GAME_SPEED, GameSpeed.SPEED4));
 		keyUpActions.put(CommandName.ROTATE, () -> messageDispatcher.dispatchMessage(MessageType.ROTATE_FURNITURE));
+		keyUpActions.put(CommandName.OPEN_ORDERS, () -> openMenu(GuiViewName.ORDER_SELECTION, GameViewMode.DEFAULT));
+		keyUpActions.put(CommandName.OPEN_CONSTRUCTION, () -> openMenu(GuiViewName.CONSTRUCTION_MENU, GameViewMode.DEFAULT));
+		keyUpActions.put(CommandName.OPEN_ROOMS, () -> openMenu(GuiViewName.ROOM_SELECTION, GameViewMode.DEFAULT));
+		keyUpActions.put(CommandName.OPEN_PRIORITY, () -> openMenu(GuiViewName.PRIORITY_MENU, GameViewMode.JOB_PRIORITY));
+		keyUpActions.put(CommandName.ORDER_MINE, () -> startOrder(GameInteractionMode.DESIGNATE_MINING));
+		keyUpActions.put(CommandName.ORDER_CANCEL, () -> startOrder(GameInteractionMode.CANCEL));
 
 		DebugRenderingOptions debug = renderingOptions.debug();
 		if (GlobalSettings.DEV_MODE) {
@@ -114,6 +123,16 @@ public class GameWorldInputHandler implements InputProcessor, GameContextAware, 
 			keyUpActions.put(CommandName.DEBUG_RETRIEVE_CAMERA_POSITION, () -> messageDispatcher.dispatchMessage(MessageType.RETRIEVE_CAMERA_POSITION));
 		}
 		return keyUpActions;
+	}
+
+	private void startOrder(GameInteractionMode interactionMode) {
+		openMenu(GuiViewName.ORDER_SELECTION, GameViewMode.DEFAULT);
+		messageDispatcher.dispatchMessage(MessageType.GUI_SWITCH_INTERACTION_MODE, interactionMode);
+	}
+
+	private void openMenu(GuiViewName view, GameViewMode viewMode) {
+		messageDispatcher.dispatchMessage(MessageType.GUI_SWITCH_VIEW, view);
+		messageDispatcher.dispatchMessage(MessageType.GUI_SWITCH_VIEW_MODE, viewMode);
 	}
 
 	@Override
