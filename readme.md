@@ -1,9 +1,26 @@
-# Mountaincore
+# Deephall
 
-Mountaincore was developed by Rocket Jump Technology, and has now been released as open-source under the very permissive MIT license.
+Deephall is a settlement-building game about a small dwarven colony in the
+mountains, being reworked for Android phones. A PC release may follow later.
 
-[You can play it for free on Steam!](https://store.steampowered.com/app/2370310/Mountaincore/)
+It is a fork of [Mountaincore](https://github.com/rossturner/mountaincore) by
+Rocket Jump Technology, which was released as open source under the MIT license.
+Deephall is an independent project and is not affiliated with Rocket Jump
+Technology.
 
+## What is different
+
+- Pacing made for a phone: newcomers arrive one at a time, and raids start early
+- A trade road: caravans and raiders use the same way in, so a sealed
+  settlement has consequences
+- A rewritten Russian translation
+- Many fixes for settlers, kitchens, pathfinding and performance
+- A larger interface for small screens
+
+## Status
+
+In development, with no public release yet. On Android the game currently runs
+through our own launcher, DeepDroid. A standalone version is planned.
 ## Credits
 
 Many of the gameplay and performance fixes in this fork come from Augustin ([gusasas](https://github.com/gusasas)) and the `bugfixes` branch of [MountainCorePatches.](https://github.com/gusasas/MountainCorePatches./tree/bugfixes), used under the MIT license.
