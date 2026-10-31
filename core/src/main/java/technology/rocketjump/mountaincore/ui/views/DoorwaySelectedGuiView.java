@@ -10,6 +10,7 @@ import technology.rocketjump.mountaincore.entities.model.physical.creature.RaceD
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemTypeDictionary;
 import technology.rocketjump.mountaincore.jobs.JobStore;
 import technology.rocketjump.mountaincore.jobs.JobTypeDictionary;
+import technology.rocketjump.mountaincore.jobs.WorkerAvailability;
 import technology.rocketjump.mountaincore.materials.GameMaterialDictionary;
 import technology.rocketjump.mountaincore.production.StockpileComponentUpdater;
 import technology.rocketjump.mountaincore.production.StockpileGroupDictionary;
@@ -39,12 +40,13 @@ public class DoorwaySelectedGuiView extends EntitySelectedGuiView {
 								  ItemTypeDictionary itemTypeDictionary, SoundAssetDictionary soundAssetDictionary,
 								  SettlerManagementScreen settlerManagementScreen, CraftingHintWidgetFactory craftingHintWidgetFactory,
 								  ProductionImportFurnitureWidget productionImportFurnitureWidget,
-								  ProductionExportFurnitureWidget productionExportFurnitureWidget) {
+								  ProductionExportFurnitureWidget productionExportFurnitureWidget,
+								  WorkerAvailability workerAvailability) {
 
 		super(guiSkinRepository, messageDispatcher, i18nTranslator, gameInteractionStateContainer, entityStore, jobStore, jobTypeDictionary, tooltipFactory,
 				productionImportFurnitureWidget, productionExportFurnitureWidget,
 				decoratedStringLabelFactory, entityRenderer, buttonFactory, craftingHintWidgetFactory, stockpileComponentUpdater, stockpileGroupDictionary, gameMaterialDictionary,
-				raceDictionary, itemTypeDictionary, soundAssetDictionary, settlerManagementScreen);
+				raceDictionary, itemTypeDictionary, soundAssetDictionary, settlerManagementScreen, workerAvailability);
 	}
 
 	@Override

@@ -21,7 +21,10 @@ public enum NotificationType {
 	CARAVAN_BLOCKED("NOTIF_TRADING_CARAVAN.png", null),
 	CARAVAN_LEFT("NOTIF_TRADING_CARAVAN.png", null),
 	GAME_OVER("NOTIF_GAME_OVER.png", null),
-	SETTLER_STUCK("NOTIF_DWARF_STUCK.png", null);
+	SETTLER_STUCK("NOTIF_DWARF_STUCK.png", null),
+	WORKER_MISSING("NOTIF_DWARF_STUCK.png", null),
+	WORKER_IN_SQUAD("NOTIF_DWARF_STUCK.png", null),
+	TOOL_MISSING("NOTIF_DWARF_STUCK.png", null);
 
 
 	private String imageFilename;

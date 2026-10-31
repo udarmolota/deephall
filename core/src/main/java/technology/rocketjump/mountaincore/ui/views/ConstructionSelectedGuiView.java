@@ -10,6 +10,8 @@ import technology.rocketjump.mountaincore.audio.model.SoundAssetDictionary;
 import technology.rocketjump.mountaincore.entities.model.physical.PhysicalEntityComponent;
 import technology.rocketjump.mountaincore.entities.model.physical.furniture.FurnitureEntityAttributes;
 import technology.rocketjump.mountaincore.entities.tags.CraftingStationBehaviourTag;
+import technology.rocketjump.mountaincore.jobs.WorkerAvailability;
+import technology.rocketjump.mountaincore.jobs.model.Job;
 import technology.rocketjump.mountaincore.messaging.MessageType;
 import technology.rocketjump.mountaincore.rooms.constructions.Construction;
 import technology.rocketjump.mountaincore.rooms.constructions.FurnitureConstruction;
@@ -41,12 +43,13 @@ public class ConstructionSelectedGuiView implements GuiView, DisplaysText {
 	private final ConstructionRequirementsWidget constructionRequirementsWidget;
 	private final SoundAssetDictionary soundAssetDictionary;
 	private final ButtonFactory buttonFactory;
+	private final WorkerAvailability workerAvailability;
 
 	@Inject
 	public ConstructionSelectedGuiView(GuiSkinRepository guiSkinRepository, GameInteractionStateContainer interactionStateContainer,
 									   MessageDispatcher messageDispatcher, TooltipFactory tooltipFactory, I18nTranslator i18nTranslator,
 									   ConstructionRequirementsWidget constructionRequirementsWidget, SoundAssetDictionary soundAssetDictionary,
-									   ButtonFactory buttonFactory) {
+									   ButtonFactory buttonFactory, WorkerAvailability workerAvailability) {
 		this.skin = guiSkinRepository.getMainGameSkin();
 		this.interactionStateContainer = interactionStateContainer;
 		this.messageDispatcher = messageDispatcher;
@@ -55,6 +58,7 @@ public class ConstructionSelectedGuiView implements GuiView, DisplaysText {
 		this.constructionRequirementsWidget = constructionRequirementsWidget;
 		this.soundAssetDictionary = soundAssetDictionary;
 		this.buttonFactory = buttonFactory;
+		this.workerAvailability = workerAvailability;
 
 		mainTable = new Table();
 		mainTable.setTouchable(Touchable.enabled);
@@ -123,6 +127,14 @@ public class ConstructionSelectedGuiView implements GuiView, DisplaysText {
 			Label descriptionLabel = new Label(description.toString(), skin.get("default-red", Label.LabelStyle.class));
 			descriptionTable.add(descriptionLabel).center().row();
 		});
+
+		Job constructionJob = selectedConstruction.getConstructionJob();
+		if (constructionJob != null) {
+			workerAvailability.check(constructionJob).ifPresent(shortage -> {
+				Label shortageLabel = new Label(workerAvailability.describe(shortage, i18nTranslator).toString(), skin.get("default-red", Label.LabelStyle.class));
+				descriptionTable.add(shortageLabel).center().row();
+			});
+		}
 	}
 
 	@Override

@@ -45,6 +45,7 @@ import technology.rocketjump.mountaincore.environment.model.GameSpeed;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
 import technology.rocketjump.mountaincore.jobs.JobStore;
+import technology.rocketjump.mountaincore.jobs.WorkerAvailability;
 import technology.rocketjump.mountaincore.jobs.JobTypeDictionary;
 import technology.rocketjump.mountaincore.jobs.model.Job;
 import technology.rocketjump.mountaincore.jobs.model.JobType;
@@ -130,6 +131,7 @@ public class EntitySelectedGuiView implements GuiView, GameContextAware {
 	private final GameMaterialDictionary gameMaterialDictionary;
 	private final RaceDictionary raceDictionary;
 	private final ItemTypeDictionary itemTypeDictionary;
+	private final WorkerAvailability workerAvailability;
 
 	@Inject
 	public EntitySelectedGuiView(GuiSkinRepository guiSkinRepository, MessageDispatcher messageDispatcher, I18nTranslator i18nTranslator,
@@ -143,7 +145,8 @@ public class EntitySelectedGuiView implements GuiView, GameContextAware {
 	                             StockpileComponentUpdater stockpileComponentUpdater,
 	                             StockpileGroupDictionary stockpileGroupDictionary,
 	                             GameMaterialDictionary gameMaterialDictionary, RaceDictionary raceDictionary,
-	                             ItemTypeDictionary itemTypeDictionary, SoundAssetDictionary soundAssetDictionary, SettlerManagementScreen settlerManagementScreen) {
+	                             ItemTypeDictionary itemTypeDictionary, SoundAssetDictionary soundAssetDictionary, SettlerManagementScreen settlerManagementScreen,
+	                             WorkerAvailability workerAvailability) {
 		this.mainGameSkin = guiSkinRepository.getMainGameSkin();
 		this.managementSkin = guiSkinRepository.getManagementSkin();
 		this.menuSkin = guiSkinRepository.getMenuSkin();
@@ -165,6 +168,7 @@ public class EntitySelectedGuiView implements GuiView, GameContextAware {
 		this.raceDictionary = raceDictionary;
 		this.itemTypeDictionary = itemTypeDictionary;
 		this.soundAssetDictionary = soundAssetDictionary;
+		this.workerAvailability = workerAvailability;
 
 		haulingJobType = jobTypeDictionary.getByName("HAULING");
 		this.settlerManagementScreen = settlerManagementScreen;
@@ -613,6 +617,10 @@ public class EntitySelectedGuiView implements GuiView, GameContextAware {
 				}
 				if (furniture.isDestroyed()) {
 					descriptions.add(i18nTranslator.getTranslatedString(furniture.getDestructionCause().i18nKey).toString());
+				}
+				if (entity.getBehaviourComponent() instanceof CraftingStationBehaviour craftingStation && craftingStation.getCraftingType() != null) {
+					workerAvailability.check(craftingStation.getCraftingType().getProfessionRequired(), null, null)
+							.ifPresent(shortage -> descriptions.add(workerAvailability.describe(shortage, i18nTranslator).toString()));
 				}
 			}
 

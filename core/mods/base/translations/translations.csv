@@ -1024,6 +1024,15 @@ NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration
 NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off."
 NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through
+NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool}}, and there is none. Craft one or buy one from a caravan."
+NOTIFICATION.TOOL_MISSING.TITLE,,No free tool
+NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else."
+NOTIFICATION.WORKER_IN_SQUAD.TITLE,,The worker is in a squad
+NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: nobody in the settlement has the {{profession}} profession. Give it to a settler.
+NOTIFICATION.WORKER_MISSING.TITLE,,Nobody to do the work
+WORKER_SHORTAGE.IN_SQUAD,,The {{profession}} is in a squad and does not work
+WORKER_SHORTAGE.NO_TOOL,,No free tool: {{tool}}
+WORKER_SHORTAGE.NO_WORKER,,No worker with the {{profession}} profession
 NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.
 NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}."
