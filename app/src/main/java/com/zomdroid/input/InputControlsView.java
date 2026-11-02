@@ -64,6 +64,20 @@ public class InputControlsView extends View {
 
     private ElementSettingsController elementSettingsController;
 
+    // Holding the overlay button arranges the controls in the game itself, without the editor:
+    // drag any of them, then tap the overlay button again to keep the new places.
+    private static final long ARRANGE_HOLD_MS = 600;
+    private boolean isArranging = false;
+    private boolean overlayHoldFired = false;
+    private AbstractControlElement arrangedElement;
+    private float arrangeDownX, arrangeDownY, arrangeLastX, arrangeLastY;
+    private boolean arrangeMoved;
+    private final Runnable enterArrangeMode = () -> {
+        overlayHoldFired = true;
+        setArranging(true);
+        performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+    };
+
     public InputControlsView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
@@ -187,6 +201,10 @@ public class InputControlsView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+        if (isArranging) {
+            handleArrangeTouch(e);
+            return true;
+        }
         if (isEditMode) {
             /* this is here and not in gesture detector because longpressEnabled should be set before
             detector processes motion event */
@@ -531,6 +549,74 @@ public class InputControlsView extends View {
             replaceControlsFromJson(json, persist);
         } catch (IOException e) {
             Log.d(LOG_TAG, "replaceControlsFromAsset failed: " + e);
+        }
+    }
+
+    void overlayButtonPressed() {
+        overlayHoldFired = false;
+        removeCallbacks(enterArrangeMode);
+        postDelayed(enterArrangeMode, ARRANGE_HOLD_MS);
+    }
+
+    void overlayButtonReleased() {
+        removeCallbacks(enterArrangeMode);
+        if (!overlayHoldFired) {
+            toggleOverlayVisibility();
+        }
+    }
+
+    private void setArranging(boolean arranging) {
+        isArranging = arranging;
+        arrangedElement = null;
+        for (AbstractControlElement element : controlElements) {
+            element.setHighlighted(arranging);
+        }
+        if (!arranging) {
+            saveControlElementsToDisk();
+        }
+        invalidate();
+    }
+
+    private void handleArrangeTouch(MotionEvent e) {
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN: {
+                float x = e.getX(), y = e.getY();
+                arrangedElement = null;
+                // Topmost first, the same order the controls are drawn in reverse
+                for (int i = controlElements.size() - 1; i >= 0; i--) {
+                    AbstractControlElement element = controlElements.get(i);
+                    if (element.isVisible() && element.isPointOver(x, y)) {
+                        arrangedElement = element;
+                        break;
+                    }
+                }
+                arrangeDownX = arrangeLastX = x;
+                arrangeDownY = arrangeLastY = y;
+                arrangeMoved = false;
+                break;
+            }
+            case MotionEvent.ACTION_MOVE: {
+                if (arrangedElement == null) break;
+                float x = e.getX(0), y = e.getY(0);
+                arrangedElement.moveCenterPosition(x - arrangeLastX, y - arrangeLastY);
+                arrangeLastX = x;
+                arrangeLastY = y;
+                float slop = android.view.ViewConfiguration.get(getContext()).getScaledTouchSlop();
+                if (Math.hypot(x - arrangeDownX, y - arrangeDownY) > slop) {
+                    arrangeMoved = true;
+                }
+                break;
+            }
+            case MotionEvent.ACTION_UP: {
+                if (arrangedElement != null && !arrangeMoved && isOverlayToggleElement(arrangedElement)) {
+                    setArranging(false);
+                }
+                arrangedElement = null;
+                break;
+            }
+            case MotionEvent.ACTION_CANCEL:
+                arrangedElement = null;
+                break;
         }
     }
 

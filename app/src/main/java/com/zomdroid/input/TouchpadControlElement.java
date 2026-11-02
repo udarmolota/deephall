@@ -283,10 +283,6 @@ public class TouchpadControlElement extends AbstractControlElement {
             rimPaint.setAlpha(alpha);
             rimPaint.setStrokeWidth(STROKE_WIDTH_DP * parentView.pixelScale);
             canvas.drawRoundRect(rect, cr, cr, rimPaint);
-            float textSize = 28f * parentView.pixelScale * scale;
-            textPaint.setTextSize(textSize);
-            textPaint.setAlpha(Math.min(255, alpha + 60));
-            canvas.drawText("TOUCH", centerX, centerY + textSize * 0.35f, textPaint);
         }
 
         void setColor(int c) { color=c; fillPaint.setColor(c); rimPaint.setColor(c); textPaint.setColor(c); }

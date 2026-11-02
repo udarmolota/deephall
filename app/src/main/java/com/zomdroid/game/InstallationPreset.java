@@ -9,16 +9,11 @@ public class InstallationPreset {
     public final String[] extraJars;
     public final String[] libraryPathArray;
     public final String[] libraryPathForEmulationArray;
-    public final String fmodLibraryPath;
     public final String[] extraJvmArgs;
     public final String[] args;
     public final String mainClassName;
-    public final String javaAgentPath;
-    public final String javaAgentArgs;
     /** A file inside the game directory whose presence means the game is installed. */
     public final String gameFileMarker;
-    /** Games that are not Project Zomboid skip the workarounds written for its code. */
-    public final boolean projectZomboid;
 
     private InstallationPreset(Builder builder) {
         this.name = builder.name;
@@ -27,14 +22,10 @@ public class InstallationPreset {
         this.extraJars = builder.extraJars;
         this.libraryPathArray = builder.libraryPathArray;
         this.libraryPathForEmulationArray = builder.libraryPathForEmulationArray;
-        this.fmodLibraryPath = builder.fmodLibraryPath;
         this.extraJvmArgs = builder.extraJvmArgs;
         this.args = builder.args;
         this.mainClassName = builder.mainClassName;
-        this.javaAgentPath = builder.javaAgentPath;
-        this.javaAgentArgs = builder.javaAgentArgs;
         this.gameFileMarker = builder.gameFileMarker;
-        this.projectZomboid = builder.projectZomboid;
     }
 
     @NonNull
@@ -50,14 +41,10 @@ public class InstallationPreset {
         private String[] extraJars = new String[0];
         private String[] libraryPathArray = new String[0];
         private String[] libraryPathForEmulationArray = new String[0];
-        private String fmodLibraryPath = "";
         private String[] extraJvmArgs = new String[0];
         private String[] args = new String[0];
         private String mainClassName = "";
-        private String javaAgentPath = "";
-        private String javaAgentArgs = "";
         private String gameFileMarker = "";
-        private boolean projectZomboid = true;
 
         public Builder setName(String name) {
             this.name = name;
@@ -89,11 +76,6 @@ public class InstallationPreset {
             return this;
         }
 
-        public Builder setFmodLibraryPath(String fmodLibraryPath) {
-            this.fmodLibraryPath = fmodLibraryPath;
-            return this;
-        }
-
         public Builder setExtraJvmArgs(String[] extraJvmArgs) {
             this.extraJvmArgs = extraJvmArgs;
             return this;
@@ -109,23 +91,8 @@ public class InstallationPreset {
             return this;
         }
 
-        public Builder setJavaAgentPath(String javaAgentPath) {
-            this.javaAgentPath = javaAgentPath;
-            return this;
-        }
-
-        public Builder setJavaAgentArgs(String javaAgentArgs) {
-            this.javaAgentArgs = javaAgentArgs;
-            return this;
-        }
-
         public Builder setGameFileMarker(String gameFileMarker) {
             this.gameFileMarker = gameFileMarker;
-            return this;
-        }
-
-        public Builder setProjectZomboid(boolean projectZomboid) {
-            this.projectZomboid = projectZomboid;
             return this;
         }
 

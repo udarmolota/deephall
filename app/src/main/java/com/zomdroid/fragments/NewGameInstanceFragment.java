@@ -34,8 +34,6 @@ import com.zomdroid.game.GameInstance;
 import com.zomdroid.game.InstallationPreset;
 import com.zomdroid.game.GameInstanceManager;
 import com.zomdroid.game.PresetManager;
-import com.zomdroid.gog.GogInstallerExtractor;
-import com.zomdroid.gog.PrefixedZip;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,21 +51,8 @@ public class NewGameInstanceFragment extends Fragment {
 
     private InstallationPreset detectedPreset = null;
 
-    /**
-     * Navigation argument: the absolute path of an archive to install, so the screen opens with the
-     * file already chosen. The GOG downloader hands over the installer it fetched this way, because
-     * the picker below is ZIP-only and most file managers would not show it a bare .sh anyway.
-     */
-    public static final String ARG_PRESELECTED_FILE = "preselected_file";
-
-    // What kind of archive gameFilesZipUri is; InstallerService unpacks each differently.
-    private String archiveKind = GogInstallerExtractor.KIND_GAME_ZIP;
-
-    // URIs for selected ZIP files
+    // URI of the selected game ZIP
     private Uri gameFilesZipUri = null;
-    private Uri nativeLibsZipUri = null;
-    private Uri savesZipUri = null;
-    private Uri modsZipUri = null;
 
     // Launcher for selecting game ZIP
     private final ActivityResultLauncher<String> actionOpenDocumentLauncher =
@@ -77,25 +62,10 @@ public class NewGameInstanceFragment extends Fragment {
                 if (Objects.equals(contentResolver.getType(uri), ZIP_MIME)) {
                     gameFilesZipUri = uri;
                     detectedPreset = null;
-                    archiveKind = GogInstallerExtractor.KIND_GAME_ZIP;
                     binding.newGameInstanceBannerIv.setImageResource(R.drawable.banner_default);
                     String fileName = extractFileName(uri);
                     binding.newGameInstanceFilesPathEt.setText(fileName);
                     detectAndSelectPreset(uri);
-                } else {
-                    Toast.makeText(requireContext(), getString(R.string.game_instance_unsupported_extension), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-    // Launcher for selecting native libs ZIP
-    private final ActivityResultLauncher<String> actionOpenNativeLibsLauncher =
-            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-                if (uri == null) return;
-                ContentResolver contentResolver = requireContext().getContentResolver();
-                if (Objects.equals(contentResolver.getType(uri), ZIP_MIME)) {
-                    nativeLibsZipUri = uri;
-                    String fileName = extractFileName(uri);
-                    binding.newGameInstanceNativeLibsPathEt.setText(fileName);
                 } else {
                     Toast.makeText(requireContext(), getString(R.string.game_instance_unsupported_extension), Toast.LENGTH_SHORT).show();
                 }
@@ -161,17 +131,6 @@ public class NewGameInstanceFragment extends Fragment {
                     .show();
         });
 
-        // Help button for native libs
-        binding.newGameInstanceNativeLibsHelpIb.setOnClickListener(v -> {
-            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                    .setTitle(R.string.native_libs_dialog_title)
-                    .setMessage(R.string.native_libs_dialog_message)
-                    .setPositiveButton(R.string.dialog_button_ok, null)
-                    .setNeutralButton(R.string.dialog_button_wiki, (dialog, which) ->
-                            Navigation.findNavController(v).navigate(R.id.wiki_fragment, WikiFragment.section("native-libraries")))
-                    .show();
-        });
-
         // This used to be a shortcut to the JVM arguments block, on the reasoning that the
         // arguments were global and could therefore be set before the instance existed. They are
         // per-instance now, so there is nothing here for it to point at: the instance being
@@ -183,24 +142,6 @@ public class NewGameInstanceFragment extends Fragment {
         // Browse button for game ZIP
         binding.newGameInstanceFilesBrowseIb.setOnClickListener(v ->
                 actionOpenDocumentLauncher.launch(ZIP_MIME));
-
-        // Browse button for native libs ZIP
-        binding.newGameInstanceNativeLibsBrowseIb.setOnClickListener(v ->
-                actionOpenNativeLibsLauncher.launch(ZIP_MIME));
-
-        // Opened with the file already chosen (see ARG_PRESELECTED_FILE). A path of our own never
-        // goes through the picker, so its ZIP-only rule does not apply; detection reads the
-        // installer in place.
-        String preselected = getArguments() == null ? null : getArguments().getString(ARG_PRESELECTED_FILE);
-        if (preselected != null) {
-            File chosen = new File(preselected);
-            if (chosen.isFile()) {
-                gameFilesZipUri = Uri.fromFile(chosen);
-                detectedPreset = null;
-                binding.newGameInstanceFilesPathEt.setText(chosen.getName());
-                detectAndSelectPreset(gameFilesZipUri);
-            }
-        }
 
         // Create button
         binding.newGameInstanceCreateBtn.setOnClickListener(v -> {
@@ -278,16 +219,6 @@ public class NewGameInstanceFragment extends Fragment {
         installerIntent.putExtra(InstallerService.EXTRA_ARCHIVE_URI, gameFilesZipUri);
         installerIntent.putExtra(InstallerService.EXTRA_INSTALL_PRESET_NAME, selectedPreset.name);
         installerIntent.putExtra(InstallerService.EXTRA_GPU_VENDOR, gpu.name());
-        installerIntent.putExtra(InstallerService.EXTRA_ARCHIVE_KIND, archiveKind);
-        if (nativeLibsZipUri != null) {
-            installerIntent.putExtra(InstallerService.EXTRA_NATIVE_LIBS_URI, nativeLibsZipUri);
-        }
-        if (savesZipUri != null) {
-            installerIntent.putExtra(InstallerService.EXTRA_SAVES_URI, savesZipUri);
-        }
-        if (modsZipUri != null) {
-            installerIntent.putExtra(InstallerService.EXTRA_MODS_URI, modsZipUri);
-        }
 
         // Start the service before navigating: returning to the launcher immediately fires its
         // dependency re-check, and the install must already own the service by then.
@@ -321,7 +252,7 @@ public class NewGameInstanceFragment extends Fragment {
         return fileName;
     }    
 
-    // Scans the archive in a background thread and records what it found: preset, kind, banner.
+    // Scans the archive in a background thread and records what it found: preset and banner.
     // This is a UX convenience (early banner); the Create button detects as a fallback.
     private void detectAndSelectPreset(Uri zipUri) {
         Context ctx = requireContext().getApplicationContext();
@@ -335,15 +266,11 @@ public class NewGameInstanceFragment extends Fragment {
         }).start();
     }
 
-    // Records a detection. A ZIP of GOG installers keeps the default banner: which build is inside
-    // is only known once the installer is unpacked, and the placeholder preset would mislead.
     private void apply(Detection detection) {
         detectedPreset = detection.preset;
-        archiveKind = detection.archiveKind;
         FragmentNewGameInstanceBinding b = binding;
         if (b == null) return;
-        b.newGameInstanceBannerIv.setImageResource(GogInstallerExtractor.KIND_BUNDLE.equals(detection.archiveKind)
-                ? R.drawable.banner_default : bannerForPreset(detection.preset));
+        b.newGameInstanceBannerIv.setImageResource(bannerForPreset(detection.preset));
     }
 
     private int bannerForPreset(InstallationPreset preset) {
@@ -357,40 +284,26 @@ public class NewGameInstanceFragment extends Fragment {
     /** What the archive turned out to be. */
     private static final class Detection {
         final InstallationPreset preset;
-        final String archiveKind;
 
-        Detection(InstallationPreset preset, String archiveKind) {
+        Detection(InstallationPreset preset) {
             this.preset = preset;
-            this.archiveKind = archiveKind;
         }
     }
 
     // Reads only the archive's central directory - the index at its end, a few hundred KB whatever
     // the archive size - through a seekable file descriptor, and picks the preset from the entry
-    // names (PresetManager holds the rules). A bare GOG installer is a ZIP behind a shell script,
-    // which PrefixedZip reads in place. A ZIP holding nothing but installers cannot say which build
-    // is inside: it gets Build 41 as a placeholder, and InstallerService picks the real preset from
-    // the extracted files. Returns null if the archive cannot be read (e.g. a non-seekable provider).
+    // names (PresetManager holds the rules). Returns null if the archive cannot be read (e.g. a
+    // non-seekable provider) or holds no game the launcher knows.
     private Detection detect(Context ctx, Uri uri) {
         long t0 = System.currentTimeMillis();
         List<String> names = entryNames(ctx, uri);
         if (names == null) return null;
-        String kind = GogInstallerExtractor.KIND_GAME_ZIP;
-        int idx;
-        if (isFileUri(uri) && GogInstallerExtractor.isMakeselfInstaller(new File(uri.getPath()))) {
-            kind = GogInstallerExtractor.KIND_INSTALLER;
-            idx = PresetManager.detectPresetIndex(names);
-        } else if (GogInstallerExtractor.isInstallerBundle(names)) {
-            kind = GogInstallerExtractor.KIND_BUNDLE;
-            idx = PresetManager.PRESET_BUILD_41;
-        } else {
-            idx = PresetManager.detectPresetIndex(names);
-        }
-        android.util.Log.i("PresetDetect", "detect: idx=" + idx + " kind=" + kind + " entries=" + names.size()
+        int idx = PresetManager.detectPresetIndex(names);
+        android.util.Log.i("PresetDetect", "detect: idx=" + idx + " entries=" + names.size()
                 + " took=" + (System.currentTimeMillis() - t0) + "ms");
         List<InstallationPreset> presets = PresetManager.getPresets();
         if (idx < 0 || idx >= presets.size()) return null;
-        return new Detection(presets.get(idx), kind);
+        return new Detection(presets.get(idx));
     }
 
     // The entry names of the archive behind uri, or null if it cannot be read as a ZIP.
@@ -407,7 +320,7 @@ public class NewGameInstanceFragment extends Fragment {
         java.nio.channels.FileChannel ch = new ParcelFileDescriptor.AutoCloseInputStream(pfd).getChannel();
         boolean handedOver = false;
         try {
-            ZipFile zf = PrefixedZip.open(ch);
+            ZipFile zf = ZipFile.builder().setSeekableByteChannel(ch).get();
             handedOver = true;
             try (ZipFile archive = zf) {
                 List<String> names = new ArrayList<>();

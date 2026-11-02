@@ -199,73 +199,8 @@
 
                     </LinearLayout>
 
-                    <!-- Native libs -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="4dp">
-
-                        <TextView
-                            android:id="@+id/new_game_instance_native_libs_tv"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
-                            android:text="@string/game_instance_native_libs_label"/>
-
-                        <ImageButton
-                            style="@style/AppTheme.ImageButton"
-                            android:id="@+id/new_game_instance_native_libs_help_ib"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_marginStart="4dp"
-                            android:scaleType="fitCenter"
-                            android:adjustViewBounds="true"
-                            android:src="@drawable/mt_icon_help"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <EditText
-                            android:id="@+id/new_game_instance_native_libs_path_et"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textSize="13sp"
-                            android:hint="@string/game_instance_no_file_selected"
-                            android:enabled="false"
-                            android:focusable="false"
-                            android:inputType="none"/>
-
-                        <ImageButton
-                            style="@style/AppTheme.ImageButton"
-                            android:id="@+id/new_game_instance_native_libs_browse_ib"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/mt_icon_folder_open"/>
-
-                    </LinearLayout>
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Build 42 needs tuned JVM arguments; point at the button that applies them. -->
-            <TextView
-                android:id="@+id/new_game_instance_b42_jvm_hint_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="4dp"
-                android:text="@string/new_game_instance_b42_jvm_hint"
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textSize="12sp"/>
 
             <TextView
                 android:id="@+id/new_game_instance_open_settings_tv"

@@ -50,6 +50,11 @@ public class ControlElementDescription {
      * fills absent booleans with false.
      */
     public final boolean tapDisabled;
+    /**
+     * Buttons only: colour of the contour alone, so the icon and the glass fill can stay white.
+     * 0 means the contour uses {@link #color}, which is what every layout saved before had.
+     */
+    public int outlineColor;
 
     public static final float DEFAULT_SENSITIVITY = 2.0f;
     public static final Style DEFAULT_STYLE = Style.OUTLINE;

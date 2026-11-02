@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RectShape;
+import android.graphics.drawable.shapes.RoundRectShape;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 import android.util.Log;
@@ -57,8 +58,11 @@ public class ButtonControlElement extends AbstractControlElement {
     private void dispatchEvent(boolean isPressed) {
         for (GLFWBinding binding : bindings) {
             if (binding == GLFWBinding.UI_TOGGLE_OVERLAY) {
+                // A tap hides or shows the controls, a hold lets them be arranged in the game
                 if (isPressed) {
-                    parentView.toggleOverlayVisibility();
+                    parentView.overlayButtonPressed();
+                } else {
+                    parentView.overlayButtonReleased();
                 }
                 return; // важно: не отправлять дальше ни MNK, ни GAMEPAD
             }
@@ -277,10 +281,10 @@ public class ButtonControlElement extends AbstractControlElement {
 
     @Override
     public ControlElementDescription describe() {
-        return new ControlElementDescription(
+        ControlElementDescription description = new ControlElementDescription(
                 this.drawable.centerX / this.parentView.getWidth(),
                 this.drawable.centerY / this.parentView.getHeight(),
-                this.drawable.scale, this.drawable.shapeDrawable.getShape().getClass() == RectShape.class ? Type.BUTTON_RECT : Type.BUTTON_CIRCLE,
+                this.drawable.scale, this.drawable.type,
                 this.bindings.toArray(new GLFWBinding[0]), this.drawable.text, this.drawable.color,
                 this.drawable.alpha,
                 this.inputType,
@@ -291,6 +295,8 @@ public class ButtonControlElement extends AbstractControlElement {
                 this.drawable.iconFile,
                 this.drawable.noTint,
                 false);
+        description.outlineColor = this.drawable.outlineColor;
+        return description;
     }
 
     public class ButtonControlDrawable {
@@ -302,6 +308,7 @@ public class ButtonControlElement extends AbstractControlElement {
         private static final float BUTTON_CIRCLE_DIAMETER = 160.f;
         private static final float BUTTON_RECT_WIDTH = 240.f;
         private static final float BUTTON_RECT_HEIGHT = 120.f;
+        private static final float RECT_CORNER_K = 0.15f;
 
         private final Type type;
         private int color;
@@ -323,9 +330,11 @@ public class ButtonControlElement extends AbstractControlElement {
         private ControlElementDescription.Style style;
         private String iconFile;      // user image filename in controls/icons, or null
         private boolean noTint;       // keep custom image original colors when true
+        private int outlineColor;     // contour colour, 0 = the button colour
 
         public ButtonControlDrawable(InputControlsView parent, ControlElementDescription description) {
             this.type = description.type;
+            this.outlineColor = description.outlineColor;
 
             setColor(description.color);
             setAlpha(description.alpha);
@@ -417,7 +426,7 @@ public class ButtonControlElement extends AbstractControlElement {
 
             // --- Normal pass (contour). When toggled ON, draw the contour in the attention
             //     color and a bit thicker — this is the ON indicator for OUTLINE style. ---
-            p.setColor(toggledOn ? TOGGLE_ON_COLOR : oldColor);
+            p.setColor(toggledOn ? TOGGLE_ON_COLOR : (this.outlineColor != 0 ? this.outlineColor : oldColor));
             p.setAlpha(oldAlpha);
             p.setStrokeWidth(toggledOn ? oldStroke * 1.7f : oldStroke);
             p.setColorFilter(toggledOn ? null : oldFilter);
@@ -587,6 +596,9 @@ public class ButtonControlElement extends AbstractControlElement {
                 case BUTTON_RECT:
                     this.width = BUTTON_RECT_WIDTH * parentView.pixelScale * this.scale;
                     this.height = BUTTON_RECT_HEIGHT * parentView.pixelScale * this.scale;
+                    // Rounded corners, as in StormDroid; the radius follows the height so every size looks alike
+                    float r = this.height * RECT_CORNER_K;
+                    this.shapeDrawable.setShape(new RoundRectShape(new float[] { r, r, r, r, r, r, r, r }, null, null));
                     break;
 
             }

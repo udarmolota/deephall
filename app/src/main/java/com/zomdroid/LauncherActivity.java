@@ -103,11 +103,7 @@ public class LauncherActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.launcherNv, navController);
 
         binding.launcherNv.setNavigationItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.action_game_settings) {
-                binding.drawerLayout.close();
-                navController.navigate(R.id.action_game_settings);
-                return true;
-            } else if (item.getItemId() == R.id.action_open_controls_editor) {
+            if (item.getItemId() == R.id.action_open_controls_editor) {
                 //Intent intent = new Intent(this, ControlsEditorActivity.class);
                 //startActivity(intent);
                 binding.drawerLayout.close();
@@ -118,26 +114,9 @@ public class LauncherActivity extends AppCompatActivity {
                 binding.drawerLayout.close();
                 navController.navigate(R.id.action_open_gamepad_mapper);
                 return true;
-            } else if (item.getItemId() == R.id.action_open_install_mod) {
-                // Navigate to Mod installation
-                binding.drawerLayout.close();
-                navController.navigate(R.id.action_open_install_mod);
-                return true;
             } else if (item.getItemId() == R.id.action_install_controls) {
                 binding.drawerLayout.close();
                 navController.navigate(R.id.action_install_controls);
-                return true;
-            } else if (item.getItemId() == R.id.action_open_optimization) {
-                binding.drawerLayout.close();
-                navController.navigate(R.id.action_open_optimization);
-                return true;
-            } else if (item.getItemId() == R.id.action_download_steam) {
-                binding.drawerLayout.close();
-                navController.navigate(R.id.action_download_steam);
-                return true;
-            } else if (item.getItemId() == R.id.action_download_gog) {
-                binding.drawerLayout.close();
-                navController.navigate(R.id.action_download_gog);
                 return true;
             } else if (item.getItemId() == R.id.action_bug_report) {
                 binding.drawerLayout.close();

@@ -27,11 +27,6 @@
             android:icon="@drawable/ic_controls"
             app:showAsAction="never"/>
         <item
-            android:id="@+id/action_install_saves"
-            android:title="@string/install_saves_menu"
-            android:icon="@drawable/mt_icon_save"
-            app:showAsAction="never"/>
-        <item
             android:id="@+id/action_install_driver"
             android:title="@string/install_driver_menu"
             android:icon="@drawable/mt_icon_driver"
@@ -45,40 +40,6 @@
             android:id="@+id/action_bug_report"
             android:title="@string/nav_bug_report"
             android:icon="@drawable/ic_bug_report"
-            app:showAsAction="never"/>
-        <item
-            android:id="@+id/action_game_settings"
-            android:title="@string/game_settings_menu"
-            android:icon="@drawable/mt_icon_settings"
-            app:showAsAction="never"/>
-    </group>
-
-    <group android:id="@+id/group_steam" android:checkableBehavior="none">
-        <item
-            android:id="@+id/action_download_steam"
-            android:title="@string/steam_dl_menu"
-            android:icon="@drawable/ic_steam"
-            app:showAsAction="never"/>
-        <item
-            android:id="@+id/action_download_gog"
-            android:title="@string/gog_dl_menu"
-            android:icon="@drawable/ic_gog"
-            app:showAsAction="never"/>
-    </group>
-
-    <group android:id="@+id/group_mods" android:checkableBehavior="none">
-        <item
-            android:id="@+id/action_open_install_mod"
-            android:title="@string/nav_menu_install_mod"
-            android:icon="@drawable/ic_mods"
-            app:showAsAction="never"/>
-    </group>
-
-    <group android:id="@+id/group_android" android:checkableBehavior="none">
-        <item
-            android:id="@+id/action_open_optimization"
-            android:title="@string/nav_menu_optimization"
-            android:icon="@drawable/ic_optimization"
             app:showAsAction="never"/>
     </group>
 

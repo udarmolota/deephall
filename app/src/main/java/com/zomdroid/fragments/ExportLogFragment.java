@@ -202,10 +202,10 @@ public class ExportLogFragment extends Fragment {
             GameInstance selectedInstance = getSelectedInstanceOrNull();
             if (selectedInstance == null) return;
 
-            File consoleFile = new File(selectedInstance.getHomePath() + "/Zomboid/console.txt");
+            File nativeLog = new File(selectedInstance.getGamePath() + "/native.log");
             File launcherLog = new File(AppStorage.requireSingleton().getHomePath() + "/" + CrashHandler.LOG_FILE_NAME);
             File lastLauncherLog = new File(AppStorage.requireSingleton().getHomePath() + "/" + CrashHandler.LAST_LOG_FILE_NAME);
-            if (!consoleFile.exists() && !launcherLog.exists() && !lastLauncherLog.exists()) {
+            if (!nativeLog.exists() && !launcherLog.exists() && !lastLauncherLog.exists()) {
                 Toast.makeText(requireContext(),
                         getString(R.string.export_log_not_found),
                         Toast.LENGTH_LONG).show();

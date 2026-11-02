@@ -19,31 +19,11 @@ public class C {
 
     public static class deps {
         public static final String ROOT = "dependencies";
-        // We keep multiple JRE/LIBS versions side-by-side to support different game builds.
-        // NOTE: This avoids breaking PZ Build 41 when the launcher ships Java 25 for Build 42+.
-        public static final String JRE_ROOT = ROOT + "/jre";
-        public static final String JRE_21 = JRE_ROOT + "21";
-        public static final String JRE_25 = JRE_ROOT + "25";
+        public static final String JRE_21 = ROOT + "/jre21";
         public static final String LIBS = ROOT + "/libs";
-        public static final String JARS = ROOT + "/jars";
         public static final String LIBS_LINUX_X86_64 = LIBS + "/linux-x86_64";
         public static final String LIBS_ANDROID_ARM64_v8a = LIBS + "/android-arm64-v8a";
-        public static final String LIBS_LWJGL_323 = LIBS_ANDROID_ARM64_v8a + "/lwjgl-3.2.3";
         public static final String LIBS_LWJGL_336 = LIBS_ANDROID_ARM64_v8a + "/lwjgl-3.3.6";
-        // Build 42.20 moved to LWJGL 3.4.1. The natives are ours: LWJGL publishes no Android
-        // target and its linux-arm64 binaries are glibc, so these are cross-compiled for bionic
-        // by build-lwjgl-3.4.1.sh in the zomdroid-dependencies repo.
-        public static final String LIBS_LWJGL_341 = LIBS_ANDROID_ARM64_v8a + "/lwjgl-3.4.1";
-        public static final String LIBS_FMOD_20206 = LIBS_ANDROID_ARM64_v8a + "/fmod-2.02.06";
-        public static final String LIBS_FMOD_20224 = LIBS_ANDROID_ARM64_v8a + "/fmod-2.02.24";
-        public static final String LIBS_FMOD_20309 = LIBS_ANDROID_ARM64_v8a + "/fmod-2.03.09";
-        public static final String JARS_SQLITE_JDBC_34800 = JARS + "/sqlite-jdbc-3.48.0.0.jar";
-        public static final String JARS_ZOMDROID_AGENT = JARS + "/zomdroid-agent.jar";
-
-        // ZombieBuddy and ZBBetterFPS jars are stored per-instance in game/ folder.
-        // Use gameInstance.getGamePath() + "/" + filename to get the full path.
-        public static final String ZOMBIE_BUDDY_JAR = "ZombieBuddy.jar";
-        public static final String ZB_BETTER_FPS_JAR = "ZBBetterFPS.jar";
 
         // Custom user-supplied Vulkan driver. Stored directly in LIBS_ANDROID_ARM64_v8a.
         public static final String CUSTOM_DRIVER_FILENAME = "custom_driver.so";
@@ -53,9 +33,7 @@ public class C {
     public static class assets {
         public static final String BUNDLES = "bundles";
         public static final String BUNDLES_JRE21 = BUNDLES + "/jre21.tar.xz";
-        public static final String BUNDLES_JRE25 = BUNDLES + "/jre25.tar.xz";
         public static final String BUNDLES_LIBS = BUNDLES + "/libs.tar.xz";
-        public static final String BUNDLES_JARS = BUNDLES + "/jars.tar";
         public static final String DEFAULT_CONTROLS = "default_controls.json";
     }
 

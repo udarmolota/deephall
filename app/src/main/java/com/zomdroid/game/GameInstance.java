@@ -23,23 +23,12 @@ public class GameInstance {
     private String[] extraClassPath;
     private String[] libraryPath;
     private String[] libraryPathForEmulation;
-    private String fmodLibraryPath;
     private String[] extraJvmArgs;
     private String[] args;
     private String mainClassName;
-    private String javaAgentPath;
-    private String javaAgentArgs;
     private String presetName;
-    // Set from the archive layout during installation and persisted with the instance. This is
-    // intentionally separate from the broad "Build 42.12+" preset so build-specific workarounds
-    // can be gated at the 42.20 packaging/runtime boundary.
-    private boolean build4220Plus = false;
-    // A file inside the game directory that says the game is there. Null on instances written
-    // before other games were supported, which is why hasGameFiles still knows the old rules.
+    // A file inside the game directory that says the game is there.
     private String gameFileMarker;
-    // Boxed on purpose: Gson leaves a field a saved instance does not carry at null, and every
-    // instance written before this existed is Project Zomboid. Read it through isProjectZomboid.
-    private Boolean projectZomboid;
 
     public GameInstance(String name, InstallationPreset preset) throws FileSystemException {
         this.name = name;
@@ -49,22 +38,17 @@ public class GameInstance {
         this.extraClassPath = preset.extraJars;
         this.libraryPath = preset.libraryPathArray;
         this.libraryPathForEmulation = preset.libraryPathForEmulationArray;
-        this.fmodLibraryPath = preset.fmodLibraryPath;
         this.extraJvmArgs = preset.extraJvmArgs;
         this.args = preset.args;
         this.mainClassName = preset.mainClassName;
-        this.javaAgentPath = preset.javaAgentPath;
-        this.javaAgentArgs = preset.javaAgentArgs;
         this.presetName = preset.name;
         this.gameFileMarker = preset.gameFileMarker;
-        this.projectZomboid = preset.projectZomboid;
     }
 
     /**
-     * Re-points this instance at another preset. Used once the game files are on disk and say
-     * which build they are, when the archive could not: a GOG installer is a ZIP behind a shell
-     * script, and a ZIP of installers shows nothing but .sh names. The same fields the constructor
-     * takes from the preset; the name and the folders stay.
+     * Re-points this instance at the current version of its preset, which GameLauncher does at
+     * every launch. The same fields the constructor takes from the preset; the name and the
+     * folders stay.
      */
     public void applyPreset(InstallationPreset preset) {
         this.buildVersion = preset.buildVersion;
@@ -72,15 +56,11 @@ public class GameInstance {
         this.extraClassPath = preset.extraJars;
         this.libraryPath = preset.libraryPathArray;
         this.libraryPathForEmulation = preset.libraryPathForEmulationArray;
-        this.fmodLibraryPath = preset.fmodLibraryPath;
         this.extraJvmArgs = preset.extraJvmArgs;
         this.args = preset.args;
         this.mainClassName = preset.mainClassName;
-        this.javaAgentPath = preset.javaAgentPath;
-        this.javaAgentArgs = preset.javaAgentArgs;
         this.presetName = preset.name;
         this.gameFileMarker = preset.gameFileMarker;
-        this.projectZomboid = preset.projectZomboid;
     }
 
     private static String buildHomePath(String name) {
@@ -150,19 +130,9 @@ public class GameInstance {
         return joiner + ":.";
     }
 
-    public String getFmodLibraryPath() {
-        return fmodLibraryPath;
-    }
-
     public String getJavaLibraryPath() {
         StringJoiner libsJoiner = new StringJoiner(":");
         for (String path : this.libraryPath) {
-            // Build 42.20 embeds LWJGL 3.4.1 Java classes. Keep the broad Build 42.12+ preset
-            // compatible with older releases, but substitute the matching Android core natives
-            // for instances whose 42.20+ layout was detected during installation.
-            if (this.build4220Plus && C.deps.LIBS_LWJGL_336.equals(path)) {
-                path = C.deps.LIBS_LWJGL_341;
-            }
             libsJoiner.add(AppStorage.requireSingleton().getHomePath() + "/" + path);
         }
         return libsJoiner.toString();
@@ -191,15 +161,6 @@ public class GameInstance {
         jvmArgsList.add("-Djava.class.path=" + String.join(":", this.classPath) + ":" + jarsJoiner);
 
         jvmArgsList.addAll(Arrays.asList(this.extraJvmArgs));
-
-        if (!this.javaAgentPath.isEmpty()) {
-            StringBuilder agentBuilder = new StringBuilder();
-            agentBuilder.append("-javaagent:").append(AppStorage.requireSingleton().getHomePath() + "/" + this.javaAgentPath);
-            if (!this.javaAgentArgs.isEmpty()) {
-                agentBuilder.append("=").append(this.javaAgentArgs);
-            }
-            jvmArgsList.add(agentBuilder.toString());
-        }
 
         return jvmArgsList;
     }
@@ -237,52 +198,17 @@ public class GameInstance {
         this.installationFinished = true;
     }
 
-    /**
-     * Project Zomboid needs a pile of workarounds written against its own code - patched class
-     * files, its native libraries, its mod folders. None of them mean anything for another game.
-     */
-    public boolean isProjectZomboid() {
-        return this.projectZomboid == null || this.projectZomboid;
-    }
-
     public boolean hasGameFiles() {
         if (this.gameFileMarker != null && !this.gameFileMarker.isEmpty()) {
             return new File(getGamePath(), this.gameFileMarker).exists();
         }
-
-        // New fat-jar structure (42.12+)
-        for (String cp : getClassPathArray()) {
-            if ("projectzomboid.jar".equals(cp)) {
-                File jar = new File(getGamePath(), "projectzomboid.jar");
-                return jar.exists();
-            }
-        }
-
-        // Old structure (41 / 42.6 - 42.11)
+        // No marker: fall back to the main class as a loose .class file.
         File mainClassFile = new File(getGamePath() + "/" + getMainClassName() + ".class");
         return mainClassFile.exists();
-    }
-
-    public boolean hasFilesForLinux() {
-        if (!isProjectZomboid()) {
-            // The marker below is one of Zomboid's own native libraries, and its absence is how
-            // the launcher recognises a Windows copy of the game. Another game cannot answer
-            // that question this way, and hasGameFiles has already checked what it does need.
-            return true;
-        }
-        File pzBulletFile = new File(getGamePath() + "/libPZBullet64.so");
-        return pzBulletFile.exists();
     }
 
     public String getPresetName() {
         return this.presetName;
     }
 
-    public boolean isBuild4220Plus() {
-        return this.build4220Plus;
-    }
-
-    public void markBuild4220Plus() {
-        this.build4220Plus = true;
-    }
 }

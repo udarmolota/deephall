@@ -53,7 +53,6 @@ import com.zomdroid.R;
 
 import com.zomdroid.databinding.FragmentLauncherBinding;
 import com.zomdroid.databinding.TaskProgressDialogBinding;
-import com.zomdroid.game.BackupManager;
 import com.zomdroid.game.GameInstance;
 import com.zomdroid.game.GameInstanceManager;
 import com.zomdroid.game.SuggestedPreset;
@@ -166,10 +165,6 @@ public class LauncherFragment extends Fragment {
                 ImageButton moreIb = itemView.findViewById(R.id.game_instance_item_more_ib);
 
                 nameTv.setText(gameInstance.getName());
-                // The hosting switch lives in the instance settings; the card repeats it so the
-                // player sees why the game will open on the hosting profile before launching.
-                itemView.findViewById(R.id.game_instance_item_hosting_tv).setVisibility(
-                        gameInstance.settings().isCoopHostingEnabled() ? View.VISIBLE : View.GONE);
 
                 ImageView bannerIv = itemView.findViewById(R.id.game_instance_item_banner_iv);
                 int bannerRes;
@@ -203,18 +198,6 @@ public class LauncherFragment extends Fragment {
                                 .create()
                                 .show();
                         return;
-                    } else if (!gameInstance.hasFilesForLinux()) {
-                        new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle(R.string.dialog_title_game_files_not_for_linux)
-                                .setMessage(R.string.game_files_not_for_linux)
-                                .setCancelable(true)
-                                .setPositiveButton(R.string.dialog_button_view_guide, (dialog, which) -> {
-                                    Navigation.findNavController(v).navigate(R.id.wiki_fragment, WikiFragment.section("get-game-files"));
-                                })
-                                .setNegativeButton(R.string.dialog_button_close, null)
-                                .create()
-                                .show();
-                        return;
                     }
                     boolean areDependenciesInstalled = requireContext().getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE)
                             .getBoolean(C.shprefs.keys.ARE_DEPENDENCIES_INSTALLED, false);
@@ -223,38 +206,11 @@ public class LauncherFragment extends Fragment {
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    // A crash left its marker and there is a complete backup to offer: ask BEFORE
-                    // the JVM starts, while nothing holds the save open. Never silent - the player
-                    // may honestly prefer the streamed state they crashed in.
-                    BackupManager.Backup crashed = BackupManager.findCrashed(gameInstance);
-                    if (crashed != null) {
-                        java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(
-                                java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
-                        new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle(R.string.backup_restore_title)
-                                .setMessage(getString(R.string.backup_restore_message,
-                                        crashed.worldRel,
-                                        df.format(new java.util.Date(crashed.timestamp)),
-                                        crashed.sizeBytes >> 20))
-                                .setCancelable(false)
-                                .setNegativeButton(R.string.backup_restore_continue, (d, w) -> {
-                                    // Asked once per crash: either answer clears the marker; the
-                                    // agent writes a fresh one when a world loads again.
-                                    BackupManager.clearCrashMarker(gameInstance);
-                                    launchGame(gameInstance);
-                                })
-                                .setPositiveButton(R.string.backup_restore_do, (d, w) -> {
-                                    BackupManager.clearCrashMarker(gameInstance);
-                                    restoreBackup(gameInstance, crashed, true);
-                                })
-                                .show();
-                        return;
-                    }
                     launchGame(gameInstance);
                 });
 
-                // The gear opens this instance's launch settings; storage, backup and delete
-                // live under the overflow next to it.
+                // The gear opens this instance's launch settings; storage and delete live under
+                // the overflow next to it.
                 settingsIb.setOnClickListener(v -> {
                     Bundle args = new Bundle();
                     args.putString(SettingsFragment.ARG_INSTANCE, gameInstance.getName());
@@ -265,45 +221,12 @@ public class LauncherFragment extends Fragment {
                 moreIb.setOnClickListener(v -> {
                     PopupMenu popupMenu = new PopupMenu(requireContext(), v);
                     popupMenu.getMenuInflater().inflate(R.menu.menu_game_instance, popupMenu.getMenu());
-                    if (gameInstance.isInstallationFinished()) {
-                        popupMenu.getMenu().add(R.string.ds_start)
-                                .setOnMenuItemClickListener(item -> {
-                                    Intent probe = new Intent().setClassName(requireContext(),
-                                            "com.zomdroid.DedicatedServerActivity");
-                                    probe.putExtra(GameActivity.EXTRA_GAME_INSTANCE_NAME, gameInstance.getName());
-                                    startActivity(probe);
-                                    return true;
-                                });
-                    }
 
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            if (com.zomdroid.DedicatedServerService.active(requireContext())) {
-                                Toast.makeText(requireContext(), R.string.ds_busy, Toast.LENGTH_LONG).show();
-                                return true;
-                            }
                             int itemId = item.getItemId();
-                            if (itemId == R.id.action_game_instance_restore_backup) {
-                                BackupManager.Backup backup = BackupManager.find(gameInstance);
-                                if (backup == null) {
-                                    Toast.makeText(getContext(), R.string.backup_none_found,
-                                            Toast.LENGTH_SHORT).show();
-                                    return true;
-                                }
-                                java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(
-                                        java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
-                                new MaterialAlertDialogBuilder(requireContext())
-                                        .setTitle(R.string.game_instance_restore_backup)
-                                        .setMessage(getString(R.string.backup_manual_restore_message,
-                                                backup.worldRel,
-                                                df.format(new java.util.Date(backup.timestamp)),
-                                                backup.sizeBytes >> 20))
-                                        .setPositiveButton(R.string.backup_restore_do, (dialog, which) ->
-                                                restoreBackup(gameInstance, backup, false))
-                                        .setNegativeButton(R.string.dialog_button_cancel, null)
-                                        .show();
-                            } else if (itemId == R.id.action_game_instance_manage_storage) {
+                            if (itemId == R.id.action_game_instance_manage_storage) {
                                 Uri folderUri = DocumentsContract.buildDocumentUri(C.STORAGE_PROVIDER_AUTHORITY, gameInstance.getHomePath());
                                 Intent intent = new Intent();
                                 intent.setAction(Intent.ACTION_VIEW);
@@ -344,10 +267,6 @@ public class LauncherFragment extends Fragment {
         binding.gameInstancesRv.setAdapter(adapter);
         binding.launcherEmptyQuickStartBtn.setOnClickListener(v -> Navigation.findNavController(v)
                 .navigate(R.id.action_open_wiki_fragment, WikiFragment.section("quick-start")));
-        binding.launcherEmptyDownloadBtn.setOnClickListener(v ->
-                Navigation.findNavController(v).navigate(R.id.action_download_steam));
-        binding.launcherEmptyGogBtn.setOnClickListener(v ->
-                Navigation.findNavController(v).navigate(R.id.action_download_gog));
         updateEmptyState();
 
         binding.gameInstancesRv.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
@@ -531,45 +450,11 @@ public class LauncherFragment extends Fragment {
     }
 
     private void launchGame(GameInstance gameInstance) {
-        // Heals whatever an interrupted restore may have left, cheap when there is nothing to do.
-        BackupManager.cleanupInterruptedRestore(gameInstance);
         Intent intent = new Intent(requireContext(), GameActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(GameActivity.EXTRA_GAME_INSTANCE_NAME, gameInstance.getName());
         startActivity(intent);
         requireActivity().finish();
-    }
-
-    /**
-     * Copy the backup over the live world, off the UI thread, behind an uncancelable progress
-     * dialog - at 300-600 MB this takes long enough that a dismissable screen would invite exactly
-     * the kind of interruption the transactional copy exists to survive.
-     */
-    private void restoreBackup(GameInstance gameInstance, BackupManager.Backup backup, boolean launchAfter) {
-        androidx.appcompat.app.AlertDialog progress = new MaterialAlertDialogBuilder(requireContext())
-                .setMessage(R.string.backup_restoring)
-                .setCancelable(false)
-                .show();
-        new Thread(() -> {
-            String error = null;
-            try {
-                BackupManager.cleanupInterruptedRestore(gameInstance);
-                BackupManager.restore(gameInstance, backup);
-            } catch (Exception e) {
-                error = e.getMessage() != null ? e.getMessage() : e.toString();
-            }
-            final String fError = error;
-            requireActivity().runOnUiThread(() -> {
-                progress.dismiss();
-                if (fError != null) {
-                    Toast.makeText(getContext(),
-                            getString(R.string.backup_restore_failed, fError), Toast.LENGTH_LONG).show();
-                    return; // never launch on top of a failed restore
-                }
-                Toast.makeText(getContext(), R.string.backup_restore_done, Toast.LENGTH_SHORT).show();
-                if (launchAfter) launchGame(gameInstance);
-            });
-        }, "zomdroid-backup-restore").start();
     }
 
     private void showPostInstallSetupDialog(String presetName, String gpuVendor,

@@ -36,117 +36,9 @@ public class SettingsFragment extends Fragment {
      */
     private com.zomdroid.game.InstanceSettings settings;
     private String instanceName;
-    // Build 41: the player turned hosting on, had no multiplayer libraries and was sent to get them.
-    // Coming back with the libraries finishes the switch instead of leaving it off (2026-09-17).
-    private boolean hostingEnablePending;
     // Set once the renderer spinner has delivered its initial restore callback, so the NG_GL4ES
     // warning fires only for a deliberate change by the user.
     private boolean rendererSelectionRestored = false;
-
-    private void setUpMacosLibraries() {
-        com.zomdroid.game.GameInstance instance = instanceName == null ? null
-                : com.zomdroid.game.GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
-        boolean multiplayer = instance != null && "Build 41".equals(instance.getPresetName());
-        boolean supported = instance != null && (instance.isBuild4220Plus() || multiplayer);
-        binding.settingsMacosCard.setVisibility(supported ? View.VISIBLE : View.GONE);
-        if (!supported) return;
-        binding.settingsMacosRow.setVisibility(multiplayer ? View.GONE : View.VISIBLE);
-        binding.settingsMpTitle.setVisibility(multiplayer ? View.VISIBLE : View.GONE);
-        binding.settingsLibrariesHint.setText(multiplayer ? R.string.mp_libs_hint : R.string.macos_libs_short);
-        binding.settingsMacosInfo.setOnClickListener(view -> showHelp(R.string.macos_libs_title, R.string.macos_libs_hint));
-        binding.settingsNativeFmodSwitch.setVisibility(multiplayer ? View.GONE : View.VISIBLE);
-        binding.settingsNativeFmodHint.setVisibility(multiplayer ? View.GONE : View.VISIBLE);
-        binding.settingsNativeFmodSwitch.setChecked(settings.isNativeFmodEnabled());
-        binding.settingsNativeFmodSwitch.setOnCheckedChangeListener((view, enabled) -> settings.setNativeFmodEnabled(enabled));
-        binding.settingsMacosDownload.setOnClickListener(view -> openLibraries(view, multiplayer, false));
-        binding.settingsMacosImport.setOnClickListener(view -> openLibraries(view, multiplayer, true));
-        binding.settingsMacosModulesHeader.setVisibility(multiplayer ? View.GONE : View.VISIBLE);
-        if (multiplayer) binding.settingsMacosModulesContent.setVisibility(View.GONE);
-        setupCollapsible(binding.settingsMacosModulesHeader, binding.settingsMacosModulesContent,
-                binding.settingsMacosModulesExpandIv);
-        refreshMacosStatus();
-    }
-
-    // Bound again on every resume: an install turns its libraries back on. A library that is not
-    // installed shows off and cannot be touched, and the choice stored for it is left alone.
-    private void bindMacosModule(androidx.appcompat.widget.SwitchCompat sw, String module, boolean installed) {
-        // No saved view state: coming back from the install screen, Android restored the position
-        // the switch had when the player left and fired the listener with it, writing the old "off"
-        // over what the install had just switched on. The stored setting is the only truth here.
-        sw.setSaveEnabled(false);
-        sw.setOnCheckedChangeListener(null);
-        sw.setChecked(installed && settings.isMacosModuleEnabled(module));
-        sw.setEnabled(installed);
-        sw.setOnCheckedChangeListener((view, enabled) -> settings.setMacosModuleEnabled(module, enabled));
-    }
-
-    // "From Steam" / "From file" with this instance fixed. Build 41 installs its two multiplayer
-    // libraries into android/arm64-v8a (the import that used to sit in the side menu), 42.20+ its
-    // macOS libraries into game/macos. Shared by the card buttons and the Build 41 hosting dialog.
-    private void openLibraries(View view, boolean multiplayer, boolean fromFile) {
-        Bundle args = new Bundle();
-        if (fromFile) {
-            args.putString(multiplayer ? InstallNativeLibsFragment.ARG_MP_INSTANCE
-                                       : InstallNativeLibsFragment.ARG_MACOS_INSTANCE, instanceName);
-            Navigation.findNavController(view).navigate(
-                    multiplayer ? R.id.install_native_libs_fragment : R.id.install_macos_libs_fragment, args);
-        } else {
-            args.putString(multiplayer ? SteamDownloadFragment.ARG_MP_INSTANCE
-                                       : SteamDownloadFragment.ARG_MACOS_INSTANCE, instanceName);
-            Navigation.findNavController(view).navigate(R.id.steam_download_fragment, args);
-        }
-    }
-
-    /** Hosting on Build 41 needs its two multiplayer libraries; Build 42 ships them itself. */
-    private boolean hostingLibrariesPresent() {
-        com.zomdroid.game.GameInstance instance = instanceName == null ? null
-                : com.zomdroid.game.GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
-        if (instance == null || !"Build 41".equals(instance.getPresetName())) return true;
-        // Presence is enough: libraries a player copied in by hand work as well as ours.
-        return com.zomdroid.steam.MultiplayerLibraries.hasFiles(new File(instance.getGamePath()));
-    }
-
-    private void showHostingLibrariesDialog(View anchor) {
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle(R.string.settings_coop_hosting)
-                .setMessage(R.string.coop_b41_libraries_required)
-                .setPositiveButton(R.string.macos_libs_download, (d, w) -> openLibraries(anchor, true, false))
-                .setNeutralButton(R.string.macos_libs_import, (d, w) -> openLibraries(anchor, true, true))
-                .setNegativeButton(android.R.string.cancel, (d, w) -> hostingEnablePending = false)
-                .setOnCancelListener(d -> hostingEnablePending = false)
-                .show();
-    }
-
-    private void refreshMacosStatus() {
-        if (binding == null || instanceName == null) return;
-        com.zomdroid.game.GameInstance instance =
-                com.zomdroid.game.GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
-        if (instance == null) return;
-        File game = new File(instance.getGamePath());
-        if ("Build 41".equals(instance.getPresetName())) {
-            boolean ready = com.zomdroid.steam.MultiplayerLibraries.isReady(game);
-            binding.settingsMacosStatus.setText(ready ? R.string.mp_libs_ready
-                    : com.zomdroid.steam.MultiplayerLibraries.hasFiles(game) ? R.string.mp_libs_manual : R.string.macos_libs_missing);
-            return;
-        }
-        // Installed or not - that is all a player can act on. The build number the manifest
-        // carries meant nothing to anyone (an instance keeps the build it was created with).
-        java.util.Set<String> installed = com.zomdroid.steam.MacosLibraries.installed(game);
-        binding.settingsMacosStatus.setText(installed.isEmpty() ? R.string.macos_libs_missing : R.string.macos_libs_ready);
-        bindMacosModule(binding.settingsMacosLightingSwitch, "lighting", installed.contains("libLighting.dylib"));
-        bindMacosModule(binding.settingsMacosPathfindSwitch, "pathfind", installed.contains("libPZPathFind.dylib"));
-        bindMacosModule(binding.settingsMacosPopmanSwitch, "popman", installed.contains("libPZPopMan.dylib"));
-    }
-
-    @Override public void onResume() {
-        super.onResume();
-        refreshMacosStatus();
-        if (hostingEnablePending && binding != null && hostingLibrariesPresent()) {
-            hostingEnablePending = false;
-            // Runs the usual enable path, separate-profile warning included.
-            binding.settingsCoopHostingSwitch.setChecked(true);
-        }
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -162,7 +54,6 @@ public class SettingsFragment extends Fragment {
 
         setUpPresetCard();
         setUpEtc2CacheRow();
-        setUpMacosLibraries();
 
         // Renderer
         ArrayAdapter<LauncherPreferences.Renderer> rendererArrayAdapter = new ArrayAdapter<>(
@@ -432,59 +323,9 @@ public class SettingsFragment extends Fragment {
 
         setUpTextureShrinkSpinner();
 
-        // No saved view state, as with the macOS module switches: a restored old position would fire
-        // the listener on the way back from another screen and overwrite the stored setting.
-        binding.settingsCoopHostingSwitch.setSaveEnabled(false);
-        binding.settingsCoopHostingSwitch.setChecked(settings.isCoopHostingEnabled());
-        binding.settingsCoopHostingSwitch.setOnCheckedChangeListener((v, checked) -> {
-            // Build 41 ships no ARM64 RakNet/ZNet of its own: without the two multiplayer
-            // libraries the server cannot start, so the switch stays off and says where to get them.
-            if (checked && !hostingLibrariesPresent()) {
-                hostingEnablePending = true;
-                v.setChecked(false);
-                showHostingLibrariesDialog(v);
-                return;
-            }
-            // Hosting runs the game on its own profile (coop-probe, not Zomboid), so the usual
-            // saves vanish from the game's menus. Players read that as lost saves: say it here,
-            // and let Cancel undo the tap. Turning the switch off needs no warning.
-            if (checked) {
-                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.coop_profile_warning_title)
-                        .setMessage(R.string.coop_profile_warning)
-                        .setPositiveButton(android.R.string.ok, (d, w) -> settings.setCoopHostingEnabled(true))
-                        .setNegativeButton(android.R.string.cancel, (d, w) -> v.setChecked(false))
-                        .setOnCancelListener(d -> v.setChecked(false))
-                        .show();
-                return;
-            }
-            settings.setCoopHostingEnabled(false);
-        });
-
         binding.settingsMemorySaverSwitch.setChecked(settings.isMemorySaver());
         binding.settingsMemorySaverSwitch.setOnCheckedChangeListener((v, isChecked) ->
                 settings.setMemorySaver(isChecked));
-
-        // The F10 backup is opt-in behind a priced warning: the copy is world-sized (players report
-        // 300-600 MB) and the game visibly freezes while it is written. Turning it ON requires
-        // reading and accepting that; turning it off is one tap.
-        binding.settingsBackupSwitch.setChecked(settings.isQuickSaveBackup());
-        binding.settingsBackupSwitch.setOnCheckedChangeListener((v, isChecked) -> {
-            if (!isChecked) {
-                settings.setQuickSaveBackup(false);
-                return;
-            }
-            if (settings.isQuickSaveBackup()) return; // restore echo
-            new AlertDialog.Builder(requireContext())
-                    .setTitle(R.string.backup_warning_title)
-                    .setMessage(R.string.backup_warning_message)
-                    .setPositiveButton(R.string.dialog_button_confirm, (d, w) ->
-                            settings.setQuickSaveBackup(true))
-                    .setNegativeButton(R.string.dialog_button_cancel, (d, w) ->
-                            binding.settingsBackupSwitch.setChecked(false))
-                    .setOnCancelListener(d -> binding.settingsBackupSwitch.setChecked(false))
-                    .show();
-        });
 
         binding.settingsDebugSwitch.setChecked(settings.isDebug());
         binding.settingsDebugSwitch.setOnCheckedChangeListener((v, isChecked) ->
@@ -516,8 +357,6 @@ public class SettingsFragment extends Fragment {
                 showHelp(R.string.settings_jvm_args_b42_preset_title, R.string.settings_jvm_args_b42_recommendation));
         binding.settingsTextureCompressionInfo.setOnClickListener(v ->
                 showHelp(R.string.settings_texture_compression, R.string.settings_texture_compression_hint));
-        binding.settingsCoopHostingInfo.setOnClickListener(v ->
-                showHelp(R.string.settings_coop_hosting, R.string.settings_coop_hosting_hint));
 
         binding.settingsEnvVarsInfo.setOnClickListener(v -> {
             new androidx.appcompat.app.AlertDialog.Builder(requireContext())

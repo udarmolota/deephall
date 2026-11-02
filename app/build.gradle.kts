@@ -148,92 +148,8 @@ android {
   ndkVersion = "27.3.13750724"
 }
 
-// Plain JVM code: runs under the embedded HotSpot, not Android ART/D8.
-val compileServerBootstrap by tasks.registering(JavaCompile::class) {
-    source("src/serverBootstrap/java")
-    classpath = files()
-    destinationDirectory.set(layout.buildDirectory.dir("serverBootstrap/classes"))
-    options.release.set(8)
-}
-val serverBootstrapJar by tasks.registering(Jar::class) {
-    dependsOn(compileServerBootstrap)
-    from(compileServerBootstrap.flatMap { it.destinationDirectory })
-    archiveFileName.set("server-bootstrap.jar")
-    destinationDirectory.set(layout.buildDirectory.dir("generated/serverBootstrapAssets"))
-}
-android.sourceSets.getByName("main").assets.srcDir(serverBootstrapJar.map { it.destinationDirectory })
-// Asset merging AND the release lint model (lintVital reads the asset dirs too - the release
-// build failed on exactly that, 2026-09-13).
-tasks.matching { (it.name.startsWith("merge") && it.name.endsWith("Assets")) || it.name.contains("Lint") || it.name.startsWith("lint") }.configureEach { dependsOn(serverBootstrapJar) }
-
-val coopAgentDependency by tasks.registering(Copy::class) {
-    from(tarTree(file("src/main/assets/bundles/jars.tar"))) { include("**/zomdroid-agent.jar") }
-    into(layout.buildDirectory.dir("coopAgent/dependencies"))
-}
-val compileCoopAgent by tasks.registering(JavaCompile::class) {
-    dependsOn(coopAgentDependency)
-    source("src/coopAgent/java")
-    classpath = fileTree(layout.buildDirectory.dir("coopAgent/dependencies")) { include("**/*.jar") }
-    destinationDirectory.set(layout.buildDirectory.dir("coopAgent/classes"))
-    options.release.set(8)
-}
-val coopAgentJar by tasks.registering(Jar::class) {
-    dependsOn(compileCoopAgent)
-    from(compileCoopAgent.flatMap { it.destinationDirectory })
-    manifest.attributes["Premain-Class"] = "com.zomdroid.coop.CoopAgent"
-    archiveFileName.set("coop-agent.jar")
-    destinationDirectory.set(layout.buildDirectory.dir("generated/coopAgentAssets"))
-}
-android.sourceSets.getByName("main").assets.srcDir(coopAgentJar.map { it.destinationDirectory })
-tasks.matching { (it.name.startsWith("merge") && it.name.endsWith("Assets")) || it.name.contains("Lint") || it.name.startsWith("lint") }.configureEach { dependsOn(coopAgentJar) }
-val compileCoopAgentTest by tasks.registering(JavaCompile::class) {
-    dependsOn(compileCoopAgent)
-    source("src/coopAgentTest/java")
-    classpath = files(compileCoopAgent.flatMap { it.destinationDirectory })
-    destinationDirectory.set(layout.buildDirectory.dir("coopAgent/testClasses"))
-    options.release.set(8)
-}
-tasks.register<JavaExec>("testCoopAgent") {
-    dependsOn(compileCoopAgentTest, coopAgentJar)
-    classpath = files(compileCoopAgentTest.flatMap { it.destinationDirectory }, coopAgentJar.flatMap { it.archiveFile }) +
-            fileTree(layout.buildDirectory.dir("coopAgent/dependencies")) { include("**/*.jar") }
-    mainClass.set("com.zomdroid.coop.BridgeTest")
-    jvmArgs("-javaagent:" + coopAgentJar.get().archiveFile.get().asFile.absolutePath)
-}
-
-tasks.register<JavaExec>("testCoopInternet") {
-    dependsOn(compileCoopAgentTest, coopAgentJar)
-    classpath = files(compileCoopAgentTest.flatMap { it.destinationDirectory }, coopAgentJar.flatMap { it.archiveFile }) +
-            fileTree(layout.buildDirectory.dir("coopAgent/dependencies")) { include("**/*.jar") }
-    mainClass.set("com.zomdroid.coop.InternetStatusTest")
-    jvmArgs("-Dzomdroid.server.upnpGuard=true",
-            "-javaagent:" + coopAgentJar.get().archiveFile.get().asFile.absolutePath + "=server-upnp")
-}
-tasks.register<JavaExec>("testServerAbsoluteLuaFiles") {
-    dependsOn(compileCoopAgentTest, coopAgentJar)
-    classpath = files(compileCoopAgentTest.flatMap { it.destinationDirectory }, coopAgentJar.flatMap { it.archiveFile }) +
-            fileTree(layout.buildDirectory.dir("coopAgent/dependencies")) { include("**/*.jar") }
-    mainClass.set("com.zomdroid.coop.AbsoluteLuaFileTest")
-    jvmArgs("-Dzomdroid.server.absoluteLuaFiles=true",
-            "-javaagent:" + coopAgentJar.get().archiveFile.get().asFile.absolutePath + "=server-upnp")
-}
-val compileServerBootstrapTest by tasks.registering(JavaCompile::class) {
-    dependsOn(compileServerBootstrap)
-    source("src/serverBootstrapTest/java")
-    classpath = files(compileServerBootstrap.flatMap { it.destinationDirectory })
-    destinationDirectory.set(layout.buildDirectory.dir("serverBootstrap/testClasses"))
-    options.release.set(8)
-}
-tasks.register<JavaExec>("testServerBootstrap") {
-    dependsOn(compileServerBootstrapTest)
-    classpath = files(compileServerBootstrap.flatMap { it.destinationDirectory },
-        compileServerBootstrapTest.flatMap { it.destinationDirectory })
-    mainClass.set("com.zomdroid.server.BootstrapTest")
-}
-
 dependencies {
     implementation(libs.gson)
-    implementation(files("jars/fmod.jar"))
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -243,13 +159,6 @@ dependencies {
     implementation(libs.commons.compress)
     implementation(libs.xz)
     implementation(libs.legacy.support.v4)
-
-    // --- In-app Steam downloader (ported from RimDroid, MIT). JavaSteam = SteamKit2 port. ---
-    implementation("in.dragonbra:javasteam:1.8.0")
-    implementation("in.dragonbra:javasteam-depotdownloader:1.8.0")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.83")     // crypto provider JavaSteam needs
-    implementation("com.google.protobuf:protobuf-java:4.31.1") // must match JavaSteam's protobuf
-    implementation("com.github.luben:zstd-jni:1.5.7-6@aar")    // zstd depot-chunk decompression (arm64 .so)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

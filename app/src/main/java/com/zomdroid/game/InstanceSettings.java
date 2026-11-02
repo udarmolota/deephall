@@ -8,7 +8,7 @@ import com.zomdroid.LauncherPreferences.VulkanDriver;
 
 /**
  * Launch settings owned by one game instance: renderer, Vulkan driver, JVM arguments, environment
- * variables, render scale, debug, memory saver, quick-save backup and the on-screen controls
+ * variables, render scale, debug, memory saver and the on-screen controls
  * toggles. Each instance keeps its own, so a Build 41 instance can sit on GL4ES with modest JVM
  * arguments while a Build 42 one runs ZINK with a 2 GB heap.
  *
@@ -32,47 +32,6 @@ import com.zomdroid.LauncherPreferences.VulkanDriver;
 public class InstanceSettings {
 
     private static final String PREFIX = "inst:";
-
-    /** One of the three macOS libraries ("lighting", "pathfind", "popman"): on unless the player
-     *  turned it off under "Libraries in use". Only meaningful while that library is installed -
-     *  there is no switch above the three any more (her call, 2026-09-16). */
-    public boolean isMacosModuleEnabled(String module) {
-        return prefs.getBoolean(keyPrefix + "macos_module_" + module, true);
-    }
-
-    public void setMacosModuleEnabled(String module, boolean enabled) {
-        prefs.edit().putBoolean(keyPrefix + "macos_module_" + module, enabled).apply();
-    }
-
-    /** An install is the player's request to use what it installed: every library it verified
-     *  gets its switch turned on again, whatever was chosen for the copy it replaced. */
-    public void enableMacosModules(java.util.Collection<String> libraryNames) {
-        SharedPreferences.Editor editor = prefs.edit();
-        for (String name : libraryNames) {
-            String module = com.zomdroid.steam.MacosLibraries.MODULE_KEYS.get(name);
-            if (module != null) editor.putBoolean(keyPrefix + "macos_module_" + module, true);
-        }
-        editor.apply();
-    }
-
-    /** The game's own ARM64 fmodintegration instead of the x86_64 one through box64. On by
-     * default (her call, 2026-09-12): the linker falls back to box64 on its own when the library
-     * fails its checks, and the switch is the way out for "loads but sounds wrong". */
-    public boolean isNativeFmodEnabled() {
-        return prefs.getBoolean(keyPrefix + "native_fmod", true);
-    }
-
-    public void setNativeFmodEnabled(boolean enabled) {
-        prefs.edit().putBoolean(keyPrefix + "native_fmod", enabled).apply();
-    }
-
-    public boolean isCoopHostingEnabled() {
-        return prefs.getBoolean(keyPrefix + "coop_hosting", false);
-    }
-
-    public void setCoopHostingEnabled(boolean enabled) {
-        prefs.edit().putBoolean(keyPrefix + "coop_hosting", enabled).apply();
-    }
 
     private final LauncherPreferences global;
     private final SharedPreferences prefs;
@@ -177,14 +136,6 @@ public class InstanceSettings {
 
     public void setMemorySaver(boolean enabled) {
         prefs.edit().putBoolean(keyPrefix + "memory_saver", enabled).apply();
-    }
-
-    public boolean isQuickSaveBackup() {
-        return prefs.getBoolean(keyPrefix + "quick_save_backup", global.isQuickSaveBackup());
-    }
-
-    public void setQuickSaveBackup(boolean enabled) {
-        prefs.edit().putBoolean(keyPrefix + "quick_save_backup", enabled).apply();
     }
 
     // --- On-screen controls -----------------------------------------------------------------
