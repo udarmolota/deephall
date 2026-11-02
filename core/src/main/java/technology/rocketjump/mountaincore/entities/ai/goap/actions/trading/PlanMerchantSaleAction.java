@@ -37,6 +37,7 @@ import technology.rocketjump.mountaincore.rooms.tags.StockpileTag;
 
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -104,6 +105,11 @@ public class PlanMerchantSaleAction extends Action {
 								ItemPayment payment = findPayment(getValuePerItem(allocationFromWagon, gameContext), allocationFromWagon.getAllocationAmount(), tile.getRoomTile().getRoom(), allocationFromWagon, gameContext);
 
 								parent.messageDispatcher.dispatchMessage(MessageType.CANCEL_ITEM_ALLOCATION, allocationFromWagon);
+								if (payment == null || payment.amountToPurchase <= 0) {
+									tradingImportFurnitureBehaviour.paymentNotFound(gameContext.getGameClock().getCurrentGameTime());
+								} else {
+									tradingImportFurnitureBehaviour.paymentFound();
+								}
 								if (payment != null && payment.amountToPurchase > 0) {
 									// recreate allocation as it may be less than the full stack size
 									allocationFromWagon = createAllocation(tradingImportFurnitureBehaviour.getSelectedItemType(), materialRequired, payment.amountToPurchase, myFactionVehiclesInRoom, gameContext);
@@ -167,37 +173,56 @@ public class PlanMerchantSaleAction extends Action {
 		parent.messageDispatcher.dispatchMessage(MessageType.GET_SETTLEMENT_CONSTANTS, (Consumer<SettlementConstants>) (settlementConstants) -> {
 			currencyDefinitions.addAll(settlementConstants.getCurrency());
 		});
+		// No change is given, so pay in the smallest coins that cover the price before reaching for larger ones
+		currencyDefinitions.sort(Comparator.comparingInt(CurrencyDefinition::getValue));
 
-		for (Entity stockpileFurniture : tradeDepotRoom.getRoomTiles().values().stream()
-				.flatMap(roomTile -> roomTile.getTile().getEntities().stream())
-				.filter(e -> e.getType().equals(EntityType.FURNITURE) && e.getTag(StockpileTag.class) != null)
-				.collect(Collectors.toSet())) {
+		for (CurrencyDefinition currencyDefinition : currencyDefinitions) {
+			for (Entity coins : coinsInDepot(tradeDepotRoom, currencyDefinition, gameContext)) {
+				ItemAllocationComponent itemAllocationComponent = coins.getOrCreateComponent(ItemAllocationComponent.class);
+				int currencyQuantityAvailable = itemAllocationComponent.getNumUnallocated();
+				int currencyValueAvailable = currencyQuantityAvailable * currencyDefinition.getValue();
 
-			InventoryComponent stockpileInventory = stockpileFurniture.getOrCreateComponent(InventoryComponent.class);
-			for (CurrencyDefinition currencyDefinition : currencyDefinitions) {
-				InventoryComponent.InventoryEntry inventoryEntry = stockpileInventory.findByItemTypeAndMaterial(currencyDefinition.getItemType(), currencyDefinition.getMaterial(), gameContext.getGameClock());
-				if (inventoryEntry != null) {
-					ItemAllocationComponent itemAllocationComponent = inventoryEntry.entity.getOrCreateComponent(ItemAllocationComponent.class);
-					int currencyQuantityAvailable = itemAllocationComponent.getNumUnallocated();
-					int currencyValueAvailable = currencyQuantityAvailable * currencyDefinition.getValue();
-
-					if (currencyValueAvailable >= valuePerItem) {
-						int amountToPurchase;
-						if (currencyValueAvailable >= valuePerItem * maxAmountAvailable) {
-							amountToPurchase = maxAmountAvailable;
-						} else {
-							amountToPurchase = currencyValueAvailable / valuePerItem;
-						}
-
-						int currencyQuantityRequired = Math.min(IntMath.divide(amountToPurchase * valuePerItem, currencyDefinition.getValue(), RoundingMode.CEILING), currencyQuantityAvailable);
-						ItemAllocation currencyAllocation = itemAllocationComponent.createAllocation(currencyQuantityRequired, parent.parentEntity, ItemAllocation.Purpose.TRADING_PAYMENT);
-
-						return new ItemPayment(currencyAllocation, amountToPurchase);
+				if (currencyValueAvailable >= valuePerItem) {
+					int amountToPurchase;
+					if (currencyValueAvailable >= valuePerItem * maxAmountAvailable) {
+						amountToPurchase = maxAmountAvailable;
+					} else {
+						amountToPurchase = currencyValueAvailable / valuePerItem;
 					}
+
+					int currencyQuantityRequired = Math.min(IntMath.divide(amountToPurchase * valuePerItem, currencyDefinition.getValue(), RoundingMode.CEILING), currencyQuantityAvailable);
+					ItemAllocation currencyAllocation = itemAllocationComponent.createAllocation(currencyQuantityRequired, parent.parentEntity, ItemAllocation.Purpose.TRADING_PAYMENT);
+
+					return new ItemPayment(currencyAllocation, amountToPurchase);
 				}
 			}
 		}
 		return null;
+	}
+
+	// Coins in the depot's chests, and coins left on its floor: an early settlement rarely has a chest to spare
+	private List<Entity> coinsInDepot(Room tradeDepotRoom, CurrencyDefinition currencyDefinition, GameContext gameContext) {
+		List<Entity> coins = new ArrayList<>();
+		List<Entity> entitiesInRoom = tradeDepotRoom.getRoomTiles().values().stream()
+				.flatMap(roomTile -> roomTile.getTile().getEntities().stream())
+				.distinct()
+				.toList();
+		for (Entity entity : entitiesInRoom) {
+			if (entity.getType().equals(EntityType.FURNITURE) && entity.getTag(StockpileTag.class) != null) {
+				InventoryComponent.InventoryEntry inventoryEntry = entity.getOrCreateComponent(InventoryComponent.class)
+						.findByItemTypeAndMaterial(currencyDefinition.getItemType(), currencyDefinition.getMaterial(), gameContext.getGameClock());
+				if (inventoryEntry != null) {
+					coins.add(inventoryEntry.entity);
+				}
+			}
+		}
+		for (Entity entity : entitiesInRoom) {
+			if (entity.getType().equals(EntityType.ITEM) && entity.getPhysicalEntityComponent().getAttributes() instanceof ItemEntityAttributes attributes &&
+					attributes.getItemType().equals(currencyDefinition.getItemType()) && currencyDefinition.getMaterial().equals(attributes.getPrimaryMaterial())) {
+				coins.add(entity);
+			}
+		}
+		return coins;
 	}
 
 	private boolean currentTradeInProgress(Entity tradeImportFurniture, TraderCreatureGroup traderCreatureGroup) {

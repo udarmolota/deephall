@@ -601,6 +601,7 @@ GUI.KEY_BINDING.OPEN_PRIORITY,,Open priority menu,Меню приоритето�
 GUI.KEY_BINDING.OPEN_ROOMS,,Open rooms menu,Меню комнат
 GUI.KEY_BINDING.ORDER_CANCEL,,Cancel orders,Отменить приказы
 GUI.KEY_BINDING.ORDER_MINE,,Mine,Копать
+GUI.TRADING_IMPORT.NOT_ENOUGH_MONEY,,Not enough money in the trading depot,Не хватает денег на торговом складе
 GUI.KEY_BINDING.PAN_CAMERA_DOWN,,Pan camera down,Камера вниз
 GUI.KEY_BINDING.PAN_CAMERA_LEFT,,Pan camera left,Камера влево
 GUI.KEY_BINDING.PAN_CAMERA_RIGHT,,Pan camera right,Камера вправо

@@ -618,6 +618,10 @@ public class EntitySelectedGuiView implements GuiView, GameContextAware {
 				if (furniture.isDestroyed()) {
 					descriptions.add(i18nTranslator.getTranslatedString(furniture.getDestructionCause().i18nKey).toString());
 				}
+				if (entity.getBehaviourComponent() instanceof TradingImportFurnitureBehaviour tradingImport && gameContext != null &&
+						tradingImport.isShortOfPayment(gameContext.getGameClock().getCurrentGameTime())) {
+					descriptions.add(i18nTranslator.translate("GUI.TRADING_IMPORT.NOT_ENOUGH_MONEY"));
+				}
 				if (entity.getBehaviourComponent() instanceof CraftingStationBehaviour craftingStation && craftingStation.getCraftingType() != null) {
 					workerAvailability.check(craftingStation.getCraftingType().getProfessionRequired(), null, null)
 							.ifPresent(shortage -> descriptions.add(workerAvailability.describe(shortage, i18nTranslator).toString()));

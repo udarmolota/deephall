@@ -9,6 +9,23 @@ import technology.rocketjump.mountaincore.persistence.model.SavedGameStateHolder
 
 public class TradingImportFurnitureBehaviour extends ProductionExportFurnitureBehaviour {
 
+	// A merchant retries a sale often while trading, so a recent failure means the depot cannot pay now
+	private static final double HOURS_SHORT_OF_PAYMENT_SHOWN = 2.0;
+
+	private Double lastShortOfPaymentGameTime;
+
+	public void paymentNotFound(double currentGameTime) {
+		lastShortOfPaymentGameTime = currentGameTime;
+	}
+
+	public void paymentFound() {
+		lastShortOfPaymentGameTime = null;
+	}
+
+	public boolean isShortOfPayment(double currentGameTime) {
+		return lastShortOfPaymentGameTime != null && currentGameTime - lastShortOfPaymentGameTime < HOURS_SHORT_OF_PAYMENT_SHOWN;
+	}
+
 	@Override
 	public FurnitureBehaviour clone(MessageDispatcher messageDispatcher, GameContext gameContext) {
 		TradingImportFurnitureBehaviour cloned = new TradingImportFurnitureBehaviour();
