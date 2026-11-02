@@ -1,0 +1,112 @@
+# Builds the standalone Deephall Android APK: the game from this branch, the Android launcher
+# from the `launcher` branch of this repository, with the game packed inside the APK.
+# The APK is uploaded as a workflow artifact only; nothing is published as a GitHub Release.
+#
+# Signing (optional): set the repository secrets DEEPHALL_KEYSTORE_BASE64 (the keystore file,
+# base64-encoded), DEEPHALL_KEYSTORE_PASSWORD, DEEPHALL_KEY_ALIAS and DEEPHALL_KEY_PASSWORD.
+# Without all four the APK comes out unsigned.
+name: Deephall Android APK
+
+on:
+  workflow_dispatch: {}
+  push:
+    tags: [ 'v*' ]
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      NDK_VERSION: 27.3.13750724
+      CMAKE_VERSION: 3.22.1
+      # A step's `if` cannot read secrets, so whether there is a keystore is worked out here.
+      HAS_KEYSTORE: ${{ secrets.DEEPHALL_KEYSTORE_BASE64 != '' }}
+    steps:
+      - name: Check out the game
+        uses: actions/checkout@v4
+        with:
+          path: game
+
+      - name: Check out the launcher
+        uses: actions/checkout@v4
+        with:
+          ref: launcher
+          path: launcher
+          submodules: recursive
+
+      - name: Set up JDK 17 (game)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle (with cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build the phone jar and stage the game payload
+        working-directory: game
+        run: |
+          chmod +x gradlew
+          ./gradlew :desktop:phoneGame --stacktrace
+          ls -la desktop/build/phone-game desktop/build/phone-game/lwjgl336
+          du -sh desktop/build/phone-game
+
+      - name: Set up JDK 21 (launcher)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install the NDK and CMake
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -d "$ANDROID_HOME/ndk/$NDK_VERSION" ] || [ ! -d "$ANDROID_HOME/cmake/$CMAKE_VERSION" ]; then
+            yes | "$SDKMANAGER" --licenses > /dev/null || true
+            "$SDKMANAGER" --install "ndk;$NDK_VERSION" "cmake;$CMAKE_VERSION"
+          fi
+          ls "$ANDROID_HOME/ndk" "$ANDROID_HOME/cmake"
+
+      - name: Decode the signing keystore
+        if: env.HAS_KEYSTORE == 'true'
+        env:
+          DEEPHALL_KEYSTORE_BASE64: ${{ secrets.DEEPHALL_KEYSTORE_BASE64 }}
+        run: |
+          echo "$DEEPHALL_KEYSTORE_BASE64" | base64 --decode --ignore-garbage >"$RUNNER_TEMP/deephall-release.jks"
+          echo "RELEASE_STORE_FILE=$RUNNER_TEMP/deephall-release.jks" >> "$GITHUB_ENV"
+
+      - name: Build the release APK
+        working-directory: launcher
+        env:
+          # app/build.gradle.kts signs the release only when all four values are set, and
+          # treats an empty one (a secret that does not exist) as not set.
+          RELEASE_STORE_PASSWORD: ${{ secrets.DEEPHALL_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.DEEPHALL_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.DEEPHALL_KEY_PASSWORD }}
+          DEEPHALL_GAME_DIR: ${{ github.workspace }}/game/desktop/build/phone-game
+        run: |
+          chmod +x gradlew
+          if [ -n "$RELEASE_STORE_FILE" ] && [ -n "$RELEASE_STORE_PASSWORD" ] \
+              && [ -n "$RELEASE_KEY_ALIAS" ] && [ -n "$RELEASE_KEY_PASSWORD" ]; then
+            echo "Signing the release APK"
+          else
+            echo "::warning::Signing secrets are missing or incomplete: the release APK is unsigned"
+          fi
+          ./gradlew :app:assembleRelease --stacktrace
+          ls -la app/build/outputs/apk/release
+
+      - name: Upload the APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: deephall-apk
+          path: launcher/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          # The APK is a zip already; compressing it again only costs time.
+          compression-level: 0
+
+      - name: Remove the decoded keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/deephall-release.jks"

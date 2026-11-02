@@ -30,6 +30,75 @@ dist.dependsOn classes
 
 build.dependsOn dist
 
+// The phone build. The Deephall Android launcher runs this desktop jar on the phone, so it needs a
+// variant of mountaincore.jar whose arm64 natives are Android builds, plus the LWJGL jars it loads.
+configurations {
+    // Android arm64-v8a builds of libgdx.so and libgdx-freetype.so
+    phoneNatives { transitive = false }
+    // Plain LWJGL 3.3.6 jars (no natives: the launcher brings its own) for lwjgl336/
+    phoneLwjgl { transitive = false }
+}
+
+dependencies {
+    phoneNatives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
+    phoneNatives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
+    ['lwjgl', 'lwjgl-glfw', 'lwjgl-jemalloc', 'lwjgl-openal', 'lwjgl-opengl', 'lwjgl-stb'].each {
+        phoneLwjgl "org.lwjgl:$it:3.3.6"
+    }
+}
+
+// mountaincore.jar without the desktop natives, with the Android arm64 libgdx libraries in place of
+// the Linux arm64 ones. They keep the desktop entry names, because that is what LibGDX's
+// SharedLibraryLoader asks for on an arm64 "Linux".
+task phoneDist(type: Zip, dependsOn: dist) {
+    description = 'Builds mountaincore-phone.jar for the Deephall Android launcher'
+    group = 'distribution'
+    archiveFileName = 'mountaincore-phone.jar'
+    destinationDirectory = dist.destinationDirectory
+    inputs.files configurations.phoneNatives
+
+    from(zipTree(dist.archiveFile)) {
+        exclude 'linux/**', 'macos/**', 'macosarm64/**', 'macosx64/**', 'windows/**'
+        exclude 'libgdxarm64.so', 'libgdx-freetypearm64.so'
+    }
+    from({ configurations.phoneNatives.collect { zipTree(it) } }) {
+        include '**/libgdx.so', '**/libgdx-freetype.so'
+        eachFile { details ->
+            details.path = details.name.replace('.so', 'arm64.so')
+        }
+        includeEmptyDirs = false
+    }
+    doLast {
+        // Fail rather than ship a jar the phone cannot load.
+        def jarFile = outputs.files.singleFile
+        new java.util.zip.ZipFile(jarFile).withCloseable { zip ->
+            ['libgdxarm64.so', 'libgdx-freetypearm64.so'].each {
+                if (zip.getEntry(it) == null) {
+                    throw new GradleException("phoneDist: $it is missing from $jarFile")
+                }
+            }
+        }
+    }
+}
+
+// The game payload the launcher packs into its APK (its packDeephallGame task reads this folder):
+// the phone jar as mountaincore.jar, lwjgl336/ and mods/. Point the launcher at it with
+// -PdeephallGameDir=<this folder> or DEEPHALL_GAME_DIR.
+task phoneGame(type: Sync) {
+    description = 'Stages the Deephall game payload for the Android launcher in desktop/build/phone-game'
+    group = 'distribution'
+    into "$buildDir/phone-game"
+    from(phoneDist) {
+        rename { 'mountaincore.jar' }
+    }
+    from(configurations.phoneLwjgl) {
+        into 'lwjgl336'
+    }
+    from('../core/mods') {
+        into 'mods'
+    }
+}
+
 eclipse {
     project {
         name = appName + "-desktop"
