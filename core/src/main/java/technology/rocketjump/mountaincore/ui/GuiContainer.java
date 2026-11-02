@@ -8,6 +8,7 @@ import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.google.inject.Inject;
@@ -71,7 +72,7 @@ public class GuiContainer implements Telegraph, GameContextAware {
 						InfoWindow infoWindow, HintGuiView hintGuiView, ResourceOverview resourceOverview,
 						DebugGuiView debugGuiView, NotificationGuiView notificationGuiView,
 						GameDialogMessageHandler gameDialogMessageHandler,
-						MinimapGuiView minimapGuiView, UserPreferences userPreferences) {
+						MinimapGuiView minimapGuiView, UserPreferences userPreferences, EventFeedGuiView eventFeedGuiView) {
 		this.infoWindow = infoWindow;
 		this.hintGuiView = hintGuiView;
 		this.resourceOverview = resourceOverview;
@@ -147,6 +148,12 @@ public class GuiContainer implements Telegraph, GameContextAware {
 		primaryStage.addActor(lowerRightContainerTable);
 		primaryStage.addActor(upperRightContainerTable);
 		primaryStage.addActor(upperLeftContainerTable);
+
+		Table eventFeedTable = new Table();
+		eventFeedTable.setFillParent(true);
+		eventFeedTable.setTouchable(Touchable.disabled);
+		eventFeedGuiView.populate(eventFeedTable);
+		primaryStage.addActor(eventFeedTable);
 		minimapGuiView.populate(minimapContainerTable);
 		timeDateGuiView.populate(timeAndDateContainerTable);
 		timeAndDateContainerTable.row();

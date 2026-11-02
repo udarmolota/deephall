@@ -15,6 +15,7 @@ import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
 import technology.rocketjump.mountaincore.messaging.MessageType;
 import technology.rocketjump.mountaincore.ui.GameInteractionMode;
+import technology.rocketjump.mountaincore.ui.GameInteractionStateContainer;
 import technology.rocketjump.mountaincore.ui.GameViewMode;
 import technology.rocketjump.mountaincore.ui.views.GuiViewName;
 import technology.rocketjump.mountaincore.messaging.types.MouseChangeMessage;
@@ -44,13 +45,20 @@ public class GameWorldInputHandler implements InputProcessor, GameContextAware, 
 	private final Set<Integer> keysPressed = new HashSet<>();
 	private final Map<Integer, Boolean> buttonsPressed = new HashMap<>();
 	private float startX, startY;
+	// Dragging the primary button pans the map unless the current mode marks out an area with it.
+	// That is how a single finger moves the map on a phone.
+	private final GameInteractionStateContainer interactionStateContainer;
+	private boolean primaryDragPans;
+	private boolean primaryDragPanned;
 
 	private final Map<CommandName, Runnable> keyDownActions = new HashMap<>();
 	private final Map<CommandName, Runnable> keyUpActions = new HashMap<>();
 
 	@Inject
 	public GameWorldInputHandler(UserPreferences userPreferences, PrimaryCameraWrapper primaryCameraWrapper,
-	                             RenderingOptions renderingOptions, MessageDispatcher messageDispatcher) {
+	                             RenderingOptions renderingOptions, MessageDispatcher messageDispatcher,
+	                             GameInteractionStateContainer interactionStateContainer) {
+		this.interactionStateContainer = interactionStateContainer;
 		this.userPreferences = userPreferences;
 		this.primaryCameraWrapper = primaryCameraWrapper;
 		this.renderingOptions = renderingOptions;
@@ -191,6 +199,10 @@ public class GameWorldInputHandler implements InputProcessor, GameContextAware, 
 		this.startX = screenX;
 		this.startY = screenY;
 		this.buttonsPressed.put(button, true);
+		if (button == Input.Buttons.LEFT) {
+			primaryDragPans = !interactionStateContainer.getInteractionMode().isDraggable;
+			primaryDragPanned = false;
+		}
 
 		Vector3 worldPosition = primaryCameraWrapper.getCamera().unproject(new Vector3(screenX, screenY, 0));
 		Vector2 worldPosition2 = new Vector2(worldPosition.x, worldPosition.y);
@@ -206,6 +218,12 @@ public class GameWorldInputHandler implements InputProcessor, GameContextAware, 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		this.buttonsPressed.put(button, false);
+		if (button == Input.Buttons.LEFT && primaryDragPanned) {
+			// The press moved the map, so it is not also a click on whatever is under the finger
+			primaryDragPans = false;
+			primaryDragPanned = false;
+			return true;
+		}
 		if (renderingOptions.debug().showIndividualLightingBuffers()) {
 			screenX = renderingOptions.debug().adjustScreenXForSplitView(screenX);
 			screenY = renderingOptions.debug().adjustScreenYForSplitView(screenY);
@@ -225,7 +243,10 @@ public class GameWorldInputHandler implements InputProcessor, GameContextAware, 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		//Copied from CameraInputController
-		if (buttonsPressed.get(Input.Buttons.MIDDLE)) {
+		if (buttonsPressed.get(Input.Buttons.MIDDLE) || (buttonsPressed.get(Input.Buttons.LEFT) && primaryDragPans)) {
+			if (buttonsPressed.get(Input.Buttons.LEFT) && (screenX != startX || screenY != startY)) {
+				primaryDragPanned = true;
+			}
 			final float deltaX = (screenX - startX) / Gdx.graphics.getWidth();
 			final float deltaY = (startY - screenY) / Gdx.graphics.getHeight();
 			startX = screenX;

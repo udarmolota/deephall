@@ -148,6 +148,13 @@ public class DesktopLauncher {
     private static Resolution getDisplayResolution(UserPreferences userPreferences) {
         Graphics.DisplayMode desktopMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
         Resolution desktopResolution = new Resolution(desktopMode.width, desktopMode.height);
+        if (SINGLE_SILENT_WINDOW) {
+            // On a phone the launcher's surface decides the size, set by its render scale; a saved
+            // resolution would only disagree with it, so keep the preference showing what is used
+            userPreferences.setPreference(DISPLAY_RESOLUTION, desktopResolution.toString());
+            DisplaySettings.currentResolution = desktopResolution;
+            return desktopResolution;
+        }
         String preferredResolution = userPreferences.getPreference(DISPLAY_RESOLUTION);
         Resolution resolutionToUse;
         if (preferredResolution == null) {

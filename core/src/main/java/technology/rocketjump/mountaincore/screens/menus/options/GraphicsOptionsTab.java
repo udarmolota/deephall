@@ -76,8 +76,11 @@ public class GraphicsOptionsTab implements OptionsTab {
 	@Override
 	public void populate(Table menuTable) {
 		rebuildUI();
-		menuTable.add(fullscreenSelect).padBottom(48f).row();
-		menuTable.add(resolutionSelect).padBottom(48f).row();
+		// On a phone the window always fills the screen and its size comes from the launcher's render scale
+		if (!Boolean.getBoolean("mountaincore.android")) {
+			menuTable.add(fullscreenSelect).padBottom(48f).row();
+			menuTable.add(resolutionSelect).padBottom(48f).row();
+		}
 		menuTable.add(uiScaleLabel).spaceBottom(30f).row();
 		menuTable.add(uiScaleSlider).spaceBottom(48f).growX().row();
 		menuTable.add(weatherEffectsCheckbox).padBottom(48f).row();
