@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Scaling;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import technology.rocketjump.mountaincore.messaging.MessageType;
@@ -40,7 +42,7 @@ public class TopLevelMenu extends BannerMenu implements DisplaysText {
         this.savedGameStore = savedGameStore;
         this.widgetFactory = widgetFactory;
         this.modsMenu = modsMenu;
-        logo = new Texture("assets/main_menu/Mountaincore_Logo.png");
+        logo = new Texture("assets/main_menu/Deephall_Logo.png");
         logo.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         rebuild();
@@ -151,7 +153,9 @@ public class TopLevelMenu extends BannerMenu implements DisplaysText {
 
     @Override
     protected Actor getMainBannerLogo() {
-        return new Image(logo);
+        // Fitted, not stretched: the banner gives the logo a fixed box, and the Deephall logo is
+        // wider than the old Mountaincore one it was sized for
+        return new Image(new TextureRegionDrawable(logo), Scaling.fit);
     }
 
     public boolean hasGameStarted() {

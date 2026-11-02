@@ -95,7 +95,9 @@ public class AssetsPackager {
 	}
 
 	private void packageModCollection(ModCollection modCollection, Path assetDir) {
-		Map<ModArtifactDefinition, Long> currentChecksums = null;
+		// No checksums file (a fresh install that has never built its assets) means everything
+		// is built: an empty map matches no artifact
+		Map<ModArtifactDefinition, Long> currentChecksums = new TreeMap<>();
 		try {
 			currentChecksums = readChecksums(assetDir);
 		} catch (IOException e) {
@@ -110,7 +112,8 @@ public class AssetsPackager {
 				Logger.error(e, "Could not process checksum for input files of " + artifactDefinition.getName());
 			}
 
-			if (newChecksum != currentChecksums.get(artifactDefinition)) {
+			Long currentChecksum = currentChecksums.get(artifactDefinition);
+			if (currentChecksum == null || newChecksum != currentChecksum) {
 				long start = System.currentTimeMillis();
 
 				List<Exception> modLoadExceptions = new ArrayList<>();
@@ -175,6 +178,9 @@ public class AssetsPackager {
 	private void combineAndPackage(List<ModArtifact> validArtifacts, ModArtifactDefinition artifactDefinition, Path assetsDir) throws ModLoadingException, IOException {
 		ModArtifactProcessor processor = createProcessorInstance(artifactDefinition);
 		processor.combine(validArtifacts, tempDir);
+		// The processors expect the folder tree of a shipped assets/ (some create only the last
+		// folder, some none at all); a fresh install starts from an empty one
+		Files.createDirectories(assetsDir.resolve(artifactDefinition.assetDir));
 		processor.write(assetsDir);
 	}
 

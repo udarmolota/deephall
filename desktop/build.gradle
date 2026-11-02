@@ -82,8 +82,11 @@ task phoneDist(type: Zip, dependsOn: dist) {
 }
 
 // The game payload the launcher packs into its APK (its packDeephallGame task reads this folder):
-// the phone jar as mountaincore.jar, lwjgl336/ and mods/. Point the launcher at it with
-// -PdeephallGameDir=<this folder> or DEEPHALL_GAME_DIR.
+// the phone jar as mountaincore.jar, lwjgl336/, mods/, and the few assets/ files the game reads
+// directly instead of building them from mods/ at start (main menu art, metadata, the texture
+// placeholders, a few definitions, LibGDX's default skin). metadata/checksums.json stays out on purpose: it would tell a fresh install that
+// its assets are already built. Point the launcher at it with -PdeephallGameDir=<this folder> or
+// DEEPHALL_GAME_DIR.
 task phoneGame(type: Sync) {
     description = 'Stages the Deephall game payload for the Android launcher in desktop/build/phone-game'
     group = 'distribution'
@@ -96,6 +99,15 @@ task phoneGame(type: Sync) {
     }
     from('../core/mods') {
         into 'mods'
+    }
+    from('../core/assets') {
+        include 'main_menu/Deephall_Logo.png', 'main_menu/Dwarven Settlement.png'
+        include 'metadata/compatibility.json', 'metadata/twitch_bots.txt'
+        include 'unmoddable/**'
+        include 'definitions/room-edges.json', 'definitions/crafting/productionDefaults.json'
+        include 'definitions/types/furnitureCategories.json', 'definitions/types/professions.json'
+        include 'ui/libgdx-default/**', 'ui/TwitchGlitchPurple.png'
+        into 'assets'
     }
 }
 
