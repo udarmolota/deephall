@@ -21,8 +21,9 @@ val deephallReleaseApplicationId = "com.udarmolota.deephall"
  * deephallGameDir below) into the debug and release APKs' assets as game/deephall-game.zip, with
  * game/deephall-game.version beside it. BundledGame reads both on the phone and replaces the instance's game files when the stamp changes.
  *
- * Only mountaincore.jar, lwjgl336/ and mods/ are packed: the game builds its assets/ folder from
- * mods/ when it starts. Entries are STORED and the archive is kept uncompressed in the APK
+ * Only mountaincore.jar, lwjgl336/, mods/ and assets/ are packed. The game builds most of its
+ * assets/ folder from mods/ when it starts; the staged assets/ holds only the few files it reads
+ * directly (main menu art, metadata, texture placeholders, see phoneGame in the game's build). Entries are STORED and the archive is kept uncompressed in the APK
  * (noCompress below): the jar, the PNGs and most of the audio are compressed already, and a stored
  * asset extracts at disk speed.
  */
@@ -98,7 +99,7 @@ abstract class PackDeephallGame : DefaultTask() {
 
     private companion object {
         const val GAME_JAR = "mountaincore.jar"
-        val PAYLOAD = listOf("lwjgl336", "mods")
+        val PAYLOAD = listOf("lwjgl336", "mods", "assets")
         // A fixed entry time keeps the archive byte-for-byte the same for the same files.
         const val DOS_EPOCH_MS = 315_532_800_000L
     }

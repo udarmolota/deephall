@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The debug and release builds are the Deephall launcher and install next to Zomdroid, so they
-     use the game's own dwarf icon instead of Zomdroid's. The bitmap fills the whole 108dp layer with the
-     dwarf inside the 72dp visible area, so the launcher mask never shows its edges. -->
+     use Deephall's own icon instead of Zomdroid's: the stone arch on the night colour. The bitmap
+     fills the whole 108dp layer with the arch inside the 66dp safe circle, so neither a round
+     nor a squircle mask cuts into it. -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@mipmap/ic_launcher_deephall"/>
     <foreground android:drawable="@android:color/transparent"/>

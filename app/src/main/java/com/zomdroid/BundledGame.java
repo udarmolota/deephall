@@ -24,7 +24,7 @@ import java.nio.file.Files;
 /**
  * The game the standalone Deephall app carries inside its own APK, and the one instance it plays.
  *
- * <p>The debug and release builds pack deephall-game/ (mountaincore.jar, lwjgl336/, mods/) into
+ * <p>The debug and release builds pack deephall-game/ (mountaincore.jar, lwjgl336/, mods/, assets/) into
  * {@link #ASSET_PAYLOAD} at build time, with a version stamp beside it (see PackDeephallGame in
  * app/build.gradle.kts). {@link #prepare} turns that into a ready instance: it creates the
  * "Deephall" instance the first time, replaces its game files whenever the bundled stamp differs
@@ -32,7 +32,10 @@ import java.nio.file.Files;
  *
  * <p>What it never touches: the game's own user files in instances/Deephall/Mountaincore (saves,
  * the game's preferences) and the game dir's controls/ once a layout is there. The game rebuilds
- * its assets/ folder from mods/ by checksum on every start, so that folder is left alone too.
+ * its assets/ folder from mods/ by checksum on every start, so that folder is left alone too,
+ * apart from the few files the payload itself brings into it (main menu art, metadata, texture
+ * placeholders, some definitions, LibGDX's default skin): those are written over, and their own
+ * folders replaced, like the rest.
  */
 public final class BundledGame {
     public static final String INSTANCE_NAME = "Deephall";
@@ -49,7 +52,8 @@ public final class BundledGame {
     // Everything the payload owns inside the game dir. Folders are deleted before extraction so a
     // file dropped from a newer payload does not linger from the older one.
     private static final String GAME_JAR = "mountaincore.jar";
-    private static final String[] PAYLOAD_DIRS = {"lwjgl336", "mods"};
+    private static final String[] PAYLOAD_DIRS = {"lwjgl336", "mods", "assets/main_menu", "assets/unmoddable",
+            "assets/ui/libgdx-default"};
 
     private BundledGame() {}
 
