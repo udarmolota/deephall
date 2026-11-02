@@ -50,6 +50,7 @@ import com.zomdroid.GameActivity;
 import com.zomdroid.InstallerService;
 import com.zomdroid.LauncherPreferences;
 import com.zomdroid.R;
+import com.zomdroid.SaveTransferActivity;
 
 import com.zomdroid.databinding.FragmentLauncherBinding;
 import com.zomdroid.databinding.TaskProgressDialogBinding;
@@ -166,20 +167,8 @@ public class LauncherFragment extends Fragment {
 
                 nameTv.setText(gameInstance.getName());
 
-                ImageView bannerIv = itemView.findViewById(R.id.game_instance_item_banner_iv);
-                int bannerRes;
-                switch (gameInstance.getPresetName()) {
-                    case "Build 42.12+":
-                        bannerRes = R.drawable.banner_build42_12;
-                        break;
-                    case "Build 42":
-                        bannerRes = R.drawable.banner_build42;
-                        break;
-                    default:
-                        bannerRes = R.drawable.banner_build41;
-                        break;
-                }
-                bannerIv.setImageResource(bannerRes);
+                // The banner is the Deephall art set in the layout; the Project Zomboid build
+                // banners are no longer picked per preset.
 
                 launchIb.setOnClickListener(v -> {
                     if (!gameInstance.isInstallationFinished()) {
@@ -226,7 +215,17 @@ public class LauncherFragment extends Fragment {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             int itemId = item.getItemId();
-                            if (itemId == R.id.action_game_instance_manage_storage) {
+                            if (itemId == R.id.action_game_instance_controls_editor) {
+                                Navigation.findNavController(v).navigate(R.id.action_open_controls_editor_launch);
+                            } else if (itemId == R.id.action_game_instance_gamepad_mapper) {
+                                Navigation.findNavController(v).navigate(R.id.action_open_gamepad_mapper);
+                            } else if (itemId == R.id.action_game_instance_export_saves) {
+                                startActivity(SaveTransferActivity.intent(requireContext(),
+                                        SaveTransferActivity.ACTION_EXPORT_SAVES));
+                            } else if (itemId == R.id.action_game_instance_import_saves) {
+                                startActivity(SaveTransferActivity.intent(requireContext(),
+                                        SaveTransferActivity.ACTION_IMPORT_SAVES));
+                            } else if (itemId == R.id.action_game_instance_manage_storage) {
                                 Uri folderUri = DocumentsContract.buildDocumentUri(C.STORAGE_PROVIDER_AUTHORITY, gameInstance.getHomePath());
                                 Intent intent = new Intent();
                                 intent.setAction(Intent.ACTION_VIEW);
@@ -331,14 +330,9 @@ public class LauncherFragment extends Fragment {
             }
         };
 
-        SharedPreferences prefs = requireContext().getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE);
-        if (!prefs.getBoolean(C.shprefs.keys.IS_LEGAL_NOTICE_ACCEPTED, false)) {
-            showLegalNoticeDialog();
-            requireActivity().findViewById(android.R.id.content).setVisibility(View.GONE);
-        } else {
-            updateDependencies();
-            maybeShowReleaseNotes(prefs);
-        }
+        // No legal notice and no release notes in Deephall: both are about Zomdroid and Project
+        // Zomboid (owning a copy of PZ, its server hosting...), not about the bundled game.
+        updateDependencies();
 
     }
 

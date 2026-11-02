@@ -258,7 +258,6 @@
     <string name="nav_bug_report">Reportar um bug</string>
     <string name="bug_report_preparing">Preparando relatório de bug…</string>
     <string name="bug_report_email" translatable="false">210478@mail.ru</string>
-    <string name="bug_report_subject" translatable="false">ZOMDROID REPORT %1$s</string>
     <string name="bug_report_body">Olá, tenho um novo relatório de bug.\n\nDescrição: \n\n\n---\n%1$s</string>
     <string name="bug_report_no_mail">Nenhum aplicativo de e-mail encontrado neste dispositivo.</string>
 

@@ -9,19 +9,22 @@
     android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/deephall_night">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Banner image -->
+        <!-- Banner image: the Deephall poster art, half see-through over the night colour so the
+             name and the buttons stay readable -->
         <ImageView
             android:id="@+id/game_instance_item_banner_iv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            tools:src="@drawable/banner_build41"/>
+            android:alpha="0.6"
+            android:src="@drawable/banner_default"/>
 
         <!-- Dark gradient overlay bottom -->
         <View

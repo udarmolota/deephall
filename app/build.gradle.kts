@@ -12,10 +12,14 @@ plugins {
 // files themselves changes the stamp on its own: it also carries a SHA-1 of the packed content.
 val deephallGameVersion = "1"
 
+// The application id of the release build: the Deephall app for players. It differs from the
+// debug build's com.zomdroid.deephall, so the two install side by side.
+val deephallReleaseApplicationId = "com.udarmolota.deephall"
+
 /**
- * Packs the staged Deephall game (deephall-game/ at the repository root) into the debug APK's
- * assets as game/deephall-game.zip, with game/deephall-game.version beside it. BundledGame reads
- * both on the phone and replaces the instance's game files when the stamp changes.
+ * Packs the staged Deephall game (deephall-game/ at the repository root by default, see
+ * deephallGameDir below) into the debug and release APKs' assets as game/deephall-game.zip, with
+ * game/deephall-game.version beside it. BundledGame reads both on the phone and replaces the instance's game files when the stamp changes.
  *
  * Only mountaincore.jar, lwjgl336/ and mods/ are packed: the game builds its assets/ folder from
  * mods/ when it starts. Entries are STORED and the archive is kept uncompressed in the APK
@@ -100,10 +104,20 @@ abstract class PackDeephallGame : DefaultTask() {
     }
 }
 
-val packDeephallGame = tasks.register<PackDeephallGame>("packDeephallGame") {
-    gameDir.set(rootProject.layout.projectDirectory.dir("deephall-game"))
-    gameVersion.set(deephallGameVersion)
-}
+// Where the staged game is read from: the Gradle property deephallGameDir, else the environment
+// variable DEEPHALL_GAME_DIR, else deephall-game/. A relative path is taken from the repository
+// root. CI points it at the payload the deephall repository's phoneGame task stages.
+val deephallGameDir: String = providers.gradleProperty("deephallGameDir")
+    .orElse(providers.environmentVariable("DEEPHALL_GAME_DIR"))
+    .getOrElse("deephall-game")
+
+// One task per variant (packDeephallGameDebug, packDeephallGameRelease), so each variant's
+// generated assets folder belongs to its own task.
+fun registerPackDeephallGame(variantName: String) =
+    tasks.register<PackDeephallGame>("packDeephallGame" + variantName.replaceFirstChar { it.uppercase() }) {
+        gameDir.set(rootProject.file(deephallGameDir))
+        gameVersion.set(deephallGameVersion)
+    }
 
 val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
@@ -111,6 +125,11 @@ val localProperties = Properties().apply {
         file.inputStream().use { load(it) }
     }
 }
+
+// Release signing values come from local.properties, or from environment variables of the same
+// names (CI). Without all four the release build comes out unsigned, to be signed by hand.
+fun signingValue(name: String): String? =
+    localProperties.getProperty(name) ?: providers.environmentVariable(name).orNull?.takeIf { it.isNotEmpty() }
 
 // Short commit hash of the working tree, with a "+" appended when there are uncommitted changes.
 // versionName alone cannot identify a build: 1.4.7 and 1.4.7v4 both reported as "1.4.7 (147)" in
@@ -136,7 +155,7 @@ val hasSigningConfig = listOf(
     "RELEASE_STORE_PASSWORD",
     "RELEASE_KEY_ALIAS",
     "RELEASE_KEY_PASSWORD"
-).all { localProperties[it] != null }
+).all { signingValue(it) != null }
 
 android {
     namespace = "com.zomdroid"
@@ -145,11 +164,10 @@ android {
     signingConfigs {
         if (hasSigningConfig) {
             create("release") {
-                storeFile = file(localProperties["RELEASE_STORE_FILE"].toString())
-                storePassword = localProperties["RELEASE_STORE_PASSWORD"].toString()
-                keyAlias = localProperties["RELEASE_KEY_ALIAS"].toString()
-                keyPassword = localProperties["RELEASE_KEY_PASSWORD"].toString()
-
+                storeFile = file(signingValue("RELEASE_STORE_FILE")!!)
+                storePassword = signingValue("RELEASE_STORE_PASSWORD")
+                keyAlias = signingValue("RELEASE_KEY_ALIAS")
+                keyPassword = signingValue("RELEASE_KEY_PASSWORD")
             }
         }
     }
@@ -158,8 +176,8 @@ android {
         applicationId = "com.zomdroid"
         minSdk = 30
         targetSdk = 35
-        versionCode = 150
-        versionName = "1.5.0"
+        versionCode = 151
+        versionName = "0.1.0"
 
         buildConfigField("String", "GIT_BUILD_ID", "\"$gitBuildId\"")
 
@@ -188,22 +206,28 @@ android {
         val variant = this
         outputs.all {
             val outputImpl = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            // The debug build is the Deephall launcher (see the buildTypes block below), so it
-            // should not come out of the build with Zomdroid's name on it.
-            val launcherName = if (variant.buildType.name == "debug") "deephall"
-                    else "zomdroid-${variant.buildType.name}"
+            // Debug and release are the Deephall launcher (see the buildTypes block below), so
+            // they should not come out of the build with Zomdroid's name on it.
+            val launcherName = when (variant.buildType.name) {
+                "debug" -> "deephall"
+                "release" -> "deephall-release"
+                else -> "zomdroid-${variant.buildType.name}"
+            }
             outputImpl.outputFileName = "$launcherName-${variant.versionName}.apk"
         }
     }
 
     buildTypes {
-        if (hasSigningConfig) {
-            release {
-                isMinifyEnabled = false
-                proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
-                )
+        release {
+            // The Deephall app for players: not debuggable, its own application id
+            // (deephallReleaseApplicationId, set in androidComponents below; a build type can
+            // only add a suffix), signed only when the signing values are there.
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            if (hasSigningConfig) {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
@@ -213,6 +237,17 @@ android {
             // Project Zomboid on: same application id would mean a signature clash on install,
             // and the two content provider authorities below must be unique across the device.
             applicationIdSuffix = ".deephall"
+        }
+    }
+    sourceSets {
+        // Debug and release are both the standalone Deephall app: they share its manifest (the
+        // icon opens DeephallStartActivity), name, icon and shortcut drawables from src/deephall/.
+        // Only res/xml/shortcuts.xml stays per build type, since it names the application id.
+        for (buildType in listOf("debug", "release")) {
+            getByName(buildType) {
+                manifest.srcFile("src/deephall/AndroidManifest.xml")
+                res.srcDir("src/deephall/res")
+            }
         }
     }
     compileOptions {
@@ -247,16 +282,22 @@ android {
         }
     }
     androidResources {
-        // The bundled Deephall game (packDeephallGame): stored as it is, see the task.
+        // The bundled Deephall game (PackDeephallGame): stored as it is, see the task.
         noCompress += "deephall-game.zip"
     }
   ndkVersion = "27.3.13750724"
 }
 
 androidComponents {
-    // Only the debug build is the standalone Deephall app, so only it carries the game.
+    // Debug and release are the standalone Deephall app, so both carry the game.
     onVariants(selector().withBuildType("debug")) { variant ->
-        variant.sources.assets?.addGeneratedSourceDirectory(packDeephallGame, PackDeephallGame::outputDir)
+        variant.sources.assets?.addGeneratedSourceDirectory(
+            registerPackDeephallGame(variant.name), PackDeephallGame::outputDir)
+    }
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.applicationId.set(deephallReleaseApplicationId)
+        variant.sources.assets?.addGeneratedSourceDirectory(
+            registerPackDeephallGame(variant.name), PackDeephallGame::outputDir)
     }
 }
 

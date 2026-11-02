@@ -93,10 +93,14 @@ public class LauncherActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.appbar);
 
+        // The drawer is hidden in Deephall: most of it is Zomdroid's (wiki, drivers, donate,
+        // Reddit, updates) and still to be redone. No openable layout means no hamburger, and the
+        // lock keeps the edge swipe from opening it. The controls editor and the gamepad mapper
+        // are in the instance card's overflow menu instead.
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.launcher_fragment)
-                .setOpenableLayout(binding.drawerLayout)
                 .build();
+        binding.drawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -140,9 +144,8 @@ public class LauncherActivity extends AppCompatActivity {
         binding.navBottomVersion.setOnClickListener(v -> checkForUpdate());
         binding.navBottomRimdroid.setOnClickListener(v -> showRimDroidDialog());
 
-        // Silent, at-most-once-a-day check so the GitHub icon can badge a newer release without
-        // the user having to tap it. A manual tap still runs checkForUpdate() and shows a dialog.
-        maybeDailyUpdateCheck();
+        // The daily update check (maybeDailyUpdateCheck) is off in Deephall: it compares this
+        // build with Zomdroid's releases, and its badge sits in the hidden drawer.
 
         // Only on a fresh start: a recreated launcher is already where the shortcut took it.
         if (savedInstanceState == null) handleShortcutAction(getIntent());
@@ -366,7 +369,7 @@ public class LauncherActivity extends AppCompatActivity {
 
     private void buildAndSendBugReport(String date, String device, GameInstance instance) {
         // Distinct timestamp for the zip name (adds time-of-day) so a tester sending several
-        // reports in one sitting doesn't overwrite the same "zomdroid_report.zip" attachment.
+        // reports in one sitting doesn't overwrite the same report zip attachment.
         final String timestamp = new java.text.SimpleDateFormat("ddMMyyyy_HHmm", java.util.Locale.US).format(new java.util.Date());
         Toast.makeText(this, R.string.bug_report_preparing, Toast.LENGTH_SHORT).show();
         new Thread(() -> {
@@ -374,7 +377,7 @@ public class LauncherActivity extends AppCompatActivity {
             try {
                 File dir = new File(getCacheDir(), "reports");
                 if (dir.isDirectory() || dir.mkdirs()) {
-                    File zip = new File(dir, "zomdroid_report_" + timestamp + ".zip");
+                    File zip = new File(dir, "deephall_report_" + timestamp + ".zip");
                     try (OutputStream out = new FileOutputStream(zip)) {
                         InstallerService.writeLogReportZip(instance, out);
                     }

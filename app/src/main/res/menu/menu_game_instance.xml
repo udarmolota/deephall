@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Overflow of the instance card. Only Manage storage shows for now: the controls editor,
+     the gamepad mapper and the save export and import are hidden until they are reworked for
+     Deephall (export and import are on the app icon's shortcuts). Delete is hidden for good:
+     the app recreates the bundled instance on the next start anyway, and the saves would be
+     gone with it. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_game_instance_controls_editor"
+        android:visible="false"
+        android:title="@string/nav_menu_controls_editor"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_game_instance_gamepad_mapper"
+        android:visible="false"
+        android:title="@string/nav_menu_gamepad_mapper"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_game_instance_export_saves"
+        android:visible="false"
+        android:title="@string/shortcut_export_saves_long"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_game_instance_import_saves"
+        android:visible="false"
+        android:title="@string/shortcut_import_saves_long"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/action_game_instance_manage_storage"
         android:icon="@drawable/mt_icon_folder"
@@ -10,5 +35,6 @@
         android:id="@+id/action_game_instance_delete"
         android:icon="@drawable/mt_icon_delete"
         android:title="@string/game_instance_delete"
+        android:visible="false"
         app:showAsAction="never"/>
 </menu>

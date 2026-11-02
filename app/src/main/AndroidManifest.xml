@@ -37,6 +37,14 @@
         <activity
             android:name=".ControlsEditorActivity">
         </activity>
+        <!-- No screen: opens the system file picker for a save export or import and finishes.
+             Exported for the app icon's shortcuts; the picker leaves every choice to the player. -->
+        <activity
+            android:name=".SaveTransferActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true">
+        </activity>
         <service
             android:name=".InstallerService"
             android:exported="false"

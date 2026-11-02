@@ -1,15 +1,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- The wiki one tap away, also after the first-steps card is gone. -->
+    <!-- The wiki one tap away, also after the first-steps card is gone.
+         Both items are hidden in Deephall: the wiki is Zomdroid's, and the app has the one
+         bundled instance. -->
     <item
         android:id="@+id/action_open_wiki_help"
         android:icon="@drawable/mt_icon_help_toolbar"
         android:title="@string/fragment_label_wiki"
+        android:visible="false"
         app:showAsAction="always"/>
     <item
         android:id="@+id/action_new_game_instance"
         android:icon="@drawable/mt_icon_add"
         android:title="@null"
+        android:visible="false"
         app:showAsAction="always"/>
 </menu>

@@ -24,8 +24,8 @@ import java.nio.file.Files;
 /**
  * The game the standalone Deephall app carries inside its own APK, and the one instance it plays.
  *
- * <p>The debug build packs deephall-game/ (mountaincore.jar, lwjgl336/, mods/) into
- * {@link #ASSET_PAYLOAD} at build time, with a version stamp beside it (see packDeephallGame in
+ * <p>The debug and release builds pack deephall-game/ (mountaincore.jar, lwjgl336/, mods/) into
+ * {@link #ASSET_PAYLOAD} at build time, with a version stamp beside it (see PackDeephallGame in
  * app/build.gradle.kts). {@link #prepare} turns that into a ready instance: it creates the
  * "Deephall" instance the first time, replaces its game files whenever the bundled stamp differs
  * from the one recorded in the game dir, and gives it the on-screen controls if it has none.

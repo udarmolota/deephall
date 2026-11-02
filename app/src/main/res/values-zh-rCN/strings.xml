@@ -258,7 +258,6 @@
     <string name="nav_bug_report">报告错误</string>
     <string name="bug_report_preparing">正在准备错误报告…</string>
     <string name="bug_report_email" translatable="false">210478@mail.ru</string>
-    <string name="bug_report_subject" translatable="false">ZOMDROID REPORT %1$s</string>
     <string name="bug_report_body">您好，我有一个新的错误报告。\n\n描述：\n\n\n---\n%1$s</string>
     <string name="bug_report_no_mail">此设备上未找到邮件应用。</string>
 

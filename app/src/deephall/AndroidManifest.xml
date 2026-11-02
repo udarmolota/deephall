@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The debug build is the standalone Deephall app: the icon starts the game, and the launcher
+<!-- The debug and release builds are the standalone Deephall app (both use this src/deephall/
+     folder, see app/build.gradle.kts): the icon starts the game, and the launcher
      stays in the app without an icon of its own, reachable from the start screen's error button
      and from the icon's shortcuts. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"

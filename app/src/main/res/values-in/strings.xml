@@ -259,7 +259,6 @@
     <string name="nav_bug_report">Laporkan bug</string>
     <string name="bug_report_preparing">Menyiapkan laporan bug…</string>
     <string name="bug_report_email" translatable="false">210478@mail.ru</string>
-    <string name="bug_report_subject" translatable="false">ZOMDROID REPORT %1$s</string>
     <string name="bug_report_body">Halo, saya punya laporan bug baru.\n\nDeskripsi: \n\n\n---\n%1$s</string>
     <string name="bug_report_no_mail">Tidak ada aplikasi email yang ditemukan di perangkat ini.</string>
 

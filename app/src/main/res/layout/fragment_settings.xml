@@ -14,8 +14,12 @@
         <!-- Group 0: Suggested presets.
              Deliberately the first thing on the screen: it writes to every control below it, so
              reading order matches causality, and someone who opened Settings because something is
-             wrong meets the answer before the knobs. -->
+             wrong meets the answer before the knobs.
+             Hidden in Deephall: the presets are Project Zomboid builds and would undo the
+             GL4ES setup the bundled game needs. -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/settings_preset_card"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -108,6 +112,15 @@
                     android:textColor="?attr/colorPrimary"
                     android:textSize="13sp"/>
 
+                <!-- Renderer and Vulkan driver, hidden in Deephall: the game runs on GL4ES only.
+                     A gone parent keeps the driver row hidden whatever the renderer listener sets. -->
+                <LinearLayout
+                    android:id="@+id/settings_renderer_group"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -153,6 +166,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"/>
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/settings_resolution_scale_tv"
@@ -255,9 +270,12 @@
              the ETC2 switch for the renderers that have an encoder (NG_GL4ES, both ZINKs), the
              cache it fills - folded, the size on the fold - and the GL4ES/NG_GL4ES shrink
              presets that used to hide under Advanced. Rows show only for the renderer that
-             uses them, so nobody on GL4ES stares at a greyed-out ETC2 switch. -->
+             uses them, so nobody on GL4ES stares at a greyed-out ETC2 switch.
+             Hidden in Deephall: the presets are tuned for Project Zomboid's textures. A shrink
+             mode can still be set by hand as LIBGL_SHRINK in the environment variables. -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/settings_texture_card"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -514,6 +532,15 @@
                     android:paddingBottom="12dp"
                     android:visibility="gone">
 
+                    <!-- Java arguments, hidden in Deephall: the defaults and the Build 42 preset
+                         are Project Zomboid's. The environment variables below stay. -->
+                    <LinearLayout
+                        android:id="@+id/settings_jargs_group"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -630,6 +657,8 @@
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="12dp"
                         android:background="?attr/colorOutlineVariant"/>
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"

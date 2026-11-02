@@ -304,7 +304,7 @@
     <string name="nav_bug_report">Report a bug</string>
     <string name="bug_report_preparing">Preparing bug report…</string>
     <string name="bug_report_email" translatable="false">210478@mail.ru</string>
-    <string name="bug_report_subject" translatable="false">ZOMDROID REPORT %1$s</string>
+    <string name="bug_report_subject" translatable="false">DEEPHALL REPORT %1$s</string>
     <string name="bug_report_body">Hi, I have a new bug report.\n\nDescription: \n\n\n---\n%1$s</string>
     <string name="bug_report_no_mail">No email app found on this device.</string>
 
@@ -461,4 +461,17 @@
     <string name="shortcut_settings_long">Settings</string>
     <string name="shortcut_bug_report_short">Bug report</string>
     <string name="shortcut_bug_report_long">Send a bug report</string>
+    <string name="shortcut_export_saves_short">Export saves</string>
+    <string name="shortcut_export_saves_long">Export saves</string>
+    <string name="shortcut_import_saves_short">Import saves</string>
+    <string name="shortcut_import_saves_long">Import saves</string>
+    <!-- SaveTransferActivity -->
+    <string name="saves_none">There are no saves to export yet</string>
+    <string name="saves_no_instance">The game is not installed yet: start it once first</string>
+    <string name="saves_import_game_running">Close the game before importing saves</string>
+    <string name="saves_exported">Saves exported: %1$d</string>
+    <string name="saves_export_failed">Export failed: %1$s</string>
+    <string name="saves_imported">Saves imported: %1$d. An old save of the same name is kept as .bak</string>
+    <string name="saves_import_nothing">No .save files found in this file</string>
+    <string name="saves_import_failed">Import failed: %1$s</string>
 </resources>

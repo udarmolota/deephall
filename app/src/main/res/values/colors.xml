@@ -140,6 +140,12 @@
     <color name="md_theme_surfaceContainer_highContrast">#E2E2E9</color>
     <color name="md_theme_surfaceContainerHigh_highContrast">#D3D4DB</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#C5C6CD</color>
+    <!-- Deephall palette, from the poster art: lilac roofs, pale lamp light, the night sky. -->
+    <color name="deephall_lilac">#B28ACB</color>
+    <color name="deephall_lilac_dark">#5E3F72</color>
+    <color name="deephall_on_lilac">#2A1B33</color>
+    <color name="deephall_cream">#F5DFA5</color>
+    <color name="deephall_night">#241D30</color>
     <color name="pz_orange">#faba69</color>
     <color name="pz_orange_dark">#ae6013</color>
 </resources>

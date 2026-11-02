@@ -258,7 +258,6 @@
     <string name="nav_bug_report">Сообщить об ошибке</string>
     <string name="bug_report_preparing">Подготовка отчёта об ошибке…</string>
     <string name="bug_report_email" translatable="false">210478@mail.ru</string>
-    <string name="bug_report_subject" translatable="false">ZOMDROID REPORT %1$s</string>
     <string name="bug_report_body">Здравствуйте, у меня новый отчёт об ошибке.\n\nОписание: \n\n\n---\n%1$s</string>
     <string name="bug_report_no_mail">На этом устройстве не найдено почтовое приложение.</string>
 
@@ -419,4 +418,16 @@
     <string name="shortcut_settings_long">Настройки</string>
     <string name="shortcut_bug_report_short">Отчёт</string>
     <string name="shortcut_bug_report_long">Отправить отчёт об ошибке</string>
+    <string name="shortcut_export_saves_short">Экспорт</string>
+    <string name="shortcut_export_saves_long">Экспорт сохранений</string>
+    <string name="shortcut_import_saves_short">Импорт</string>
+    <string name="shortcut_import_saves_long">Импорт сохранений</string>
+    <string name="saves_none">Сохранений пока нет</string>
+    <string name="saves_no_instance">Игра ещё не установлена: сначала запустите её</string>
+    <string name="saves_import_game_running">Закройте игру перед импортом сохранений</string>
+    <string name="saves_exported">Экспортировано сохранений: %1$d</string>
+    <string name="saves_export_failed">Не удалось экспортировать: %1$s</string>
+    <string name="saves_imported">Импортировано сохранений: %1$d. Сохранение с тем же именем оставлено как .bak</string>
+    <string name="saves_import_nothing">В файле нет сохранений .save</string>
+    <string name="saves_import_failed">Не удалось импортировать: %1$s</string>
 </resources>

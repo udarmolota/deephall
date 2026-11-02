@@ -15,7 +15,7 @@ import com.zomdroid.databinding.ActivityDeephallStartBinding;
 import com.zomdroid.input.GamepadManager;
 
 /**
- * The standalone Deephall app's entry point: the only launcher activity of the debug build.
+ * The standalone Deephall app's entry point: the only launcher activity of the debug and release builds.
  *
  * <p>Asks InstallerService to prepare the game (PREPARE_BUNDLED_GAME: dependencies, then the
  * bundled instance - see {@link BundledGame}), shows its progress full screen, and starts
