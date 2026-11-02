@@ -410,4 +410,13 @@
     <string name="launcher_empty_body">Чтобы начать играть, создайте инстанс — установленную копию Project Zomboid. Добавьте файлы игры кнопкой + вверху или скачайте игру из Steam или GOG через боковое меню. Загрузку из Steam сначала нужно упаковать в .zip; из GOG после загрузки нажмите «Создать инстанс».</string>
     <string name="launcher_empty_quick_start">Быстрый старт</string>
     <string name="game_loading">Игра загружается…</string>
+
+    <string name="deephall_preparing">Подготовка игры…</string>
+    <string name="deephall_installing_game">Установка файлов игры…</string>
+    <string name="deephall_prepare_failed">Не удалось подготовить игру</string>
+    <string name="deephall_open_launcher">Открыть лаунчер</string>
+    <string name="shortcut_settings_short">Настройки</string>
+    <string name="shortcut_settings_long">Настройки</string>
+    <string name="shortcut_bug_report_short">Отчёт</string>
+    <string name="shortcut_bug_report_long">Отправить отчёт об ошибке</string>
 </resources>

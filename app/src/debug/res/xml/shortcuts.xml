@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press menu of the Deephall icon: the hidden launcher's settings and its bug report.
+     targetPackage is the debug application id (com.zomdroid + ".deephall"); resources cannot read
+     it from the build, which is one reason this file lives in the debug source set only. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="settings"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_settings"
+        android:shortcutShortLabel="@string/shortcut_settings_short"
+        android:shortcutLongLabel="@string/shortcut_settings_long">
+        <intent
+            android:action="com.zomdroid.action.OPEN_SETTINGS"
+            android:targetPackage="com.zomdroid.deephall"
+            android:targetClass="com.zomdroid.LauncherActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="bug_report"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_bug_report"
+        android:shortcutShortLabel="@string/shortcut_bug_report_short"
+        android:shortcutLongLabel="@string/shortcut_bug_report_long">
+        <intent
+            android:action="com.zomdroid.action.SEND_BUG_REPORT"
+            android:targetPackage="com.zomdroid.deephall"
+            android:targetClass="com.zomdroid.LauncherActivity" />
+    </shortcut>
+</shortcuts>

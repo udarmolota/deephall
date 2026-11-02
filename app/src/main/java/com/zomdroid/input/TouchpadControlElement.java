@@ -12,6 +12,23 @@ import androidx.annotation.Nullable;
 import android.graphics.Path;
 
 public class TouchpadControlElement extends AbstractControlElement {
+    // Where the touchpad left the mouse cursor. A finger on the map moves the cursor to click there;
+    // afterwards the cursor goes back here, so only the touchpad moves it for good.
+    private static double mouseCursorX = -1, mouseCursorY = -1;
+
+    private static void sendMouseCursor(double x, double y) {
+        mouseCursorX = x;
+        mouseCursorY = y;
+        InputNativeInterface.sendCursorPos(x, y);
+    }
+
+    /** Puts the cursor back where the touchpad left it, if the touchpad has been used. */
+    public static void restoreMouseCursor() {
+        if (mouseCursorX >= 0) {
+            InputNativeInterface.sendCursorPos(mouseCursorX, mouseCursorY);
+        }
+    }
+
 
     private static final String TAG = "ZomdroidTouch";
 
@@ -101,7 +118,7 @@ public class TouchpadControlElement extends AbstractControlElement {
                 }
 
                 double rs = parentView.getRenderScale();
-                InputNativeInterface.sendCursorPos(cursorX * rs, cursorY * rs);
+                sendMouseCursor(cursorX * rs, cursorY * rs);
                 parentView.invalidate();
                 return true;
             }
@@ -124,7 +141,7 @@ public class TouchpadControlElement extends AbstractControlElement {
                 //        + ") cursor=(" + cursorX + "," + cursorY + ")");
                 //InputNativeInterface.sendCursorPos(cursorX, cursorY);
                 double rs = parentView.getRenderScale();
-                InputNativeInterface.sendCursorPos(cursorX * rs, cursorY * rs);
+                sendMouseCursor(cursorX * rs, cursorY * rs);
                 parentView.invalidate();
                 //Log.v(TAG, "MOVE sendCursorPos=(" + (cursorX*rs) + "," + (cursorY*rs) + "), rs=" + rs);
                 return true;
@@ -145,7 +162,7 @@ public class TouchpadControlElement extends AbstractControlElement {
                     //Log.d(TAG, "TAP → sendMouseButton LEFT code="
                     //        + GLFWBinding.MOUSE_BUTTON_LEFT.code);
                     double rs = parentView.getRenderScale();
-                    InputNativeInterface.sendCursorPos(cursorX * rs, cursorY * rs);
+                    sendMouseCursor(cursorX * rs, cursorY * rs);
                     InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, true);
                     parentView.postDelayed(() -> {
                         InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, false);

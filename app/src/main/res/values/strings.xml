@@ -451,4 +451,14 @@
     <string name="launcher_empty_body">To start playing, create an instance — an installed copy of Project Zomboid. Add your game files with the + at the top, or download the game from Steam or GOG in the side menu. A Steam download must be packed into a .zip first; from GOG, tap “Create an instance” once the download is done.</string>
     <string name="launcher_empty_quick_start">Quick start</string>
     <string name="game_loading">Loading the game…</string>
+
+    <!-- Standalone Deephall app: start screen and the app icon's shortcuts -->
+    <string name="deephall_preparing">Preparing the game…</string>
+    <string name="deephall_installing_game">Installing the game files…</string>
+    <string name="deephall_prepare_failed">The game could not be prepared</string>
+    <string name="deephall_open_launcher">Open the launcher</string>
+    <string name="shortcut_settings_short">Settings</string>
+    <string name="shortcut_settings_long">Settings</string>
+    <string name="shortcut_bug_report_short">Bug report</string>
+    <string name="shortcut_bug_report_long">Send a bug report</string>
 </resources>

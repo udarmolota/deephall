@@ -24,6 +24,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.zomdroid.input.TouchpadControlElement;
 import com.zomdroid.input.GLFWBinding;
 import com.zomdroid.input.GamepadManager;
 import com.zomdroid.input.InputNativeInterface;
@@ -327,6 +328,7 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
                       endTwoFingerPan();
                   }
                   if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                      TouchpadControlElement.restoreMouseCursor();
                       pinching = false;
                       activePointerId = -1;
                   }
@@ -389,6 +391,7 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
                     InputNativeInterface.sendCursorPos(fingerDownX * renderScale, fingerDownY * renderScale);
                     InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, true);
                     InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_LEFT.code, false);
+                    TouchpadControlElement.restoreMouseCursor();
                     activePointerId = -1;
                     return true;
                 }
@@ -400,6 +403,9 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
                 InputNativeInterface.sendCursorPos(x * renderScale, y * renderScale);
                 if (isMouseEvent(e, idx)) {
                     syncMouseReleaseFromMask(e.getButtonState());
+                }
+                if (!isMouseEvent(e, idx)) {
+                    TouchpadControlElement.restoreMouseCursor();
                 }
                 activePointerId = -1;
                 return true;
@@ -457,7 +463,7 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
         final float dp = getResources().getDisplayMetrics().density;
         if (mode == com.zomdroid.game.InstanceSettings.HUD_FPS) {
             fpsText = new android.widget.TextView(this);
-            fpsText.setText("FPS: --");
+            fpsText.setText("--");
             // Soft white in the top right corner: Deephall keeps its buttons along the top left
             fpsText.setTextColor(0xB3FFFFFF);
             fpsText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11);
@@ -495,7 +501,7 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
             long now = android.os.SystemClock.elapsedRealtime();
             long count = GameLauncher.getPresentedFrameCount();
             if (fpsLastTimeMs != 0 && now > fpsLastTimeMs)
-                fpsText.setText("FPS: " + Math.round((count - fpsLastCount) * 1000.0 / (now - fpsLastTimeMs)));
+                fpsText.setText(String.valueOf(Math.round((count - fpsLastCount) * 1000.0 / (now - fpsLastTimeMs))));
             fpsLastCount = count;
             fpsLastTimeMs = now;
             hudHandler.postDelayed(this, 1000);

@@ -178,14 +178,17 @@ public class GameInstance {
     }
 
     private void makeDirs() throws FileSystemException {
+        // An existing folder is taken as it is. The new-instance screen refuses names whose folder
+        // exists, so only the bundled Deephall instance (BundledGame) gets here with one: its
+        // folder can outlive the instance list, and it holds the player's saves.
         File homeDir = new File(buildHomePath(this.name));
-        if (!homeDir.mkdirs()) {
+        if (!homeDir.isDirectory() && !homeDir.mkdirs()) {
             throw new FileSystemException("Failed to create instance directory " + homeDir.getAbsolutePath());
         }
         this.homePath = homeDir.getAbsolutePath();
 
         File gameDir = new File(getGamePath());
-        if (!gameDir.mkdirs()) {
+        if (!gameDir.isDirectory() && !gameDir.mkdirs()) {
             throw new FileSystemException("Failed to create game files directory " + gameDir.getAbsolutePath());
         }
     }

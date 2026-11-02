@@ -143,6 +143,34 @@ public class LauncherActivity extends AppCompatActivity {
         // Silent, at-most-once-a-day check so the GitHub icon can badge a newer release without
         // the user having to tap it. A manual tap still runs checkForUpdate() and shows a dialog.
         maybeDailyUpdateCheck();
+
+        // Only on a fresh start: a recreated launcher is already where the shortcut took it.
+        if (savedInstanceState == null) handleShortcutAction(getIntent());
+    }
+
+    // ---- App icon shortcuts -----------------------------------------------------
+
+    // The standalone Deephall app hides this launcher; these are its ways back in, from the app
+    // icon's long-press menu (res/xml/shortcuts.xml in the debug source set).
+    public static final String ACTION_OPEN_SETTINGS = "com.zomdroid.action.OPEN_SETTINGS";
+    public static final String ACTION_SEND_BUG_REPORT = "com.zomdroid.action.SEND_BUG_REPORT";
+
+    private void handleShortcutAction(Intent intent) {
+        String action = intent != null ? intent.getAction() : null;
+        if (ACTION_OPEN_SETTINGS.equals(action)) {
+            // The bundled instance's own settings - renderer, env vars, scale - are the ones that
+            // matter. Without that instance the launcher itself is the settings screen.
+            if (GameInstanceManager.requireSingleton().getInstanceByName(BundledGame.INSTANCE_NAME) == null)
+                return;
+            // Posted: the navigation graph is attached once the host fragment is created.
+            binding.getRoot().post(() -> {
+                Bundle args = new Bundle();
+                args.putString(com.zomdroid.fragments.SettingsFragment.ARG_INSTANCE, BundledGame.INSTANCE_NAME);
+                navController.navigate(R.id.action_open_instance_settings, args);
+            });
+        } else if (ACTION_SEND_BUG_REPORT.equals(action)) {
+            binding.getRoot().post(this::sendBugReport);
+        }
     }
 
     private void showDonateDialog() {

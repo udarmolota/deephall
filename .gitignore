@@ -18,3 +18,6 @@ local.properties
 
 # Working notes, kept out of the repo on purpose
 /TODO.md
+
+# Deephall's game files, staged for the standalone APK; they come from the deephall repository
+/deephall-game/

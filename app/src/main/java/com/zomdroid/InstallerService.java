@@ -75,6 +75,7 @@ public class InstallerService extends Service implements TaskProgressListener {
     public static final String EXTRA_DRIVER_URI = "com.zomdroid.InstallerService.EXTRA_DRIVER_URI";
     public static final String EXTRA_INSTALL_PRESET_NAME = "com.zomdroid.InstallerService.EXTRA_INSTALL_PRESET_NAME";
     public static final String EXTRA_GPU_VENDOR = "com.zomdroid.InstallerService.EXTRA_GPU_VENDOR";
+    public static final String EXTRA_RUN_TOKEN = "com.zomdroid.InstallerService.EXTRA_RUN_TOKEN";
 
     private final IBinder binder = new LocalBinder();
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -95,6 +96,10 @@ public class InstallerService extends Service implements TaskProgressListener {
     private static volatile boolean taskRunning;
     public static boolean isTaskRunning() { return taskRunning; }
     private volatile int lastStartId;
+    // Who asked for the current PREPARE_BUNDLED_GAME run (see DeephallStartActivity). The task
+    // state outlives a task, so a screen binding in sees whatever the last task left behind; the
+    // token is how it tells its own run from an earlier one.
+    private volatile long currentRunToken;
 
     /**
      * Stops the service unless it has been started again since its last task began. The screens call
@@ -140,6 +145,17 @@ public class InstallerService extends Service implements TaskProgressListener {
             Log.i(LOG_TAG, "Dependency re-check skipped: " + currentTask + " is still running");
             return START_NOT_STICKY;
         }
+        // A second start screen while the game is already being prepared (the first one was
+        // recreated, or the notification opened a new one): hand the running task over to it
+        // instead of queueing the same work again behind itself.
+        if (task == Task.PREPARE_BUNDLED_GAME && currentTask == Task.PREPARE_BUNDLED_GAME
+                && userTaskRunning) {
+            startForeground(NOTIFICATION_ID, notificationBuilder != null
+                    ? notificationBuilder.build()
+                    : buildNotification(getString(R.string.deephall_preparing), launchActivityIntent()));
+            currentRunToken = intent.getLongExtra(EXTRA_RUN_TOKEN, 0);
+            return START_NOT_STICKY;
+        }
 
         currentTask = task;
         taskRunning = true;
@@ -158,6 +174,7 @@ public class InstallerService extends Service implements TaskProgressListener {
         if (intent.hasExtra(EXTRA_GAME_INSTANCE_NAME)) {
             currentInstanceName = intent.getStringExtra(EXTRA_GAME_INSTANCE_NAME);
         }
+        currentRunToken = intent.getLongExtra(EXTRA_RUN_TOKEN, 0);
 
         Intent serviceStartedBroadcast = new Intent(ACTION_STARTED);
         LocalBroadcastManager.getInstance(this).sendBroadcast(serviceStartedBroadcast);
@@ -186,6 +203,9 @@ public class InstallerService extends Service implements TaskProgressListener {
                 break;
             case EXPORT_LOG:
                 doExportLog(intent);
+                break;
+            case PREPARE_BUNDLED_GAME:
+                doPrepareBundledGame();
                 break;
         }
 
@@ -294,100 +314,124 @@ public class InstallerService extends Service implements TaskProgressListener {
         startForeground(NOTIFICATION_ID, buildNotification(taskTitle));
 
         executorService.submit(() -> {
-            SharedPreferences prefs = getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE);
-            Gson gson = new Gson();
-
-            String bundlesJson = prefs.getString(C.shprefs.keys.INSTALLED_BUNDLES, "[]");
-
-            Type mapType = new TypeToken<HashMap<String, Long>>() {}.getType();
-            HashMap<String, Long> oldBundlesHashesMap = gson.fromJson(bundlesJson, mapType);
-            HashMap<String, Long> newBundlesHashesMap = new HashMap<>();
-
-            // --- Pass 1: CRC32 every bundle against its last-installed hash. Quiet and cheap —
-            // reads the (already-compressed) asset bytes straight out of the APK, no extraction.
-            boolean jre21Changed, libsChanged;
+            boolean anyChanged;
             try {
-                Long jre21HashNew = FileUtils.generateCRC32ForAsset(this, C.assets.BUNDLES_JRE21);
-                newBundlesHashesMap.put(C.assets.BUNDLES_JRE21, jre21HashNew);
-                jre21Changed = !jre21HashNew.equals(oldBundlesHashesMap.get(C.assets.BUNDLES_JRE21));
-
-                Long libsHashNew = FileUtils.generateCRC32ForAsset(this, C.assets.BUNDLES_LIBS);
-                newBundlesHashesMap.put(C.assets.BUNDLES_LIBS, libsHashNew);
-                libsChanged = !libsHashNew.equals(oldBundlesHashesMap.get(C.assets.BUNDLES_LIBS));
+                anyChanged = syncDependencies(taskTitle);
             } catch (IOException e) {
                 finishWithError(getString(R.string.dialog_title_failed_to_install_dependencies), e.toString());
                 return;
             }
+            // Nothing changed: never posted an "in progress" state, so no dialog ever showed.
+            finish(anyChanged ? getString(R.string.dialog_title_dependencies_installed) : null, null);
+        });
+    }
 
-            // Java 25 and the jars bundle (Project Zomboid's agent and SQLite driver) are no longer
-            // shipped. An install made by a launcher that still carried them keeps their folders on
-            // disk until this removes them; a missing folder makes this a pair of stat calls.
-            for (String retired : RETIRED_DEPENDENCY_DIRS) {
-                File dir = new File(AppStorage.requireSingleton().getHomePath(), retired);
-                if (dir.exists()) FileUtils.deleteDirectory(dir);
+    /**
+     * Brings jre21 and libs on disk in line with the bundles in this APK. Returns whether anything
+     * had to be extracted. An "in progress" state titled taskTitle is posted only then, so the
+     * common case (nothing changed) stays silent. Runs on the executor.
+     */
+    private boolean syncDependencies(String taskTitle) throws IOException {
+        SharedPreferences prefs = getSharedPreferences(C.shprefs.NAME, MODE_PRIVATE);
+        Gson gson = new Gson();
+
+        String bundlesJson = prefs.getString(C.shprefs.keys.INSTALLED_BUNDLES, "[]");
+
+        Type mapType = new TypeToken<HashMap<String, Long>>() {}.getType();
+        HashMap<String, Long> oldBundlesHashesMap = gson.fromJson(bundlesJson, mapType);
+        HashMap<String, Long> newBundlesHashesMap = new HashMap<>();
+
+        // --- Pass 1: CRC32 every bundle against its last-installed hash. Quiet and cheap —
+        // reads the (already-compressed) asset bytes straight out of the APK, no extraction.
+        Long jre21HashNew = FileUtils.generateCRC32ForAsset(this, C.assets.BUNDLES_JRE21);
+        newBundlesHashesMap.put(C.assets.BUNDLES_JRE21, jre21HashNew);
+        boolean jre21Changed = !jre21HashNew.equals(oldBundlesHashesMap.get(C.assets.BUNDLES_JRE21));
+
+        Long libsHashNew = FileUtils.generateCRC32ForAsset(this, C.assets.BUNDLES_LIBS);
+        newBundlesHashesMap.put(C.assets.BUNDLES_LIBS, libsHashNew);
+        boolean libsChanged = !libsHashNew.equals(oldBundlesHashesMap.get(C.assets.BUNDLES_LIBS));
+
+        // Java 25 and the jars bundle (Project Zomboid's agent and SQLite driver) are no longer
+        // shipped. An install made by a launcher that still carried them keeps their folders on
+        // disk until this removes them; a missing folder makes this a pair of stat calls.
+        for (String retired : RETIRED_DEPENDENCY_DIRS) {
+            File dir = new File(AppStorage.requireSingleton().getHomePath(), retired);
+            if (dir.exists()) FileUtils.deleteDirectory(dir);
+        }
+
+        boolean anyChanged = jre21Changed || libsChanged;
+        if (!anyChanged) {
+            // Nothing to extract — but still record that the dependencies ARE installed:
+            // every bundle just passed a CRC32 check against the APK's own copy, which is a
+            // stronger statement than the flag itself makes.
+            //
+            // Skipping this write used to strand the launcher permanently. ZomdroidApplication
+            // clears ARE_DEPENDENCIES_INSTALLED on any versionCode change, and before this
+            // check existed a cleared flag always meant a full re-extract that set it again.
+            // Now a release that touches only code (not the asset bundles) leaves every bundle
+            // identical, so we land here, return without the flag, and LauncherFragment refuses
+            // to start the game - on this launch and on every launch after it, with no manual
+            // way out. Hit on 2026-08-01 going 1.4.7 -> 1.4.8; it would have hit every user of
+            // any code-only release.
+            prefs.edit().putBoolean(C.shprefs.keys.ARE_DEPENDENCIES_INSTALLED, true).apply();
+            return false;
+        }
+
+        // --- Pass 2: only now announce the install, and only extract what changed ---
+        this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        if (jre21Changed) {
+            String jre21Path = AppStorage.requireSingleton().getHomePath() + "/" + C.deps.JRE_21;
+            File jre21Dir = new File(jre21Path);
+            if (jre21Dir.exists()) FileUtils.deleteDirectory(jre21Dir);
+
+            try (InputStream jreBundleInStream = getAssets().open(C.assets.BUNDLES_JRE21)) {
+                announceExtraction();
+                FileUtils.extractTarXzToDisk(jreBundleInStream, jre21Path, this, 0);
             }
+        }
 
-            boolean anyChanged = jre21Changed || libsChanged;
-            if (!anyChanged) {
-                // Nothing to extract — but still record that the dependencies ARE installed:
-                // every bundle just passed a CRC32 check against the APK's own copy, which is a
-                // stronger statement than the flag itself makes.
-                //
-                // Skipping this write used to strand the launcher permanently. ZomdroidApplication
-                // clears ARE_DEPENDENCIES_INSTALLED on any versionCode change, and before this
-                // check existed a cleared flag always meant a full re-extract that set it again.
-                // Now a release that touches only code (not the asset bundles) leaves every bundle
-                // identical, so we land here, return without the flag, and LauncherFragment refuses
-                // to start the game - on this launch and on every launch after it, with no manual
-                // way out. Hit on 2026-08-01 going 1.4.7 -> 1.4.8; it would have hit every user of
-                // any code-only release.
-                prefs.edit().putBoolean(C.shprefs.keys.ARE_DEPENDENCIES_INSTALLED, true).apply();
-                // Never posted an "in progress" state, so no dialog ever showed.
-                finish(null, null);
+        if (libsChanged) {
+            String libsPath = AppStorage.requireSingleton().getHomePath() + "/" + C.deps.LIBS;
+            File libsDir = new File(libsPath);
+            if (libsDir.exists()) FileUtils.deleteDirectory(libsDir);
+
+            try (InputStream libsBundleInStream = getAssets().open(C.assets.BUNDLES_LIBS)) {
+                announceExtraction();
+                FileUtils.extractTarXzToDisk(libsBundleInStream, libsPath, this, 0);
+            }
+        }
+
+        bundlesJson = gson.toJson(newBundlesHashesMap);
+        prefs.edit()
+                .putString(C.shprefs.keys.INSTALLED_BUNDLES, bundlesJson)
+                .putBoolean(C.shprefs.keys.ARE_DEPENDENCIES_INSTALLED, true)
+                .apply();
+        return true;
+    }
+
+    // -------------------- PREPARE BUNDLED GAME --------------------
+
+    // The standalone Deephall app's whole start-up in one task, so its start screen has a single
+    // run to follow: dependencies first, then the instance and its game files (BundledGame).
+    private void doPrepareBundledGame() {
+        String taskTitle = getString(R.string.deephall_preparing);
+
+        startForeground(NOTIFICATION_ID, buildNotification(taskTitle, launchActivityIntent()));
+        // setValue, not postValue: onStartCommand runs on the main thread, and replacing the
+        // previous task's final state right here means no observer can ever see that state
+        // together with this run's token.
+        this.taskState.setValue(new TaskState(taskTitle, null, -1, 0, false, false));
+
+        executorService.submit(() -> {
+            try {
+                syncDependencies(taskTitle);
+                BundledGame.prepare(this, this);
+            } catch (Exception e) {
+                finishWithError(getString(R.string.deephall_prepare_failed), e.toString());
                 return;
             }
-
-            // --- Pass 2: only now announce the install, and only extract what changed ---
-            this.taskState.postValue(new TaskState(taskTitle, null, -1, 0, false, false));
-
-            if (jre21Changed) {
-                try {
-                    String jre21Path = AppStorage.requireSingleton().getHomePath() + "/" + C.deps.JRE_21;
-                    File jre21Dir = new File(jre21Path);
-                    if (jre21Dir.exists()) FileUtils.deleteDirectory(jre21Dir);
-
-                    InputStream jreBundleInStream = getAssets().open(C.assets.BUNDLES_JRE21);
-                    announceExtraction();
-                    FileUtils.extractTarXzToDisk(jreBundleInStream, jre21Path, this, 0);
-                    jreBundleInStream.close();
-                } catch (IOException e) {
-                    finishWithError(getString(R.string.dialog_title_failed_to_install_dependencies), e.toString());
-                    return;
-                }
-            }
-
-            if (libsChanged) {
-                try {
-                    String libsPath = AppStorage.requireSingleton().getHomePath() + "/" + C.deps.LIBS;
-                    File libsDir = new File(libsPath);
-                    if (libsDir.exists()) FileUtils.deleteDirectory(libsDir);
-
-                    InputStream libsBundleInStream = getAssets().open(C.assets.BUNDLES_LIBS);
-                    announceExtraction();
-                    FileUtils.extractTarXzToDisk(libsBundleInStream, libsPath, this, 0);
-                } catch (IOException e) {
-                    finishWithError(getString(R.string.dialog_title_failed_to_install_dependencies), e.toString());
-                    return;
-                }
-            }
-
-            bundlesJson = gson.toJson(newBundlesHashesMap);
-            prefs.edit()
-                    .putString(C.shprefs.keys.INSTALLED_BUNDLES, bundlesJson)
-                    .putBoolean(C.shprefs.keys.ARE_DEPENDENCIES_INSTALLED, true)
-                    .apply();
-
-            finish(getString(R.string.dialog_title_dependencies_installed), null);
+            finish(null, null);
         });
     }
 
@@ -853,7 +897,19 @@ public class InstallerService extends Service implements TaskProgressListener {
     }
 
     private Notification buildNotification(String title) {
-        Intent notificationIntent = new Intent(this, LauncherActivity.class);
+        return buildNotification(title, new Intent(this, LauncherActivity.class));
+    }
+
+    // The activity the app icon opens. In the standalone Deephall build that is the start screen,
+    // which is where a tap on the "preparing" notification has to lead: the launcher is hidden.
+    private Intent launchActivityIntent() {
+        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+        if (launchIntent == null || launchIntent.getComponent() == null)
+            return new Intent(this, LauncherActivity.class);
+        return new Intent().setComponent(launchIntent.getComponent());
+    }
+
+    private Notification buildNotification(String title, Intent notificationIntent) {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
@@ -928,6 +984,10 @@ public class InstallerService extends Service implements TaskProgressListener {
         return currentGpuVendor;
     }
 
+    public long getCurrentRunToken() {
+        return currentRunToken;
+    }
+
     public class LocalBinder extends Binder {
         public InstallerService getService() {
             return InstallerService.this;
@@ -944,7 +1004,9 @@ public class InstallerService extends Service implements TaskProgressListener {
         EXPORT_CONTROLS_FROM_INSTANCE,
         IMPORT_CUSTOM_DRIVER,
         EXPORT_CUSTOM_DRIVER,
-        EXPORT_LOG
+        EXPORT_LOG,
+        // Appended, not inserted: tasks travel in intents as their ordinal.
+        PREPARE_BUNDLED_GAME
     }
 
     public static class TaskState {
