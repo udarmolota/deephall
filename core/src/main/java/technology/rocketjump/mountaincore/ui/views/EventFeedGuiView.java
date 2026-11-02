@@ -12,17 +12,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
 import technology.rocketjump.mountaincore.messaging.MessageType;
 import technology.rocketjump.mountaincore.settlement.notifications.Notification;
+import technology.rocketjump.mountaincore.settlement.notifications.NotificationType;
 import technology.rocketjump.mountaincore.ui.i18n.I18nString;
+import technology.rocketjump.mountaincore.ui.i18n.I18nText;
 import technology.rocketjump.mountaincore.ui.i18n.I18nTranslator;
 import technology.rocketjump.mountaincore.ui.skins.GuiSkinRepository;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -40,16 +42,13 @@ public class EventFeedGuiView implements Telegraph, GameContextAware {
 	private static final float TOP_EDGE_OF_SCREEN_HEIGHT = 0.11f;
 
 	private final I18nTranslator i18nTranslator;
-	private final Label.LabelStyle lineStyle;
-	private final Drawable lineBackground;
+	private final GuiSkinRepository guiSkinRepository;
 	private final VerticalGroup lines = new VerticalGroup();
 
 	@Inject
 	public EventFeedGuiView(MessageDispatcher messageDispatcher, I18nTranslator i18nTranslator, GuiSkinRepository guiSkinRepository) {
 		this.i18nTranslator = i18nTranslator;
-		Skin managementSkin = guiSkinRepository.getManagementSkin();
-		this.lineStyle = managementSkin.get("default-font-16-label-white", Label.LabelStyle.class);
-		this.lineBackground = managementSkin.newDrawable("white-pixel", new Color(0f, 0f, 0f, 0.45f));
+		this.guiSkinRepository = guiSkinRepository;
 
 		lines.columnLeft().left().space(4f);
 		lines.setTouchable(Touchable.disabled);
@@ -88,9 +87,12 @@ public class EventFeedGuiView implements Telegraph, GameContextAware {
 			lines.getChildren().first().remove();
 		}
 
-		Label label = new Label(text, lineStyle);
+		// The skin is looked up for every line: its fonts are replaced when the language or the interface
+		// scale is set, and a style kept from earlier would draw with a font that no longer exists
+		Skin managementSkin = guiSkinRepository.getManagementSkin();
+		Label label = new Label(text, managementSkin, "default-font-16-label-white");
 		Container<Label> line = new Container<>(label);
-		line.setBackground(lineBackground);
+		line.setBackground(managementSkin.newDrawable("white-pixel", new Color(0f, 0f, 0f, 0.3f)));
 		line.pad(4f, 12f, 4f, 12f);
 		line.setTouchable(Touchable.disabled);
 		line.addAction(Actions.sequence(
@@ -102,7 +104,15 @@ public class EventFeedGuiView implements Telegraph, GameContextAware {
 
 	@Override
 	public void onContextChange(GameContext gameContext) {
-
+		// A file named feed-test next to the game shows sample lines once, to look at the feed
+		File testFlag = new File("feed-test");
+		if (gameContext != null && testFlag.delete()) {
+			addLine(describe(new Notification(NotificationType.IMMIGRANTS_ARRIVED, null, null)));
+			Notification death = new Notification(NotificationType.DEATH, null, null);
+			death.addTextReplacement("character", new I18nText("Fiske Hugejewel"));
+			addLine(describe(death));
+			addLine(describe(new Notification(NotificationType.INVASION, null, null)));
+		}
 	}
 
 	@Override

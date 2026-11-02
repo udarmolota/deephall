@@ -44,7 +44,9 @@ public class StageAreaOnlyInputHandler implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		Vector2 mouseStageCoords = parent.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+		// Where this touch happened, not where the cursor is now: on a phone the launcher may already
+		// have moved the cursor back to the touchpad by the time the event is handled
+		Vector2 mouseStageCoords = parent.screenToStageCoordinates(new Vector2(screenX, screenY));
 		Actor target = parent.hit(mouseStageCoords.x, mouseStageCoords.y, true);
 		parent.touchDown(screenX, screenY, pointer, button);
 		if (button == Input.Buttons.RIGHT) {
@@ -64,7 +66,7 @@ public class StageAreaOnlyInputHandler implements InputProcessor {
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		Vector2 mouseStageCoords = parent.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+		Vector2 mouseStageCoords = parent.screenToStageCoordinates(new Vector2(screenX, screenY));
 		Actor target = parent.hit(mouseStageCoords.x, mouseStageCoords.y, true);
 		parent.touchUp(screenX, screenY, pointer, button);
 		if (target == null || button == Input.Buttons.RIGHT || interactionStateContainer.isDragging()) {
