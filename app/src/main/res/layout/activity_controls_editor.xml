@@ -17,16 +17,66 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/layouts_btn"
+    <!-- Toolbar, after RimDroid's: a compact row of separate buttons floating over the layout.
+         Bottom-centre by default, where a layout is normally empty; the grip on the left drags it
+         anywhere else, and the place is remembered. Declared before the settings card so the
+         card covers it while an element is being edited. -->
+    <LinearLayout
+        android:id="@+id/editor_toolbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="45dp"
-        android:alpha="0.92"
-        android:text="@string/controls_editor_layout_dialog_title"
-        android:textStyle="bold"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/editor_toolbar_grip"
+            android:layout_width="36dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="3dp"
+            android:gravity="center"
+            android:background="@drawable/editor_grip_bg"
+            android:contentDescription="@string/editor_move_toolbar"
+            android:text="⠿"
+            android:textColor="#FFFFFFFF"
+            android:textSize="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editor_add_btn"
+            style="@style/AppTheme.EditorToolbarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/editor_add" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editor_bg_set_btn"
+            style="@style/AppTheme.EditorToolbarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/editor_bg_set" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editor_bg_clear_btn"
+            style="@style/AppTheme.EditorToolbarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/editor_bg_clear" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editor_reset_btn"
+            style="@style/AppTheme.EditorToolbarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/editor_reset" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editor_done_btn"
+            style="@style/AppTheme.EditorToolbarButton.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/editor_done" />
+    </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/control_element_settings_cv"

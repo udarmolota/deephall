@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The controls editor toolbar's grip: same dark fill and white outline as its outlined buttons. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#99000000" />
+    <stroke android:width="1.5dp" android:color="#E6FFFFFF" />
+    <corners android:radius="12dp" />
+</shape>

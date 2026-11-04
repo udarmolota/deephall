@@ -74,7 +74,7 @@
     <string name="dialog_title_game_files_missing">Game files are missing</string>
 
     <string name="installation_not_finished">Installation is not finished</string>
-    <string name="dependencies_not_installed">Zomdroid dependencies are not installed</string>
+    <string name="dependencies_not_installed">Game components are not installed</string>
 
     <string name="settings_renderer">Renderer</string>
     <string name="settings_vulkan_driver">Vulkan driver</string>
@@ -474,4 +474,17 @@
     <string name="saves_imported">Saves imported: %1$d. An old save of the same name is kept as .bak</string>
     <string name="saves_import_nothing">No .save files found in this file</string>
     <string name="saves_import_failed">Import failed: %1$s</string>
+    <string name="shortcut_controls_short">Controls</string>
+    <string name="shortcut_controls_long">Edit on-screen controls</string>
+    <string name="shortcut_saves_short">Saves</string>
+    <string name="shortcut_saves_long">Saves</string>
+    <!-- Controls editor toolbar -->
+    <string name="editor_add">Add</string>
+    <string name="editor_bg_set">Background</string>
+    <string name="editor_bg_clear">No background</string>
+    <string name="editor_reset">Reset</string>
+    <string name="editor_done">Done</string>
+    <string name="editor_move_toolbar">Drag to move the toolbar</string>
+    <string name="editor_reset_confirm">Reset all on-screen buttons to the Deephall layout?</string>
+    <string name="editor_game_running">Close the game before editing the controls</string>
 </resources>

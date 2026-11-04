@@ -44,6 +44,8 @@ public final class BundledGame {
     public static final String ASSET_PAYLOAD = "game/deephall-game.zip";
     private static final String ASSET_VERSION = "game/deephall-game.version";
     private static final String ASSET_CONTROLS_DIR = "deephall_controls";
+    /** The bundled Deephall layout, also what the controls editor's Reset goes back to. */
+    public static final String ASSET_CONTROLS_JSON = ASSET_CONTROLS_DIR + "/controls.json";
 
     // Lives in the game dir, beside the files it describes: deleting the instance takes it along,
     // so a re-created instance can never inherit a stamp for files it does not have.
@@ -126,10 +128,17 @@ public final class BundledGame {
         if (controlsJson.isFile()) return;
         if (!controlsDir.isDirectory() && !controlsDir.mkdirs())
             throw new IOException("Failed to create directory " + controlsDir);
-        FileUtils.copyAssetsToDisk(context, ASSET_CONTROLS_DIR + "/icons",
-                new File(controlsDir, "icons").getPath());
+        copyDefaultControlIcons(context, new File(controlsDir, "icons"));
         // The layout goes last: it is what marks the controls as installed.
-        FileUtils.copyAssetsToDisk(context, ASSET_CONTROLS_DIR + "/controls.json", controlsJson.getPath());
+        FileUtils.copyAssetsToDisk(context, ASSET_CONTROLS_JSON, controlsJson.getPath());
+    }
+
+    /**
+     * Puts the bundled layout's icons into iconsDir, over any of the same name. The player's own
+     * custom icons have generated names and are left alone.
+     */
+    public static void copyDefaultControlIcons(Context context, File iconsDir) throws IOException {
+        FileUtils.copyAssetsToDisk(context, ASSET_CONTROLS_DIR + "/icons", iconsDir.getPath());
     }
 
     private static String readAssetText(Context context, String assetPath) throws IOException {

@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">Zomdroid</string>
 
     <string name="percentage_format" translatable="false">%d%%</string>
 
@@ -64,7 +63,7 @@
     <string name="dialog_title_game_files_missing">File game tidak ditemukan</string>
 
     <string name="installation_not_finished">Instalasi belum selesai</string>
-    <string name="dependencies_not_installed">Dependensi Zomdroid belum diinstal</string>
+    <string name="dependencies_not_installed">Komponen game belum diinstal</string>
 
     <string name="settings_renderer">Renderer</string>
     <string name="settings_vulkan_driver">Driver Vulkan</string>

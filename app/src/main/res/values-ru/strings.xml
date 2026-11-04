@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Zomdroid</string>
 
     <string name="percentage_format" translatable="false">%d%%</string>
 
@@ -65,7 +64,7 @@
     <string name="dialog_title_game_files_missing">Файлы игры отсутствуют</string>
 
     <string name="installation_not_finished">Установка не завершена</string>
-    <string name="dependencies_not_installed">Зависимости Zomdroid не установлены</string>
+    <string name="dependencies_not_installed">Компоненты игры не установлены</string>
 
     <string name="settings_renderer">Рендерер</string>
     <string name="settings_vulkan_driver">Драйвер Vulkan</string>
@@ -430,4 +429,16 @@
     <string name="saves_imported">Импортировано сохранений: %1$d. Сохранение с тем же именем оставлено как .bak</string>
     <string name="saves_import_nothing">В файле нет сохранений .save</string>
     <string name="saves_import_failed">Не удалось импортировать: %1$s</string>
+    <string name="shortcut_controls_short">Раскладка</string>
+    <string name="shortcut_controls_long">Экранные кнопки</string>
+    <string name="shortcut_saves_short">Сохранения</string>
+    <string name="shortcut_saves_long">Сохранения</string>
+    <string name="editor_add">Добавить</string>
+    <string name="editor_bg_set">Фон</string>
+    <string name="editor_bg_clear">Без фона</string>
+    <string name="editor_reset">Сброс</string>
+    <string name="editor_done">Готово</string>
+    <string name="editor_move_toolbar">Потяните, чтобы передвинуть панель</string>
+    <string name="editor_reset_confirm">Вернуть все экранные кнопки к раскладке Deephall?</string>
+    <string name="editor_game_running">Закройте игру, прежде чем менять кнопки</string>
 </resources>

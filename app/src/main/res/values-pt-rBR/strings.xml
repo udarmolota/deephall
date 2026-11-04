@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Zomdroid</string>
 
     <string name="percentage_format" translatable="false">%d%%</string>
 
@@ -65,7 +64,7 @@
     <string name="dialog_title_game_files_missing">Arquivos do jogo não encontrados</string>
 
     <string name="installation_not_finished">A instalação não foi concluída</string>
-    <string name="dependencies_not_installed">As dependências do Zomdroid não estão instaladas</string>
+    <string name="dependencies_not_installed">Os componentes do jogo não estão instalados</string>
 
     <string name="settings_renderer">Renderizador</string>
     <string name="settings_vulkan_driver">Driver Vulkan</string>

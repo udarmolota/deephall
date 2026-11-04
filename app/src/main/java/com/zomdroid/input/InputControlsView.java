@@ -122,7 +122,8 @@ public class InputControlsView extends View {
         });
     }
 
-    private void showAddElementDialog() {
+    /** The add-element list: long press on empty space in the editor, or its Add button. */
+    public void showAddElementDialog() {
         java.util.List<AbstractControlElement.Type> palette = new java.util.ArrayList<>();
         for (AbstractControlElement.Type t : AbstractControlElement.Type.values()) {
             if (isCreatable(t)) palette.add(t);

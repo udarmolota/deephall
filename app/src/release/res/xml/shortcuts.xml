@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Long-press menu of the Deephall icon: the hidden launcher's settings, its bug report
-     and the save export and import.
+<!-- Long-press menu of the Deephall icon: the hidden launcher's settings, the controls
+     editor, the saves (export and import share one shortcut: launchers show about four) and the
+     bug report.
      targetPackage is the release application id (com.udarmolota.deephall, set in
      app/build.gradle.kts); resources cannot read it from the build, so the debug build keeps its
      own copy of this file in src/debug/ with the debug application id. -->
@@ -17,6 +18,28 @@
             android:targetClass="com.zomdroid.LauncherActivity" />
     </shortcut>
     <shortcut
+        android:shortcutId="controls"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_controls"
+        android:shortcutShortLabel="@string/shortcut_controls_short"
+        android:shortcutLongLabel="@string/shortcut_controls_long">
+        <intent
+            android:action="com.zomdroid.action.EDIT_CONTROLS"
+            android:targetPackage="com.udarmolota.deephall"
+            android:targetClass="com.zomdroid.ControlsEditorActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="saves"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_saves"
+        android:shortcutShortLabel="@string/shortcut_saves_short"
+        android:shortcutLongLabel="@string/shortcut_saves_long">
+        <intent
+            android:action="com.zomdroid.action.SAVES"
+            android:targetPackage="com.udarmolota.deephall"
+            android:targetClass="com.zomdroid.SaveTransferActivity" />
+    </shortcut>
+    <shortcut
         android:shortcutId="bug_report"
         android:enabled="true"
         android:icon="@drawable/shortcut_bug_report"
@@ -26,27 +49,5 @@
             android:action="com.zomdroid.action.SEND_BUG_REPORT"
             android:targetPackage="com.udarmolota.deephall"
             android:targetClass="com.zomdroid.LauncherActivity" />
-    </shortcut>
-    <shortcut
-        android:shortcutId="export_saves"
-        android:enabled="true"
-        android:icon="@drawable/shortcut_export_saves"
-        android:shortcutShortLabel="@string/shortcut_export_saves_short"
-        android:shortcutLongLabel="@string/shortcut_export_saves_long">
-        <intent
-            android:action="com.zomdroid.action.EXPORT_SAVES"
-            android:targetPackage="com.udarmolota.deephall"
-            android:targetClass="com.zomdroid.SaveTransferActivity" />
-    </shortcut>
-    <shortcut
-        android:shortcutId="import_saves"
-        android:enabled="true"
-        android:icon="@drawable/shortcut_import_saves"
-        android:shortcutShortLabel="@string/shortcut_import_saves_short"
-        android:shortcutLongLabel="@string/shortcut_import_saves_long">
-        <intent
-            android:action="com.zomdroid.action.IMPORT_SAVES"
-            android:targetPackage="com.udarmolota.deephall"
-            android:targetClass="com.zomdroid.SaveTransferActivity" />
     </shortcut>
 </shortcuts>

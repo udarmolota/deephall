@@ -34,7 +34,8 @@ import java.util.zip.ZipInputStream;
  *
  * <p>No screen of its own: it opens the system file picker, does the copy off the main thread,
  * says how it went in a toast and finishes. Reached from the app icon's shortcuts and from the
- * instance card's overflow menu, with {@link #ACTION_EXPORT_SAVES} or {@link #ACTION_IMPORT_SAVES}.
+ * instance card's overflow menu, with {@link #ACTION_EXPORT_SAVES}, {@link #ACTION_IMPORT_SAVES}, or
+ * {@link #ACTION_SAVES}, which asks which of the two first.
  *
  * <p>An imported save never overwrites one silently: a save of the same name is first renamed
  * to name.save.bak, which the game does not list.
@@ -44,6 +45,8 @@ public class SaveTransferActivity extends ComponentActivity {
 
     public static final String ACTION_EXPORT_SAVES = "com.zomdroid.action.EXPORT_SAVES";
     public static final String ACTION_IMPORT_SAVES = "com.zomdroid.action.IMPORT_SAVES";
+    /** Asks first whether to export or import. */
+    public static final String ACTION_SAVES = "com.zomdroid.action.SAVES";
 
     private static final String SAVE_EXTENSION = ".save";
     private static final String BACKUP_EXTENSION = ".bak";
@@ -62,30 +65,52 @@ public class SaveTransferActivity extends ComponentActivity {
 
         String action = getIntent() != null ? getIntent().getAction() : null;
         if (ACTION_EXPORT_SAVES.equals(action)) {
-            File savesDir = savesDir();
-            if (savesDir == null || listSaves(savesDir).length == 0) {
-                finishWith(getString(R.string.saves_none));
-                return;
-            }
-            String date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
-            exportLauncher.launch("deephall-saves-" + date + ".zip");
+            startExport();
         } else if (ACTION_IMPORT_SAVES.equals(action)) {
-            // The running game keeps its own idea of the saves folder and may write over a file
-            // put there under it.
-            if (GameActivity.hasGameJvm()) {
-                finishWith(getString(R.string.saves_import_game_running));
-                return;
-            }
-            if (savesDir() == null) {
-                finishWith(getString(R.string.saves_no_instance));
-                return;
-            }
-            // Zip or .save: the picker cannot filter by extension, and a .save has no MIME type
-            // of its own.
-            importLauncher.launch(new String[]{"*/*"});
+            startImport();
+        } else if (ACTION_SAVES.equals(action)) {
+            // The app icon's one "Saves" shortcut: launchers show about four shortcuts, so export
+            // and import share one and the player picks here.
+            new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                    .setTitle(R.string.shortcut_saves_long)
+                    .setItems(new CharSequence[]{
+                            getString(R.string.shortcut_export_saves_long),
+                            getString(R.string.shortcut_import_saves_long)
+                    }, (dialog, which) -> {
+                        if (which == 0) startExport();
+                        else startImport();
+                    })
+                    .setOnCancelListener(dialog -> finish())
+                    .show();
         } else {
             finish();
         }
+    }
+
+    private void startExport() {
+        File savesDir = savesDir();
+        if (savesDir == null || listSaves(savesDir).length == 0) {
+            finishWith(getString(R.string.saves_none));
+            return;
+        }
+        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        exportLauncher.launch("deephall-saves-" + date + ".zip");
+    }
+
+    private void startImport() {
+        // The running game keeps its own idea of the saves folder and may write over a file
+        // put there under it.
+        if (GameActivity.hasGameJvm()) {
+            finishWith(getString(R.string.saves_import_game_running));
+            return;
+        }
+        if (savesDir() == null) {
+            finishWith(getString(R.string.saves_no_instance));
+            return;
+        }
+        // Zip or .save: the picker cannot filter by extension, and a .save has no MIME type
+        // of its own.
+        importLauncher.launch(new String[]{"*/*"});
     }
 
     /** The bundled instance's saves folder: user.home is the instance home, the game adds the rest. */

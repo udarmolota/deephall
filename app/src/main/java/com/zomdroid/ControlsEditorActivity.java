@@ -41,9 +41,20 @@ import com.zomdroid.databinding.ElementBindingFieldBinding;
 public class ControlsEditorActivity extends AppCompatActivity {
     public static final String EXTRA_BACKGROUND_PATH = "com.zomdroid.ControlsEditorActivity.EXTRA_BACKGROUND_PATH";
     public static final String EXTRA_INSTANCE_NAME = "com.zomdroid.ControlsEditorActivity.EXTRA_INSTANCE_NAME";
+    // In the instance's game/controls folder, the same file the launcher's editor screen picks.
+    private static final String BACKGROUND_FILE_NAME = "editor_background.jpg";
+    // Longest side a background picture is kept at: it only sits behind the buttons.
+    private static final int BACKGROUND_MAX_SIDE = 2560;
+    private static final String PREFS_NAME = "controls_editor";
+    private static final String PREF_TOOLBAR_X = "toolbar_x";
+    private static final String PREF_TOOLBAR_Y = "toolbar_y";
+
     private ActivityControlsEditorBinding binding;
     private TextWatcher controlElementTextWatcher = null;
     private ActivityResultLauncher<String> pickIconLauncher;
+    private ActivityResultLauncher<String> pickBackgroundLauncher;
+    private File backgroundFile;
+    private boolean isBundledInstance;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,10 +64,27 @@ public class ControlsEditorActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         // ПЕРВЫМ ДЕЛОМ — до любых других вызовов на inputControlsV
+        // Without an instance name it was opened from the app icon's Controls shortcut, which
+        // always means the bundled Deephall instance.
         String instanceName = getIntent().getStringExtra(EXTRA_INSTANCE_NAME);
-        if (instanceName != null) {
-            binding.inputControlsV.setInstanceName(instanceName);
+        if (instanceName == null) instanceName = BundledGame.INSTANCE_NAME;
+        com.zomdroid.game.GameInstance instance =
+                com.zomdroid.game.GameInstanceManager.requireSingleton().getInstanceByName(instanceName);
+        if (instance == null) {
+            Toast.makeText(this, R.string.saves_no_instance, Toast.LENGTH_LONG).show();
+            finish();
+            return;
         }
+        // The running game keeps its own copy of the layout and writes it back when the player
+        // rearranges buttons in it, which would undo whatever is saved here.
+        if (GameActivity.hasGameJvm()) {
+            Toast.makeText(this, R.string.editor_game_running, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        binding.inputControlsV.setInstanceName(instanceName);
+        isBundledInstance = BundledGame.INSTANCE_NAME.equals(instanceName);
+        backgroundFile = new File(instance.getGamePath(), "controls/" + BACKGROUND_FILE_NAME);
 
         pickIconLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
             if (uri != null) onIconPicked(uri);
@@ -76,42 +104,9 @@ public class ControlsEditorActivity extends AppCompatActivity {
         binding.inputControlsV.setBackgroundColor(0x00000000);
 
         String bgPath = getIntent().getStringExtra(EXTRA_BACKGROUND_PATH);
-        if (bgPath != null) {
-            Bitmap bg = BitmapFactory.decodeFile(bgPath);
-            if (bg != null) {
-                binding.controlsEditorBgIv.setImageBitmap(bg);
-                binding.controlsEditorBgIv.setVisibility(android.view.View.VISIBLE);
-            }
-        }
+        showBackground(bgPath != null ? new File(bgPath) : backgroundFile);
 
-        binding.layoutsBtn.setOnClickListener(v -> {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.controls_editor_layout_dialog_title)
-                    .setItems(new CharSequence[]{
-                            getString(R.string.controls_editor_load_vkbd),
-                            getString(R.string.controls_editor_reset_gamepad)
-                    }, (dialog, which) -> {
-                        if (which == 0) {
-                            binding.inputControlsV.replaceControlsFromAsset(
-                                    "default_controls_vkbd.json",
-                                    true
-                            );
-                            Toast.makeText(this,
-                                    R.string.controls_editor_vkbd_loaded,
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            binding.inputControlsV.replaceControlsFromAsset(
-                                    C.assets.DEFAULT_CONTROLS,
-                                    true
-                            );
-                            Toast.makeText(this,
-                                    R.string.controls_editor_layout_restored,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show();
-        });
+        setUpToolbar();
 
         binding.inputControlsV.setElementSettingsController(new InputControlsView.ElementSettingsController() {
             private void loadElement(AbstractControlElement element) {
@@ -905,9 +900,137 @@ public class ControlsEditorActivity extends AppCompatActivity {
         }
     }
 
+    private void setUpToolbar() {
+        pickBackgroundLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+            if (uri != null) saveBackground(uri);
+        });
+
+        binding.editorAddBtn.setOnClickListener(v -> binding.inputControlsV.showAddElementDialog());
+        binding.editorBgSetBtn.setOnClickListener(v -> pickBackgroundLauncher.launch("image/*"));
+        binding.editorBgClearBtn.setOnClickListener(v -> {
+            //noinspection ResultOfMethodCallIgnored
+            backgroundFile.delete();
+            showBackground(null);
+        });
+        binding.editorResetBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                .setMessage(R.string.editor_reset_confirm)
+                .setPositiveButton(R.string.editor_reset, (dialog, which) -> resetLayout())
+                .setNegativeButton(android.R.string.cancel, null)
+                .show());
+        // onPause saves the layout
+        binding.editorDoneBtn.setOnClickListener(v -> finish());
+
+        setUpToolbarDragging();
+    }
+
+    /** Back to the layout the app ships: Deephall's with its icons, or the launcher's own default. */
+    private void resetLayout() {
+        if (!isBundledInstance) {
+            binding.inputControlsV.replaceControlsFromAsset(C.assets.DEFAULT_CONTROLS, true);
+            return;
+        }
+        // Icons first: the layout's buttons look their icons up by file name as they are created.
+        File iconsDir = binding.inputControlsV.getControlsIconsDir();
+        if (iconsDir != null) {
+            try {
+                if (!iconsDir.isDirectory()) //noinspection ResultOfMethodCallIgnored
+                    iconsDir.mkdirs();
+                BundledGame.copyDefaultControlIcons(this, iconsDir);
+            } catch (java.io.IOException e) {
+                android.util.Log.w("ControlsEditorActivity", "Could not restore the default icons", e);
+            }
+        }
+        binding.inputControlsV.replaceControlsFromAsset(BundledGame.ASSET_CONTROLS_JSON, true);
+    }
+
+    private void showBackground(@Nullable File file) {
+        Bitmap bg = file != null && file.isFile() ? BitmapFactory.decodeFile(file.getPath()) : null;
+        binding.controlsEditorBgIv.setImageBitmap(bg);
+        binding.controlsEditorBgIv.setVisibility(bg != null ? View.VISIBLE : View.GONE);
+        binding.editorBgClearBtn.setVisibility(bg != null ? View.VISIBLE : View.GONE);
+    }
+
+    private void saveBackground(Uri uri) {
+        try (InputStream in = getContentResolver().openInputStream(uri)) {
+            Bitmap bmp = BitmapFactory.decodeStream(in);
+            if (bmp == null) throw new java.io.IOException("Not a picture");
+            float k = (float) BACKGROUND_MAX_SIDE / Math.max(bmp.getWidth(), bmp.getHeight());
+            if (k < 1f) {
+                bmp = Bitmap.createScaledBitmap(bmp, Math.round(bmp.getWidth() * k),
+                        Math.round(bmp.getHeight() * k), true);
+            }
+            File dir = backgroundFile.getParentFile();
+            if (dir != null && !dir.isDirectory()) //noinspection ResultOfMethodCallIgnored
+                dir.mkdirs();
+            try (FileOutputStream out = new FileOutputStream(backgroundFile)) {
+                bmp.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            }
+            showBackground(backgroundFile);
+        } catch (Exception e) {
+            Toast.makeText(this, getString(R.string.controls_editor_bg_error, String.valueOf(e.getMessage())),
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * The grip drags the toolbar anywhere on the screen, so it never has to sit on the buttons
+     * being placed. Its place is kept as a fraction of the screen, which survives a different
+     * screen size.
+     */
+    @SuppressWarnings("ClickableViewAccessibility")
+    private void setUpToolbarDragging() {
+        View toolbar = binding.editorToolbar;
+        android.content.SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        View parent = binding.getRoot();
+        parent.post(() -> {
+            if (!prefs.contains(PREF_TOOLBAR_X)) return;
+            toolbar.setTranslationX(prefs.getFloat(PREF_TOOLBAR_X, 0f) * parent.getWidth());
+            toolbar.setTranslationY(prefs.getFloat(PREF_TOOLBAR_Y, 0f) * parent.getHeight());
+            clampToolbar();
+        });
+
+        final float[] start = new float[4];
+        binding.editorToolbarGrip.setOnTouchListener((v, event) -> {
+            switch (event.getActionMasked()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    start[0] = event.getRawX();
+                    start[1] = event.getRawY();
+                    start[2] = toolbar.getTranslationX();
+                    start[3] = toolbar.getTranslationY();
+                    return true;
+                case android.view.MotionEvent.ACTION_MOVE:
+                    toolbar.setTranslationX(start[2] + event.getRawX() - start[0]);
+                    toolbar.setTranslationY(start[3] + event.getRawY() - start[1]);
+                    clampToolbar();
+                    return true;
+                case android.view.MotionEvent.ACTION_UP:
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    prefs.edit()
+                            .putFloat(PREF_TOOLBAR_X, toolbar.getTranslationX() / parent.getWidth())
+                            .putFloat(PREF_TOOLBAR_Y, toolbar.getTranslationY() / parent.getHeight())
+                            .apply();
+                    return true;
+            }
+            return false;
+        });
+    }
+
+    /** Keeps the whole toolbar on the screen. */
+    private void clampToolbar() {
+        View toolbar = binding.editorToolbar;
+        View parent = binding.getRoot();
+        float minX = -toolbar.getLeft();
+        float maxX = parent.getWidth() - toolbar.getRight();
+        float minY = -toolbar.getTop();
+        float maxY = parent.getHeight() - toolbar.getBottom();
+        toolbar.setTranslationX(Math.max(minX, Math.min(maxX, toolbar.getTranslationX())));
+        toolbar.setTranslationY(Math.max(minY, Math.min(maxY, toolbar.getTranslationY())));
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        binding.inputControlsV.saveControlElementsToDisk();
+        // Not when onCreate turned the editor away: there is no layout loaded to save.
+        if (backgroundFile != null) binding.inputControlsV.saveControlElementsToDisk();
     }
 }

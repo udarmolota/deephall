@@ -34,8 +34,10 @@
             android:screenOrientation="sensorLandscape"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
         </activity>
+        <!-- Exported for the app icon's Controls shortcut, like SaveTransferActivity below. -->
         <activity
-            android:name=".ControlsEditorActivity">
+            android:name=".ControlsEditorActivity"
+            android:exported="true">
         </activity>
         <!-- No screen: opens the system file picker for a save export or import and finishes.
              Exported for the app icon's shortcuts; the picker leaves every choice to the player. -->

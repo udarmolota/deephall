@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Zomdroid</string>
 
     <string name="percentage_format" translatable="false">%d%%</string>
 
@@ -65,7 +64,7 @@
     <string name="dialog_title_game_files_missing">游戏文件缺失</string>
 
     <string name="installation_not_finished">安装未完成</string>
-    <string name="dependencies_not_installed">Zomdroid 依赖项未安装</string>
+    <string name="dependencies_not_installed">游戏组件未安装</string>
 
     <string name="settings_renderer">渲染器</string>
     <string name="settings_vulkan_driver">Vulkan 驱动程序</string>
