@@ -34,6 +34,7 @@ import technology.rocketjump.mountaincore.entities.model.physical.creature.body.
 import technology.rocketjump.mountaincore.entities.model.physical.item.AmmoType;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemEntityAttributes;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
+import technology.rocketjump.mountaincore.settlement.HuntingRules;
 import technology.rocketjump.mountaincore.messaging.MessageType;
 import technology.rocketjump.mountaincore.messaging.types.CombatActionChangedMessage;
 import technology.rocketjump.mountaincore.messaging.types.ParticleEffectTypeCallback;
@@ -370,6 +371,13 @@ public class CombatBehaviour implements ParentDependentEntityComponent, Particle
 	private AggressionResponse getAggressionResponse() {
 		MilitaryComponent militaryComponent = parentEntity.getComponent(MilitaryComponent.class);
 		if (militaryComponent != null && militaryComponent.isInMilitary()) {
+			return ATTACK;
+		}
+		// A hunter with a bow or crossbow stands and shoots at wild animals; against anything else a hunter
+		// is a civilian and flees like one
+		CombatStateComponent huntersCombatState = parentEntity.getComponent(CombatStateComponent.class);
+		if (huntersCombatState != null && huntersCombatState.getTargetedOpponentId() != null &&
+				HuntingRules.fightsAsHunter(parentEntity, gameContext.getEntities().get(huntersCombatState.getTargetedOpponentId()), gameContext)) {
 			return ATTACK;
 		}
 

@@ -450,6 +450,7 @@ GOAL.EAT.DESCRIPTION,,Eating {{targetDescription}}
 GOAL.EXTINGUISH_FIRE.DESCRIPTION,,Putting out a fire
 GOAL.FLEE_FROM_AGGRESSOR.DESCRIPTION,,Fleeing from {{targetDescription}}
 GOAL.HAULING.DESCRIPTION,E.g. “Hauling granite stone”,Hauling {{targetDescription}}
+GOAL.HUNTER.HUNT.DESCRIPTION,,Hunting
 GOAL.IDLE.DESCRIPTION,When not doing anything,Idle
 GOAL.INVADER.CREATE_CAMP.DESCRIPTION,,Setting up camp
 GOAL.INVADER.RETREAT.DESCRIPTION,,Retreating from map
@@ -472,7 +473,8 @@ GUI.BUILD.DOORS,Take from FURNITURE.SINGLE_DOOR,Doors
 GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring
 GUI.BUILD.PILLARS,,Pillars
 GUI.BUILD.PIPING,,Pipes
-GUI.BUILD.POWER,,Power
+GUI.BUILD.POWER,,Shafts
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump or ore crusher. Straight runs are planks, turns need stone gears from the artisan."
 GUI.BUILD.ROOFING,,Roofing
 GUI.BUILD.WALLS,,Walls
 GUI.BUILD_FURNITURE,,Furniture
@@ -684,7 +686,7 @@ GUI.ORDERS.MINE,,Mine
 GUI.ORDERS_LABEL,,Orders
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size
 GUI.POWER_LABEL,,Power & Water
-GUI.POWER_WATER_INFO,,{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}
+GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} turn underground shafts {{drawable|tooltip_icon_power}}{{\n}}Shafts {{drawable|tooltip_icon_power}} drive {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and ore crushers{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}
 GUI.PRIORITY_LABEL,,Priority
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}}
@@ -912,13 +914,15 @@ MEAT.PIKE_MEAT.PLURAL,,Pike
 
 MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power
-MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.
+MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,Turns underground shafts. The shafts carry its power to an ore crusher or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,Not connected - lay shafts from here to an ore crusher or a water pump
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power
-MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - connect to an underground power connection
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,This furniture requires an underground power connection - see the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.
+MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - lay shafts here from a windmill or a water wheel
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}}. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.
 MECHANISM.STONE.GEAR.NOUN,,Gear assembly
 MECHANISM.STONE.GEAR.TOOLTIP,,This contraption links up mechanical power in all 4 directions.
 MECHANISM.WOODEN.SHAFT.NOUN,,Shaft
@@ -1025,6 +1029,12 @@ NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration
 NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off."
 NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through
+NOTIFICATION.HUNTER_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no civilian has the Hunter profession."
+NOTIFICATION.HUNTER_MISSING.TITLE,,Nobody to hunt
+NOTIFICATION.HUNTING_AMMO_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but the hunters have no arrows or bolts. Make some or buy them from a caravan."
+NOTIFICATION.HUNTING_AMMO_MISSING.TITLE,,Hunters are out of ammunition
+NOTIFICATION.HUNTING_WEAPON_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no hunter has a bow or crossbow. Assign one in the settlers screen."
+NOTIFICATION.HUNTING_WEAPON_MISSING.TITLE,,Hunters have no weapon
 NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool}}, and there is none. Craft one or buy one from a caravan."
 NOTIFICATION.TOOL_MISSING.TITLE,,No free tool
 NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else."
@@ -1245,6 +1255,7 @@ PROFESSION.HUNTER.FEMALE_NOUN,This could be “huntsman” and “huntress”,Hu
 PROFESSION.HUNTER.MALE_NOUN,,Hunter
 PROFESSION.HUNTER.TOOLTIP,,Tracks and kills wild animals for their meat and pelts.
 PROFESSION.HUNTER.VERB,,Hunting
+PROFESSION.HUNTER.PLURAL,,Hunters
 PROFESSION.LEATHERWORKER.FEMALE_NOUN,,Leatherworker
 PROFESSION.LEATHERWORKER.MALE_NOUN,,Leatherworker
 PROFESSION.LEATHERWORKER.PLURAL,,Leatherworkers

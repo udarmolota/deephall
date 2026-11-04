@@ -13,6 +13,7 @@ import org.pmw.tinylog.Logger;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import technology.rocketjump.mountaincore.assets.AssetDisposable;
+import technology.rocketjump.mountaincore.misc.FreezeWatchdog;
 import technology.rocketjump.mountaincore.assets.AssetDisposableRegister;
 import technology.rocketjump.mountaincore.assets.TextureAtlasRepository;
 import technology.rocketjump.mountaincore.audio.AudioUpdater;
@@ -181,6 +182,7 @@ public class MountaincoreApplicationAdapter extends ApplicationAdapter {
 
 	@Override
 	public void render() {
+		FreezeWatchdog.frameStarted();
 		if (SteamAPI.isSteamRunning()) {
 			SteamAPI.runCallbacks();
 		}

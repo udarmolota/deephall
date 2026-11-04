@@ -98,7 +98,9 @@ public enum GameInteractionMode {
 	SET_JOB_PRIORITY(GameCursor.PRIORITY, null, null, true),
 	SQUAD_MOVE_TO_LOCATION(GameCursor.ATTACK, null, mapTile ->
 			mapTile.getExploration().equals(EXPLORED) && mapTile.isNavigable(null), false),
-	SQUAD_ATTACK_CREATURE(GameCursor.ATTACK, null, mapTile -> mapTile.getExploration().equals(EXPLORED), true);
+	SQUAD_ATTACK_CREATURE(GameCursor.ATTACK, null, mapTile -> mapTile.getExploration().equals(EXPLORED), true),
+	// Marks wild animals for the settlement's hunters; the orders menu's Cancel removes the marks
+	HUNT_CREATURE(GameCursor.ATTACK, null, mapTile -> mapTile.getExploration().equals(EXPLORED), true);
 
 
 	public final GameCursor cursor;

@@ -23,6 +23,8 @@ import technology.rocketjump.mountaincore.gamecontext.GameContext;
 		@JsonSubTypes.Type(value = GoalSelectionByInvasionStage.class, name = "INVASION_IN_STAGE"),
 		@JsonSubTypes.Type(value = GoalSelectionByTradersStage.class, name = "TRADERS_IN_STAGE"),
 		@JsonSubTypes.Type(value = GoalSelectionByDrivingVehicle.class, name = "IS_DRIVING_VEHICLE"),
+		@JsonSubTypes.Type(value = GoalSelectionByHunter.class, name = "IS_HUNTER"),
+		@JsonSubTypes.Type(value = GoalSelectionByHuntTarget.class, name = "HUNT_TARGET_AVAILABLE"),
 })
 public interface GoalSelectionCondition {
 

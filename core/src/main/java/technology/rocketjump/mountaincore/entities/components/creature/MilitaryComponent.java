@@ -17,6 +17,7 @@ import technology.rocketjump.mountaincore.persistence.model.InvalidSaveException
 import technology.rocketjump.mountaincore.persistence.model.SavedGameStateHolder;
 import technology.rocketjump.mountaincore.rooms.HaulingAllocation;
 import technology.rocketjump.mountaincore.rooms.HaulingAllocationBuilder;
+import technology.rocketjump.mountaincore.settlement.HuntingRules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,6 +110,10 @@ public class MilitaryComponent implements InfrequentlyUpdatableComponent, Destru
 			equipArmor();
 		} else {
 			unequipArmor();
+			// A hunter keeps the bow or crossbow assigned to them, nothing else a soldier carries
+			if (HuntingRules.isHunter(parentEntity)) {
+				createHaulingAllocationIfRequired(assignedWeaponId);
+			}
 		}
 	}
 
@@ -201,6 +206,9 @@ public class MilitaryComponent implements InfrequentlyUpdatableComponent, Destru
 
 	public List<Long> getItemIdsToHoldOnto() {
 		if (!isInMilitary()) {
+			if (assignedWeaponId != null && HuntingRules.isHunter(parentEntity)) {
+				return List.of(assignedWeaponId);
+			}
 			return List.of();
 		} else {
 			List<Long> itemIds = new ArrayList<>();

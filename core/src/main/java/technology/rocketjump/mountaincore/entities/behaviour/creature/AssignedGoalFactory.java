@@ -21,6 +21,7 @@ import technology.rocketjump.mountaincore.entities.model.physical.furniture.Furn
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemEntityAttributes;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemType;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
+import technology.rocketjump.mountaincore.settlement.HuntingRules;
 import technology.rocketjump.mountaincore.mapping.tile.CompassDirection;
 import technology.rocketjump.mountaincore.mapping.tile.MapTile;
 import technology.rocketjump.mountaincore.messaging.MessageType;
@@ -112,9 +113,10 @@ public class AssignedGoalFactory {
 						continue;
 					}
 
-					if (attributes.getItemType().getIsAmmoType() != null) {
+					if (attributes.getItemType().getIsAmmoType() != null && militaryComponent != null) {
 						Long assignedWeaponId = militaryComponent.getAssignedWeaponId();
-						if (assignedWeaponId != null && militaryComponent.isInMilitary()) {
+						// Soldiers and hunters keep the ammunition for their assigned weapon
+						if (assignedWeaponId != null && (militaryComponent.isInMilitary() || HuntingRules.isHunter(parentEntity))) {
 							Entity assignedWeapon = gameContext.getEntities().get(assignedWeaponId);
 							if (assignedWeapon != null && assignedWeapon.getPhysicalEntityComponent().getAttributes() instanceof ItemEntityAttributes weaponAttributes) {
 								if (attributes.getItemType().getIsAmmoType().equals(

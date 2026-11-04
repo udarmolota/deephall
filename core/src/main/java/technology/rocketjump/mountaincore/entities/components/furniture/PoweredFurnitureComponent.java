@@ -78,17 +78,13 @@ public class PoweredFurnitureComponent implements ParentDependentEntityComponent
 		if (powered) {
 			float animationProgress = parentEntity.getPhysicalEntityComponent().getAnimationProgress();
 			float animationDelta = deltaTime * animationSpeed;
-			if (animatedReversed) {
-				animationProgress -= animationDelta;
-				while (animationProgress < 0f) {
-					animationProgress += 1f;
-				}
-			} else {
-				animationProgress += animationDelta;
-				while (animationProgress > 1f) {
-					animationProgress -= 1f;
-				}
+			animationProgress += animatedReversed ? -animationDelta : animationDelta;
+			// Wrap into 0..1 in one step: stepping by 1 never ends once the value is too large for a float
+			// to change by 1, and never ends at all for an infinite one
+			if (!Float.isFinite(animationProgress)) {
+				animationProgress = 0f;
 			}
+			animationProgress -= (float) Math.floor(animationProgress);
 			parentEntity.getPhysicalEntityComponent().setAnimationProgress(animationProgress);
 		}
 	}
@@ -135,8 +131,8 @@ public class PoweredFurnitureComponent implements ParentDependentEntityComponent
 				I18nWord word = i18nTranslator.getDictionary().getWord("MECHANISM.FURNITURE.PRODUCING_POWER");
 				result.add(i18nTranslator.applyReplacements(word, Map.of("power", new I18nWord(String.valueOf(powerAmount))), Gender.ANY));
 			} else {
-				// needs power grid
-				result.add(i18nTranslator.getTranslatedString("MECHANISM.FURNITURE.REQUIRES_POWER_GRID"));
+				// A windmill or water wheel with no shafts to turn: its own message, so it does not read as needing power
+				result.add(i18nTranslator.getTranslatedString("MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED"));
 			}
 		}
 		return result;

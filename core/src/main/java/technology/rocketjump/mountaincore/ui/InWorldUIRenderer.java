@@ -62,6 +62,7 @@ import technology.rocketjump.mountaincore.zones.Zone;
 
 import java.util.*;
 
+import technology.rocketjump.mountaincore.mapping.MapMessageHandler;
 import static technology.rocketjump.mountaincore.mapping.MapMessageHandler.getAttackableCreatures;
 import static technology.rocketjump.mountaincore.misc.VectorUtils.toGridPoint;
 import static technology.rocketjump.mountaincore.rendering.camera.TileBoundingBox.*;
@@ -99,6 +100,9 @@ public class InWorldUIRenderer {
 
 	private Set<Entity> targetedCreatures = new HashSet<>();
 	private Set<Entity> currentSquadTargetedCreatures = new HashSet<>();
+	private Set<Entity> huntTargetedCreatures = new HashSet<>();
+	// The hunter profession's colour
+	private static final Color HUNT_TARGET_COLOR = Color.valueOf("4FD1B5");
 	private final Designation flooringDesignation;
 	private final Map<ItemType, FloorType> floorTypeMap = new HashMap<>();
 
@@ -153,7 +157,7 @@ public class InWorldUIRenderer {
 		boolean hasRoomSelected = interactionStateContainer.getSelectable() != null && interactionStateContainer.getSelectable().type == Selectable.SelectableType.ROOM;
 		boolean hasBridgeSelected = interactionStateContainer.getSelectable() != null && interactionStateContainer.getSelectable().type == Selectable.SelectableType.BRIDGE;
 		boolean hasDoorwaySelected = interactionStateContainer.getSelectable() != null && interactionStateContainer.getSelectable().type == Selectable.SelectableType.DOORWAY;
-		boolean hasTargets = !targetedCreatures.isEmpty() || !currentSquadTargetedCreatures.isEmpty();
+		boolean hasTargets = !targetedCreatures.isEmpty() || !currentSquadTargetedCreatures.isEmpty() || !huntTargetedCreatures.isEmpty();
 
 		Gdx.gl.glClearColor(0, 0, 0, 0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -196,6 +200,9 @@ public class InWorldUIRenderer {
 			for (Entity targetedCreature : currentSquadTargetedCreatures) {
 				Color color = Color.RED;
 				entityRenderer.render(targetedCreature, selectedEntitySpriteBatch, RenderMode.DIFFUSE, null, color, null);
+			}
+			for (Entity huntedCreature : huntTargetedCreatures) {
+				entityRenderer.render(huntedCreature, selectedEntitySpriteBatch, RenderMode.DIFFUSE, null, HUNT_TARGET_COLOR, null);
 			}
 
 			selectedEntitySpriteBatch.end();
@@ -304,6 +311,34 @@ public class InWorldUIRenderer {
 				targetedCreatures.removeAll(attackableCreatures);
 			} else if (interactionStateContainer.getInteractionMode().equals(GameInteractionMode.CANCEL_ATTACK_CREATURE)) {
 				currentSquadTargetedCreatures.removeAll(attackableCreatures);
+			}
+		}
+
+		determineHuntTargets(gameContext);
+	}
+
+	/** Animals marked for the hunt, and while the player drags a Hunt or Cancel area, those it would change. */
+	private void determineHuntTargets(GameContext gameContext) {
+		huntTargetedCreatures.clear();
+		gameContext.getSettlementState().getHuntTargetEntityIds().stream()
+				.map(id -> gameContext.getEntities().get(id))
+				.filter(Objects::nonNull)
+				.forEach(huntTargetedCreatures::add);
+
+		// Only the orders menu's Cancel touches hunt marks: the Cancel of the power, piping or roofing views
+		// works under the ground or on the roof, and scanning a whole zoomed-out drag area every frame for
+		// animals there would only cost time
+		GameInteractionMode mode = interactionStateContainer.getInteractionMode();
+		boolean cancellingInOrders = mode.equals(GameInteractionMode.CANCEL) &&
+				GameViewMode.DEFAULT.equals(interactionStateContainer.getGameViewMode());
+		if ((mode.equals(GameInteractionMode.HUNT_CREATURE) || cancellingInOrders) &&
+				interactionStateContainer.isDragging()) {
+			Set<Entity> huntableCreatures = getAttackableCreatures(interactionStateContainer.getMinPoint(), interactionStateContainer.getMaxPoint(), gameContext);
+			huntableCreatures.removeIf(entity -> !MapMessageHandler.isHuntableCreature(entity));
+			if (mode.equals(GameInteractionMode.HUNT_CREATURE)) {
+				huntTargetedCreatures.addAll(huntableCreatures);
+			} else {
+				huntTargetedCreatures.removeAll(huntableCreatures);
 			}
 		}
 	}

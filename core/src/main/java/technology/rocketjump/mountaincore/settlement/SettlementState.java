@@ -50,6 +50,8 @@ public class SettlementState implements Persistable {
 	private Vector2 immigrationPoint;
 	private Double nextImmigrationGameTime;
 	private int fishRemainingInRiver;
+	// Wild animals the player marked with the Hunt order; hunters go after these
+	private final Set<Long> huntTargetEntityIds = new HashSet<>();
 	private float currentCombatRoundElapsed;
 	private GameState gameState;
 	private Race settlerRace;
@@ -136,6 +138,10 @@ public class SettlementState implements Persistable {
 
 	public void setFishRemainingInRiver(int fishRemainingInRiver) {
 		this.fishRemainingInRiver = fishRemainingInRiver;
+	}
+
+	public Set<Long> getHuntTargetEntityIds() {
+		return huntTargetEntityIds;
 	}
 
 	public InvasionDefinition getIncomingInvasion() {
@@ -282,6 +288,12 @@ public class SettlementState implements Persistable {
 
 		asJson.put("fishRemaining", fishRemainingInRiver);
 
+		if (!huntTargetEntityIds.isEmpty()) {
+			JSONArray huntTargetsJson = new JSONArray();
+			huntTargetsJson.addAll(huntTargetEntityIds);
+			asJson.put("huntTargets", huntTargetsJson);
+		}
+
 		if (!suppressedNotificationTypes.isEmpty()) {
 			JSONArray suppressedNotificationJson = new JSONArray();
 			for (NotificationType notificationType : suppressedNotificationTypes) {
@@ -426,6 +438,14 @@ public class SettlementState implements Persistable {
 		this.settlerRace = relatedStores.raceDictionary.getByName(settlerRaceName);
 
 		this.fishRemainingInRiver = asJson.getIntValue("fishRemaining");
+
+		// Saves from before hunting have no list
+		JSONArray huntTargetsJson = asJson.getJSONArray("huntTargets");
+		if (huntTargetsJson != null) {
+			for (int i = 0; i < huntTargetsJson.size(); i++) {
+				huntTargetEntityIds.add(huntTargetsJson.getLongValue(i));
+			}
+		}
 
 		JSONObject invasionCheckJson = asJson.getJSONObject("daysUntilNextInvasionCheck");
 		for (String invasionName : invasionCheckJson.keySet()) {

@@ -273,7 +273,7 @@ public class ModArtifactListing {
 						"ui/skin", "menu-skin", SKIN_ATLAS, SPECIAL, REPLACES_EXISTING, SkinFilesProcessor.class),
 				def("ui/skin", "management-skin[0-9]?.*", SKIN_ATLAS, null,
 						"ui/skin", "management-skin", SKIN_ATLAS, SPECIAL, REPLACES_EXISTING, SkinFilesProcessor.class),
-				def("ui/skin", "main-game-skin.*", SKIN_ATLAS, null,
+				def("ui/skin", "main-game-skin[0-9]?.*", SKIN_ATLAS, null,
 						"ui/skin", "main-game-skin", SKIN_ATLAS, SPECIAL, REPLACES_EXISTING, SkinFilesProcessor.class),
 
 

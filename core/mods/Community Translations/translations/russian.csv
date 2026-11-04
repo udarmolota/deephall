@@ -461,6 +461,7 @@ GOAL.EAT.DESCRIPTION,,Eating {{targetDescription}},Ест: {{targetDescription}}
 GOAL.EXTINGUISH_FIRE.DESCRIPTION,,Putting out a fire,Тушит пожар
 GOAL.FLEE_FROM_AGGRESSOR.DESCRIPTION,,Fleeing from {{targetDescription}},Спасается бегством: {{targetDescription}}
 GOAL.HAULING.DESCRIPTION,E.g. “Hauling granite stone”,Hauling {{targetDescription}},Переноска: {{targetDescription}}
+GOAL.HUNTER.HUNT.DESCRIPTION,,Hunting,Охота
 GOAL.IDLE.DESCRIPTION,When not doing anything,Idle,Бездельничает
 GOAL.INVADER.CREATE_CAMP.DESCRIPTION,,Setting up camp,Разбивает лагерь
 GOAL.INVADER.RETREAT.DESCRIPTION,,Retreating from map,Покидает карту
@@ -483,7 +484,8 @@ GUI.BUILD.DOORS,Take from FURNITURE.SINGLE_DOOR,Doors,Двери
 GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring,Полы
 GUI.BUILD.PILLARS,,Pillars,Колонны
 GUI.BUILD.PIPING,,Pipes,Трубы
-GUI.BUILD.POWER,,Power,Энергия
+GUI.BUILD.POWER,,Shafts,Валы
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump or ore crusher. Straight runs are planks, turns need stone gears from the artisan.","Валы: от мельницы или водяного колеса к насосу или рудодробилке. Прямые участки из досок, повороты из шестерён ремесленника."
 GUI.BUILD.ROOFING,,Roofing,Крыша
 GUI.BUILD.WALLS,,Walls,Стены
 GUI.BUILD_FURNITURE,,Furniture,Мебель
@@ -695,7 +697,7 @@ GUI.ORDERS.MINE,,Mine,Копать
 GUI.ORDERS_LABEL,,Orders,Приказы
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size,Мост должен покрывать обе стороны реки и иметь размер не менее 3x3 клетки
 GUI.POWER_LABEL,,Power & Water,Энергия и вода
-GUI.POWER_WATER_INFO,,{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} и {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} подключаются к линиям передачи {{drawable|tooltip_icon_power}}{{\n}}Линии передачи {{drawable|tooltip_icon_power}} питают {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} и другую механическую мебель{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} и орошение {{drawable|tooltip_icon_irrigation}} соединяются через {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}
+GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},Ветряные мельницы и водяные колёса вырабатывают силу для механизмов: водяного насоса и рудодробилки.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} и {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} крутят подземные валы {{drawable|tooltip_icon_power}}{{\n}}Валы {{drawable|tooltip_icon_power}} крутят {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} и рудодробилки{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} и орошение {{drawable|tooltip_icon_irrigation}} соединяются через {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}
 GUI.PRIORITY_LABEL,,Priority,Приоритет
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export,Что экспортировать
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}},Производство остановлено: лимит {{quantity}}
@@ -923,13 +925,15 @@ MEAT.PIKE_MEAT.PLURAL,,Pike,Щуки
 
 MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power,Работает - потребляет энергию: {{power}}
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power,Работает очень медленно - не хватает энергии
-MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,"Этой мебели нужно подземное подключение к источнику энергии, например «{{FURNITURE.WINDMILL}}» или «{{FURNITURE.WATERWHEEL}}»."
+MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,"Чтобы работать в полную силу, нужны подземные валы от мельницы или водяного колеса. Валы строятся в меню «{{GUI.BUILD_LABEL}}» → «{{GUI.BUILD.POWER}}»."
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power,Работает - вырабатывает энергию: {{power}}
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,Turns underground shafts. The shafts carry its power to an ore crusher or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Крутит подземные валы. По валам сила идёт к рудодробилке и водяному насосу. Валы строятся в меню «{{GUI.BUILD_LABEL}}» → «{{GUI.BUILD.POWER}}».
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,Not connected - lay shafts from here to an ore crusher or a water pump,Не подключено - проложите отсюда валы к рудодробилке или водяному насосу
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly,Для работы должно стоять снаружи
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power,Отключено - не хватает энергии
-MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,"Этой мебели нужно подземное подключение к источнику энергии, например «{{FURNITURE.WINDMILL}}» или «{{FURNITURE.WATERWHEEL}}»."
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - connect to an underground power connection,Отключено - подключите к подземной линии передачи
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,This furniture requires an underground power connection - see the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Этой мебели нужно подземное подключение к энергии: см. «{{GUI.BUILD.POWER}}» в меню «{{GUI.BUILD_LABEL}}».
+MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.,Валы дают мало силы: поставьте на те же валы ещё мельницу или водяное колесо.
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - lay shafts here from a windmill or a water wheel,Не работает - проложите сюда валы от мельницы или водяного колеса
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}}. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Нужны подземные валы от мельницы или водяного колеса. Валы строятся в меню «{{GUI.BUILD_LABEL}}» → «{{GUI.BUILD.POWER}}».
 MECHANISM.STONE.GEAR.NOUN,,Gear assembly,Шестеренчатый узел
 MECHANISM.STONE.GEAR.TOOLTIP,,This contraption links up mechanical power in all 4 directions.,Это устройство передает механическую энергию во все 4 стороны.
 MECHANISM.WOODEN.SHAFT.NOUN,,Shaft,Вал
@@ -1035,6 +1039,12 @@ NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!,
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration,Исследование
 NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off.","Торговый караван ждет у края карты, но к вам нет прохода. Откройте путь за три дня, иначе караван уйдет. Нажмите «Показать на карте», чтобы увидеть, где перекрыт путь."
 NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through,Караван не может пройти
+NOTIFICATION.HUNTER_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no civilian has the Hunter profession.","Звери помечены для охоты, но ни у кого из гражданских нет профессии «Охотник»."
+NOTIFICATION.HUNTER_MISSING.TITLE,,Nobody to hunt,Некому охотиться
+NOTIFICATION.HUNTING_AMMO_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but the hunters have no arrows or bolts. Make some or buy them from a caravan.","Звери помечены для охоты, но у охотников нет стрел или болтов. Сделайте их или купите у торговцев."
+NOTIFICATION.HUNTING_AMMO_MISSING.TITLE,,Hunters are out of ammunition,У охотников кончились стрелы
+NOTIFICATION.HUNTING_WEAPON_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no hunter has a bow or crossbow. Assign one in the settlers screen.","Звери помечены для охоты, но ни у одного охотника нет лука или арбалета. Назначьте оружие в окне поселенцев."
+NOTIFICATION.HUNTING_WEAPON_MISSING.TITLE,,Hunters have no weapon,Охотнику нечем охотиться
 NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool}}, and there is none. Craft one or buy one from a caravan.","Работа стоит: нужен инструмент «{{tool}}», а свободного нет. Изготовьте его или купите у каравана."
 NOTIFICATION.TOOL_MISSING.TITLE,,No free tool,Нет инструмента
 NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else.","Работа стоит: профессия «{{profession}}» есть только у солдат, а солдаты не работают. Уберите такого поселенца из отряда или дайте профессию другому."
@@ -1257,6 +1267,7 @@ PROFESSION.HUNTER.FEMALE_NOUN,This could be “huntsman” and “huntress”,Hu
 PROFESSION.HUNTER.MALE_NOUN,,Hunter,Охотник
 PROFESSION.HUNTER.TOOLTIP,,Tracks and kills wild animals for their meat and pelts.,Выслеживает и убивает диких животных ради их мяса и шкур.
 PROFESSION.HUNTER.VERB,,Hunting,Охота
+PROFESSION.HUNTER.PLURAL,,Hunters,Охотники
 PROFESSION.LEATHERWORKER.FEMALE_NOUN,,Leatherworker,Кожевница
 PROFESSION.LEATHERWORKER.MALE_NOUN,,Leatherworker,Кожевник
 PROFESSION.LEATHERWORKER.PLURAL,,Leatherworkers,Кожевники

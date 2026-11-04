@@ -1,0 +1,51 @@
+{
+  "name": "Hunt marked creature",
+  "i18nDescription": "GOAL.HUNTER.HUNT.DESCRIPTION",
+  "interruptedByLowNeeds": true,
+  "creatureCategories": ["CIVILIAN"],
+  "selectors": [
+    {
+      "conditions": [
+        {
+          "type": "NEED",
+          "need": "FOOD",
+          "operator": "GREATER_THAN_OR_EQUAL_TO",
+          "value": 15
+        },
+        {
+          "type": "NEED",
+          "need": "DRINK",
+          "operator": "GREATER_THAN_OR_EQUAL_TO",
+          "value": 15
+        },
+        {
+          "type": "NEED",
+          "need": "SLEEP",
+          "operator": "GREATER_THAN_OR_EQUAL_TO",
+          "value": 15
+        },
+        {
+          "type": "BODY_PART_FUNCTION",
+          "need": "MAIN_HAND"
+        },
+        {
+          "type": "HUNT_TARGET_AVAILABLE"
+        }
+      ],
+      "priority": "JOB_NORMAL",
+      "scheduleCategory": "WORK"
+    }
+  ],
+  "initialActions": ["SelectHuntTarget"],
+  "actionRelationships": {
+    "SelectHuntTarget": {
+      "pass": ["MoveTowardsOpponent"],
+      "fail": []
+    },
+    "MoveTowardsOpponent": {
+      "pass": ["AttackOpponent"],
+      "fail": []
+    },
+    "AttackOpponent": {}
+  }
+}

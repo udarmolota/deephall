@@ -967,6 +967,8 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 	}
 
 	private void removeFromSquadOrders(Entity creatureEntity) {
+		// A dead or removed animal is no longer a hunt target either
+		gameContext.getSettlementState().getHuntTargetEntityIds().remove(creatureEntity.getId());
 		for (Squad squad : gameContext.getSquads().values()) {
 			if (squad.getAttackEntityIds().contains(creatureEntity.getId())) {
 				squad.getAttackEntityIds().remove(creatureEntity.getId());

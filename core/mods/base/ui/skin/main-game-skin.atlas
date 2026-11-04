@@ -1531,3 +1531,16 @@ vertical_scrollbar_fg
   orig: 28, 80
   offset: 0, 0
   index: -1
+
+main-game-skin2.png
+size: 197, 208
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+btn_current_orders_hunt
+  rotate: false
+  xy: 0, 0
+  size: 197, 208
+  orig: 197, 208
+  offset: 0, 0
+  index: -1

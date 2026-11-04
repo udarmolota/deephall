@@ -963,3 +963,23 @@ vertical_scrollbar_fg
   orig: 28, 80
   offset: 0, 0
   index: -1
+
+management-skin2.png
+size: 376, 206
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+settlers_job_hunter
+  rotate: false
+  xy: 0, 0
+  size: 206, 206
+  orig: 206, 206
+  offset: 0, 0
+  index: -1
+btn_drag_job_hunter
+  rotate: false
+  xy: 206, 0
+  size: 170, 182
+  orig: 170, 182
+  offset: 0, 0
+  index: -1

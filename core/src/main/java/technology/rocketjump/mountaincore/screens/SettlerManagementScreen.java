@@ -46,6 +46,7 @@ import technology.rocketjump.mountaincore.jobs.model.Skill;
 import technology.rocketjump.mountaincore.messaging.MessageType;
 import technology.rocketjump.mountaincore.messaging.types.RequestSoundMessage;
 import technology.rocketjump.mountaincore.military.model.Squad;
+import technology.rocketjump.mountaincore.settlement.HuntingRules;
 import technology.rocketjump.mountaincore.persistence.UserPreferences;
 import technology.rocketjump.mountaincore.rendering.entities.EntityRenderer;
 import technology.rocketjump.mountaincore.rendering.utils.ColorMixer;
@@ -420,7 +421,16 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 			} else {
 				settlersTable.add(happinessColumn).width(500).spaceRight(50f);
 				settlersTable.add(needsColumn).spaceRight(50f);
-				settlersTable.add(professionsColumn).spaceRight(50f).spaceBottom(76f).spaceTop(38f);
+				if (HuntingRules.isHunter(settler)) {
+					// A hunter's bow or crossbow is assigned next to the professions, as a soldier's weapon is in
+					// the soldier's row. In the same cell, so the columns of the other rows stay aligned.
+					Table professionsAndWeapon = new Table();
+					professionsAndWeapon.add(professionsColumn).top();
+					professionsAndWeapon.add(weaponSelection(settler, 1.0f, rebuildSettlerView, true).getActor()).top().spaceLeft(30f);
+					settlersTable.add(professionsAndWeapon).spaceRight(50f).spaceBottom(76f).spaceTop(38f);
+				} else {
+					settlersTable.add(professionsColumn).spaceRight(50f).spaceBottom(76f).spaceTop(38f);
+				}
 			}
 
 			settlersTable.add(militaryToggleColumn).growX().spaceRight(36f);
@@ -432,6 +442,14 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 	}
 
 	public Updatable<Table> weaponSelection(Entity settler, float overallScale, Consumer<Entity> onSettlerChange) {
+		return weaponSelection(settler, overallScale, onSettlerChange, false);
+	}
+
+	/**
+	 * huntingWeaponOnly is the hunter's version: the weapon alone, chosen from bows and crossbows, with no shield or
+	 * armour (those are a soldier's).
+	 */
+	public Updatable<Table> weaponSelection(Entity settler, float overallScale, Consumer<Entity> onSettlerChange, boolean huntingWeaponOnly) {
 		SkillsComponent skillsComponent = settler.getComponent(SkillsComponent.class);
 		MilitaryComponent militaryComponent = settler.getComponent(MilitaryComponent.class);
 		EquippedItemComponent equippedItemComponent = settler.getComponent(EquippedItemComponent.class);
@@ -596,6 +614,7 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 
 					Map<String, List<Entity>> weaponsByItemType = settlementItemTracker.getAll(true).stream()
 							.filter(e -> getWeaponInfo(e) != null)
+							.filter(e -> !huntingWeaponOnly || getWeaponInfo(e).getRequiresAmmoType() != null)
 							.filter(e -> !getWeaponInfo(e).isTwoHanded() || canUseOffHand)
 							.collect(Collectors.groupingBy(SettlementItemTracker.GROUP_BY_ITEM_TYPE));
 					List<SelectItemDialog.Option> options = new ArrayList<>();
@@ -728,8 +747,10 @@ public class SettlerManagementScreen extends AbstractGameScreen implements Displ
 			}
 
 			table.add(weaponStack).growX().top().spaceRight(24 * overallScale).spaceLeft(24 * overallScale);
-			table.add(shieldStack).growX().top().spaceRight(24 * overallScale).spaceLeft(24 * overallScale);
-			table.add(armourColumn).growX().top().spaceRight(24 * overallScale).spaceLeft(24 * overallScale);
+			if (!huntingWeaponOnly) {
+				table.add(shieldStack).growX().top().spaceRight(24 * overallScale).spaceLeft(24 * overallScale);
+				table.add(armourColumn).growX().top().spaceRight(24 * overallScale).spaceLeft(24 * overallScale);
+			}
 		}
 		updatable.update();
 

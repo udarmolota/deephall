@@ -70,6 +70,13 @@
     "draggableIcon": "btn_drag_job_fisher"
   },
   {
+    "name": "HUNTER",
+    "i18nKey": "PROFESSION.HUNTER",
+    "type": "PROFESSION",
+    "icon": "settlers_job_hunter",
+    "draggableIcon": "btn_drag_job_hunter"
+  },
+  {
     "name": "LEATHERWORKER",
     "i18nKey": "PROFESSION.LEATHERWORKER",
     "type": "PROFESSION",

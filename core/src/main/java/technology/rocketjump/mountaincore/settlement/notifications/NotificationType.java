@@ -24,7 +24,10 @@ public enum NotificationType {
 	SETTLER_STUCK("NOTIF_DWARF_STUCK.png", null),
 	WORKER_MISSING("NOTIF_DWARF_STUCK.png", null),
 	WORKER_IN_SQUAD("NOTIF_DWARF_STUCK.png", null),
-	TOOL_MISSING("NOTIF_DWARF_STUCK.png", null);
+	TOOL_MISSING("NOTIF_DWARF_STUCK.png", null),
+	HUNTER_MISSING("NOTIF_DWARF_STUCK.png", null),
+	HUNTING_WEAPON_MISSING("NOTIF_DWARF_STUCK.png", null),
+	HUNTING_AMMO_MISSING("NOTIF_DWARF_STUCK.png", null);
 
 
 	private String imageFilename;

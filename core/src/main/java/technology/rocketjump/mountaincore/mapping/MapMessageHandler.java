@@ -64,6 +64,7 @@ import technology.rocketjump.mountaincore.rooms.RoomStore;
 import technology.rocketjump.mountaincore.rooms.RoomTile;
 import technology.rocketjump.mountaincore.rooms.components.StockpileRoomComponent;
 import technology.rocketjump.mountaincore.ui.GameInteractionMode;
+import technology.rocketjump.mountaincore.ui.GameViewMode;
 import technology.rocketjump.mountaincore.ui.GameInteractionStateContainer;
 import technology.rocketjump.mountaincore.ui.Selectable;
 import technology.rocketjump.mountaincore.ui.i18n.I18nTranslator;
@@ -412,6 +413,15 @@ public class MapMessageHandler implements Telegraph, GameContextAware {
 			return true;
 		}
 
+		if (interactionStateContainer.getInteractionMode().equals(GameInteractionMode.HUNT_CREATURE)) {
+			gameContext.getSettlementState().getHuntTargetEntityIds().addAll(getHuntableCreatureIds(areaSelectionMessage));
+			return true;
+		} else if (interactionStateContainer.getInteractionMode().equals(GameInteractionMode.CANCEL) &&
+				GameViewMode.DEFAULT.equals(interactionStateContainer.getGameViewMode())) {
+			// The orders menu's Cancel takes hunt marks off the animals in the area too, then goes on to remove designations
+			gameContext.getSettlementState().getHuntTargetEntityIds().removeAll(getHuntableCreatureIds(areaSelectionMessage));
+		}
+
 		for (int x = minTile.x; x <= maxTile.x; x++) {
 			for (int y = minTile.y; y <= maxTile.y; y++) {
 				MapTile tile = gameContext.getAreaMap().getTile(x, y);
@@ -573,6 +583,20 @@ public class MapMessageHandler implements Telegraph, GameContextAware {
 				messageDispatcher.dispatchMessage(MessageType.MILITARY_SQUAD_ORDERS_CHANGED, new SquadOrderChangeMessage(squad, SquadOrderType.TRAINING));
 			}
 		}
+	}
+
+	private Set<Long> getHuntableCreatureIds(AreaSelectionMessage areaSelectionMessage) {
+		return getAttackableCreatures(areaSelectionMessage.getMinPoint(), areaSelectionMessage.getMaxPoint(), gameContext)
+				.stream()
+				.filter(MapMessageHandler::isHuntableCreature)
+				.map(Entity::getId)
+				.collect(toSet());
+	}
+
+	/** Only wild animals can be hunted: not monsters, invaders or merchants. */
+	public static boolean isHuntableCreature(Entity entity) {
+		return isAttackableCreature(entity) &&
+				entity.getOrCreateComponent(FactionComponent.class).getFaction().equals(Faction.WILD_ANIMALS);
 	}
 
 	public static Set<Entity> getAttackableCreatures(Vector2 minPoint, Vector2 maxPoint, GameContext gameContext) {
