@@ -31,13 +31,19 @@ import static technology.rocketjump.mountaincore.screens.menus.options.GraphicsO
 public class DesktopLauncher {
 
     /**
-     * A phone gives the game one surface to draw on and no OpenAL. There is no second window
-     * for the game to move into once the splash screen has had its moment, and the audio
-     * device would fail to open before anything is drawn at all. With
-     * -Dmountaincore.android=true the game goes straight into a single silent window instead.
-     * Nothing about the desktop launch changes.
+     * A phone gives the game one surface to draw on. There is no second window for the game to
+     * move into once the splash screen has had its moment, so with -Dmountaincore.android=true
+     * the game goes straight into a single window instead. Nothing about the desktop launch
+     * changes.
      */
     private static final boolean SINGLE_SILENT_WINDOW = Boolean.getBoolean("mountaincore.android");
+
+    /**
+     * Sound on the phone comes from an OpenAL Soft the launcher ships and points LWJGL at
+     * (org.lwjgl.openal.libname). It is on unless -Dmountaincore.audio=false; if the device does
+     * not open, LibGDX logs it and carries on silent, so a phone without working audio still plays.
+     */
+    private static final boolean AUDIO_ON_PHONE = !"false".equals(System.getProperty("mountaincore.audio"));
 
     public static void main(String[] args) {
         try {
@@ -63,7 +69,7 @@ public class DesktopLauncher {
 
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("Mountaincore");
-        config.disableAudio(true);
+        config.disableAudio(!AUDIO_ON_PHONE);
         config.setDecorated(false);
         config.setWindowedMode(displayResolution.width, displayResolution.height);
 
