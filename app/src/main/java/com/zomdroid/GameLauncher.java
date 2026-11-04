@@ -192,6 +192,9 @@ public class GameLauncher {
         }
 
         jvmArgs.add("-Dorg.lwjgl.opengl.libname=" + settings.getRenderer().libName);
+        // Sound: the OpenAL Soft built for Android (app/src/main/jniLibs, see LICENSE-openal-soft)
+        // that LWJGL's OpenAL binding opens. The game falls back to silence if it cannot.
+        jvmArgs.add("-Dorg.lwjgl.openal.libname=" + AppStorage.requireSingleton().getLibraryPath() + "/libopenal.so");
         jvmArgs.add("-Dzomdroid.renderer=" + settings.getRenderer().name());
         if (BuildConfig.DEBUG) {
             jvmArgs.add("-Dorg.lwjgl.util.Debug=true"); //print LWJGL library errors

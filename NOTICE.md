@@ -69,11 +69,14 @@ Anyone redistributing this project must satisfy FMOD's licence independently.
 | **OpenJDK** (Android build by [PojavLauncherTeam](https://github.com/PojavLauncherTeam/android-openjdk-build-multiarch)) | 21.0.1 and 25.0.3 | GPL v2 **with the Classpath Exception** |
 | **GNU C Library (glibc)** — `libc.so.6`, `libpthread.so.0` | as shipped | LGPL v2.1 or later |
 | **GCC runtime** — `libstdc++.so.6`, `libgcc_s.so.1` | as shipped | GPL v3 with the GCC Runtime Library Exception |
+| **OpenAL Soft** — `libopenal.so` (Deephall's sound) | 1.25.2 | LGPL v2 or later; some parts BSD-3-Clause |
 
 The complete corresponding source for these components is available from their upstream projects
 ([OpenJDK](https://github.com/openjdk/jdk), [glibc](https://sourceware.org/glibc/),
-[GCC](https://gcc.gnu.org/)) and, for the Android OpenJDK build, from the PojavLauncherTeam
-repository linked above. On request we will provide the exact sources corresponding to the binaries
+[GCC](https://gcc.gnu.org/), [OpenAL Soft](https://github.com/kcat/openal-soft)) and, for the Android
+OpenJDK build, from the PojavLauncherTeam repository linked above. OpenAL Soft is the unmodified
+`1.25.2` tag, built with NDK r27 for arm64-v8a (Android API 30, OpenSL ES backend, `c++_static`,
+16 KB pages) and stripped; it ships in `app/src/main/jniLibs`. On request we will provide the exact sources corresponding to the binaries
 shipped in a given release; open an issue at
 <https://github.com/udarmolota/zomdroid/issues>.
 

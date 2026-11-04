@@ -36,7 +36,7 @@ public class PresetManager {
                 .setLibraryPathForEmulationArray(new String[]{
                         C.deps.LIBS_LINUX_X86_64
                 })
-                // One window, no splash screen, no audio device. See DesktopLauncher.
+                // One window, no splash screen. See DesktopLauncher; sound comes from libopenal.so (GameLauncher).
                 .setExtraJvmArgs(new String[]{"-Dmountaincore.android=true"})
                 .setMainClassName("technology/rocketjump/mountaincore/launcher/DesktopLauncher")
                 .build()
