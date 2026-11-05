@@ -251,8 +251,10 @@ public class ControlsEditorActivity extends AppCompatActivity {
                             public void onNothingSelected(AdapterView<?> parent) { }
                         });
                     });
-                    binding.elementInputTypeS.setVisibility(View.VISIBLE);
+                    // Deephall is keyboard and mouse only: the gamepad input type is not offered
+                    binding.elementInputTypeS.setVisibility(View.GONE);
                 }
+                binding.elementInputTypeTv.setVisibility(View.GONE);
 
                 switch (element.getType()) {
                     case BUTTON_CIRCLE:
@@ -505,14 +507,8 @@ public class ControlsEditorActivity extends AppCompatActivity {
         });
 
         binding.elementDeleteB.setOnClickListener(v -> binding.inputControlsV.deleteSelectedElement());
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.dialog_title_info)
-                .setMessage(R.string.controls_editor_instructions)
-                .setCancelable(true)
-                .setPositiveButton(R.string.dialog_button_ok, null)
-                .create()
-                .show();
+        // No instructions dialog on opening: the toolbar's Add and Done say what long press and
+        // leaving used to have to explain
     }
 
     private void applyInputType(@NonNull AbstractControlElement element,

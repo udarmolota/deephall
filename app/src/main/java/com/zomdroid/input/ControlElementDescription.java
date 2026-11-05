@@ -122,17 +122,25 @@ public class ControlElementDescription {
         validate();
     }
 
+    /**
+     * What the editor's Add creates. Deephall is played with keyboard and mouse only and the editor no
+     * longer offers the gamepad input type, so new buttons, d-pads, sticks and radial menus start as
+     * keyboard-and-mouse elements with ordinary keys (Space; arrows; WASD) the player then changes.
+     * The split d-pad pieces cannot be added from the editor and keep their gamepad defaults.
+     */
     public static ControlElementDescription getDefaultForType(AbstractControlElement.Type type) {
         switch (type) {
             case BUTTON_CIRCLE:
             case BUTTON_RECT:
                 return new ControlElementDescription(0.5f, 0.5f, 1.f, type,
-                        new GLFWBinding[]{GLFWBinding.GAMEPAD_BUTTON_A}, "A", Color.LTGRAY, 150,
-                        AbstractControlElement.InputType.GAMEPAD, Icon.NO_ICON, false);
+                        new GLFWBinding[]{GLFWBinding.KEY_SPACE}, "Space", Color.LTGRAY, 150,
+                        AbstractControlElement.InputType.MNK, Icon.NO_ICON, false);
             case DPAD:
+                // left, up, right, down
                 return new ControlElementDescription(0.5f, 0.5f, 1.f, type,
-                        new GLFWBinding[]{}, null, Color.LTGRAY, 150,
-                        AbstractControlElement.InputType.GAMEPAD, Icon.NO_ICON, false);
+                        new GLFWBinding[]{GLFWBinding.KEY_LEFT, GLFWBinding.KEY_UP, GLFWBinding.KEY_RIGHT, GLFWBinding.KEY_DOWN},
+                        null, Color.LTGRAY, 150,
+                        AbstractControlElement.InputType.MNK, Icon.NO_ICON, false);
 
             case DPAD_UP:
                 return new ControlElementDescription(
@@ -163,9 +171,11 @@ public class ControlElementDescription {
                         AbstractControlElement.InputType.GAMEPAD, Icon.NO_ICON, false);
 
             case STICK:
+                // left, up, right, down
                 return new ControlElementDescription(0.5f, 0.5f, 1.f, type,
-                        new GLFWBinding[]{GLFWBinding.LEFT_JOYSTICK}, null, Color.LTGRAY, 255,
-                        AbstractControlElement.InputType.GAMEPAD, Icon.NO_ICON, false);
+                        new GLFWBinding[]{GLFWBinding.KEY_A, GLFWBinding.KEY_W, GLFWBinding.KEY_D, GLFWBinding.KEY_S},
+                        null, Color.LTGRAY, 255,
+                        AbstractControlElement.InputType.MNK, Icon.NO_ICON, false);
             case STICK_WASD:
                 return new ControlElementDescription(
                         0.14f, 0.70f, 1.f, type,
@@ -196,7 +206,7 @@ public class ControlElementDescription {
                         0.5f, 0.5f, 1.0f, type,
                         new GLFWBinding[0],
                         "ZOOM", Color.LTGRAY, 200,
-                        AbstractControlElement.InputType.GAMEPAD,
+                        AbstractControlElement.InputType.MNK,
                         Icon.NO_ICON, false, DEFAULT_SENSITIVITY);
             default:
                 throw new IllegalArgumentException("Unrecognized type " + type.name());

@@ -39,7 +39,7 @@ import java.nio.file.Files;
  */
 public final class BundledGame {
     public static final String INSTANCE_NAME = "Deephall";
-    private static final String PRESET_NAME = "Deephall";
+    public static final String PRESET_NAME = "Deephall";
 
     public static final String ASSET_PAYLOAD = "game/deephall-game.zip";
     private static final String ASSET_VERSION = "game/deephall-game.version";

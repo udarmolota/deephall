@@ -62,6 +62,7 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
 
     private boolean leftMouseDown  = false;
     private boolean rightMouseDown = false;
+    private boolean middleMouseDown = false;
     // Pinch-to-zoom on the game surface: two fingers become mouse-wheel notches, which is
     // what the game zooms on. While a pinch is in progress single-finger mouse emulation is
     // suspended, so the second finger is not taken for a click and the spread is not a drag.
@@ -652,6 +653,12 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
           InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_RIGHT.code, pressed);
           syncMouseReleaseFromMask(event.getButtonState());
           return true;
+        } else if (btn == MotionEvent.BUTTON_TERTIARY) {
+          // The wheel click: Deephall pans the map with it, and its debug menu acts on it
+          middleMouseDown = pressed;
+          InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_WHEEL.code, pressed);
+          syncMouseReleaseFromMask(event.getButtonState());
+          return true;
         }
       }
       return super.onGenericMotionEvent(event);
@@ -747,6 +754,11 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
         if (!rightNow && rightMouseDown) {
             rightMouseDown = false;
             InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_RIGHT.code, false);
+        }
+        boolean middleNow = (mask & MotionEvent.BUTTON_TERTIARY) != 0;
+        if (!middleNow && middleMouseDown) {
+            middleMouseDown = false;
+            InputNativeInterface.sendMouseButton(GLFWBinding.MOUSE_BUTTON_WHEEL.code, false);
         }
     }
 

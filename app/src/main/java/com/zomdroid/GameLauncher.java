@@ -184,6 +184,12 @@ public class GameLauncher {
                 }
             }
         }
+        // Deephall needs GL4ES to report OpenGL 3.0: at its default 2.1 LibGDX finds no framebuffer
+        // objects and the game does not start. Set here so it cannot be wiped from the settings by
+        // accident; a LIBGL_GL the player sets above still wins (overwrite false).
+        if (BundledGame.PRESET_NAME.equals(gameInstance.getPresetName())) {
+            Os.setenv("LIBGL_GL", "30", false);
+        }
 
         // Debug builds always carry the emulated-JNI statistics ([JNISTAT] in native.log); a user
         // value of 0 still turns them off.
