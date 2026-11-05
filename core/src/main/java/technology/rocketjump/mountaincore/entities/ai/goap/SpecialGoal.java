@@ -19,7 +19,8 @@ public enum SpecialGoal {
 	MOVE_GROUP_TOWARDS_SETTLEMENT("Move group towards settlement"),
 	CRAFTING_JOB("Crafting job goal"),
 	ABANDON_JOB("Abandon job goal"),
-	GO_TO_SETTLEMENT_GOAL("Go to settlement goal");
+	GO_TO_SETTLEMENT_GOAL("Go to settlement goal"),
+	LEAVE_SETTLEMENT("Leave settlement goal");
 
 	public final String goalName;
 	Goal goalInstance;

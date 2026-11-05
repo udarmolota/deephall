@@ -73,6 +73,17 @@ public class SleepInBedAction extends SleepOnFloorAction {
 		}
 	}
 
+	/** A real bed heals at the full rate; a sleeping spot (a bedroll on the ground) only as the floor does. */
+	@Override
+	protected float healingFactor(GameContext gameContext) {
+		Entity assignedFurniture = parent.getAssignedFurnitureId() == null ? null : gameContext.getEntities().get(parent.getAssignedFurnitureId());
+		SleepingPositionComponent sleepingPositionComponent = assignedFurniture == null ? null : assignedFurniture.getComponent(SleepingPositionComponent.class);
+		if (sleepingPositionComponent == null || sleepingPositionComponent.getBedCreaturePosition().equals(BedSleepingPositionTag.BedCreaturePosition.ON_GROUND)) {
+			return super.healingFactor(gameContext);
+		}
+		return 1.0f;
+	}
+
 	private boolean bedroomIsSmall(Room bedroom) {
 		return bedroom.getRoomTiles().size() < MIN_AVERAGE_BEDROOM_SIZE;
 	}

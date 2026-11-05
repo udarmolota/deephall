@@ -55,6 +55,9 @@ import static technology.rocketjump.mountaincore.entities.model.physical.creatur
 public class CreatureBehaviour implements BehaviourComponent, Destructible, SelectableDescription {
 
 	private static final int MAX_TANTRUMS = 3;
+	// A bad day, not a passing one: hungry and thirsty, or hungry after seeing a dead dwarf. A bed (+20),
+	// a drink (+40) or the new settlement's optimism (+40) keep a looked-after settler above it
+	private static final int TANTRUM_HAPPINESS_THRESHOLD = -50;
 
 	protected SteeringComponent steeringComponent = new SteeringComponent();
 	protected CombatBehaviour combatBehaviour = new CombatBehaviour();
@@ -209,6 +212,14 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 			if (attributes.getSanity().equals(Sanity.SANE) && attributes.getConsciousness().equals(AWAKE) &&
 					happinessComponent != null && happinessComponent.getNetModifier() <= HappinessComponent.MIN_HAPPINESS_VALUE) {
 				messageDispatcher.dispatchMessage(MessageType.SAPIENT_CREATURE_INSANITY, parentEntity);
+			} else if (attributes.getSanity().equals(Sanity.SANE) && attributes.getConsciousness().equals(AWAKE) &&
+					happinessComponent != null && happinessComponent.getNetModifier() <= TANTRUM_HAPPINESS_THRESHOLD &&
+					parentEntity.getOrCreateComponent(FactionComponent.class).getFaction().equals(Faction.SETTLEMENT)) {
+				// The tantrum itself (tantrumGoal), its notification, the relief afterwards and the limit of
+				// MAX_TANTRUMS were all there, but nothing ever created the memory that starts it. A settler this
+				// unhappy now throws one when it next picks a goal; addShortTerm keeps a single such memory.
+				MemoryComponent memoryComponent = parentEntity.getOrCreateComponent(MemoryComponent.class);
+				memoryComponent.addShortTerm(new Memory(MemoryType.ABOUT_TO_HAVE_A_BREAKDOWN, gameContext.getGameClock()), gameContext.getGameClock());
 			}
 		}
 	}

@@ -465,6 +465,7 @@ GOAL.HUNTER.HUNT.DESCRIPTION,,Hunting,Охота
 GOAL.IDLE.DESCRIPTION,When not doing anything,Idle,Бездельничает
 GOAL.INVADER.CREATE_CAMP.DESCRIPTION,,Setting up camp,Разбивает лагерь
 GOAL.INVADER.RETREAT.DESCRIPTION,,Retreating from map,Покидает карту
+GOAL.SETTLER.LEAVING.DESCRIPTION,,Leaving the settlement,Уходит из поселения
 GOAL.INVADER.STEAL_RESOURCES.DESCRIPTION,,Raiding stockpiles,Грабит склады
 GOAL.MILITARY.ATTACK_TARGET.DESCRIPTION,,Moving into combat,Вступает в бой
 GOAL.MILITARY.STAND_IN_FORMATION.DESCRIPTION,,Guarding a position,Охраняет позицию
@@ -1079,7 +1080,7 @@ NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them s
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,Пираты!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,Крыша обрушилась: не хватило колонн и опор.
 NOTIFICATION.ROOFING_COLLAPSE.TITLE,,Roof Collapsed,Крыша обрушилась
-NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,The gruelling hardship has proven to be too much to handle for {{character}}.,{{character}}: тяготы жизни оказались невыносимы.
+NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,"The gruelling hardship has proven to be too much to handle for {{character}}, who is leaving the settlement.","{{character}}: тяготы жизни оказались невыносимы, и гном уходит из поселения."
 NOTIFICATION.SETTLER_MENTAL_BREAK.TITLE,,Mental Break,Нервный срыв
 NOTIFICATION.SETTLER_STUCK.DESCRIPTION,,"A settler has become stuck, unable to find a drink. Act quickly!",Поселенец застрял и не может добраться до воды. Действуйте быстро!
 NOTIFICATION.SETTLER_STUCK.TITLE,,Trapped!,В ловушке!

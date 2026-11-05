@@ -1,0 +1,16 @@
+{
+  "name": "Leave settlement goal",
+  "i18nDescription": "GOAL.SETTLER.LEAVING.DESCRIPTION",
+  "interruptedByLowNeeds": false,
+  "selectors": [],
+  "initialActions": ["SelectRetreatLocation"],
+  "actionRelationships": {
+    "SelectRetreatLocation": {
+      "pass": ["GoToGoalTargetLocation"]
+    },
+    "GoToGoalTargetLocation": {
+      "pass": ["RemoveFromMap"]
+    },
+    "RemoveFromMap": {}
+  }
+}

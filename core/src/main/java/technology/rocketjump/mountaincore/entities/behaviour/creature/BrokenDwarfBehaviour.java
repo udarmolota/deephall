@@ -95,10 +95,23 @@ public class BrokenDwarfBehaviour extends CreatureBehaviour implements ParticleR
 		return steeringComponent;
 	}
 
+	/**
+	 * A broken settler leaves the way settlers arrive: walks to the nearest map edge and is gone (it dropped
+	 * everything it had when it broke). If no edge can be reached, say from a sealed fortress, it idles and
+	 * tries again an hour later, rather than searching the map edge on every goal it picks.
+	 */
 	@Override
 	protected AssignedGoal pickNextGoalFromQueue() {
+		double now = gameContext.getGameClock().getCurrentGameTime();
+		if (lastLeaveAttemptGameTime < 0 || now - lastLeaveAttemptGameTime >= HOURS_BETWEEN_LEAVE_ATTEMPTS) {
+			lastLeaveAttemptGameTime = now;
+			return new AssignedGoal(SpecialGoal.LEAVE_SETTLEMENT.getInstance(), parentEntity, messageDispatcher, gameContext);
+		}
 		return new AssignedGoal(SpecialGoal.IDLE.getInstance(), parentEntity, messageDispatcher, gameContext);
 	}
+
+	private static final double HOURS_BETWEEN_LEAVE_ATTEMPTS = 1.0;
+	private transient double lastLeaveAttemptGameTime = -1;
 
 	@Override
 	protected void addGoalsToQueue(GameContext gameContext) {

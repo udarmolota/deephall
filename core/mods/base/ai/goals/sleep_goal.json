@@ -19,6 +19,15 @@
     {
       "conditions": [
         {
+          "type": "BADLY_WOUNDED"
+        }
+      ],
+      "priority": "NEED_NORMAL",
+      "scheduleCategory": "ANY"
+    },
+    {
+      "conditions": [
+        {
           "type": "NEED",
           "need": "SLEEP",
           "operator": "LESS_THAN_OR_EQUAL_TO",

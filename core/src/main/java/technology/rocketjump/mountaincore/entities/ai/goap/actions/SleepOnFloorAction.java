@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.math.Vector2;
 import technology.rocketjump.mountaincore.entities.ai.goap.AssignedGoal;
 import technology.rocketjump.mountaincore.entities.ai.goap.EntityNeed;
+import technology.rocketjump.mountaincore.entities.ai.goap.condition.GoalSelectionByBadlyWounded;
 import technology.rocketjump.mountaincore.entities.components.creature.HappinessComponent;
 import technology.rocketjump.mountaincore.entities.components.creature.NeedsComponent;
 import technology.rocketjump.mountaincore.entities.model.Entity;
@@ -42,8 +43,13 @@ import static technology.rocketjump.mountaincore.mapping.tile.MapTile.NULL_TILE;
 import static technology.rocketjump.mountaincore.mapping.tile.roof.TileRoofState.OPEN;
 
 public class SleepOnFloorAction extends Action {
+	// Chances per restful sleep in a bed; sleeping on the floor heals at floorHealingFactor() of these
 	private static final float CHANCE_TO_HEAL_ORGAN_DAMAGE = 0.1f;
 	private static final float CHANCE_TO_HEAL_BODY_DAMAGE = 0.4f;
+	private static final float FLOOR_HEALING_FACTOR = 0.5f;
+	// A badly wounded sleeper stays in bed once rested, healing again every this many hours (bed rest)
+	private static final double HOURS_BETWEEN_BED_REST_HEALING = 4.0;
+	private transient double lastBedRestHealingGameTime = -1;
 
 	public SleepOnFloorAction(AssignedGoal parent) {
 		super(parent);
@@ -95,6 +101,9 @@ public class SleepOnFloorAction extends Action {
 
 		NeedsComponent needsComponent = parent.parentEntity.getComponent(NeedsComponent.class);
 		// All changes in need amounts are handled by SettlerBehaviour
+		if (needsComponent.getValue(EntityNeed.SLEEP) >= 100.0 && stayOnBedRest(needsComponent, gameContext)) {
+			return;
+		}
 		if (needsComponent.getValue(EntityNeed.SLEEP) >= 100.0) {
 			if (happinessComponent != null) {
 				// Only entities with tracked happiness can freeze outside
@@ -193,6 +202,39 @@ public class SleepOnFloorAction extends Action {
 		// Heal damage if this was a restful sleep
 		Double sleepNeed = parent.parentEntity.getComponent(NeedsComponent.class).getValue(EntityNeed.SLEEP);
 		if (sleepNeed > MAX_NEED_VALUE / 2) {
+			healOnce(attributes, gameContext);
+		}
+	}
+
+	/**
+	 * Bed rest: a sleeper with a bleeding wound or broken bones does not get up once rested, but keeps lying
+	 * there and heals again every few hours, until those wounds are better. Hunger, thirst (the goal is
+	 * interrupted by low needs) and fire still get it up.
+	 */
+	private boolean stayOnBedRest(NeedsComponent needsComponent, GameContext gameContext) {
+		if (!GoalSelectionByBadlyWounded.isBadlyWounded(parent.parentEntity) || parent.parentEntity.isOnFire()
+				|| (needsComponent.has(FOOD) && needsComponent.getValue(FOOD) <= 0.0)
+				|| (needsComponent.has(DRINK) && needsComponent.getValue(DRINK) <= 0.0)) {
+			return false;
+		}
+		double now = gameContext.getGameClock().getCurrentGameTime();
+		if (lastBedRestHealingGameTime < 0) {
+			lastBedRestHealingGameTime = now;
+		} else if (now - lastBedRestHealingGameTime >= HOURS_BETWEEN_BED_REST_HEALING) {
+			lastBedRestHealingGameTime = now;
+			healOnce((CreatureEntityAttributes) parent.parentEntity.getPhysicalEntityComponent().getAttributes(), gameContext);
+		}
+		return true;
+	}
+
+	/** How well sleeping here heals, against a bed's 1.0: the floor heals at half the rate. */
+	protected float healingFactor(GameContext gameContext) {
+		return FLOOR_HEALING_FACTOR;
+	}
+
+	private void healOnce(CreatureEntityAttributes attributes, GameContext gameContext) {
+		float factor = healingFactor(gameContext);
+		{
 			for (Map.Entry<BodyPart, BodyPartDamage> entry : new ArrayList<>(attributes.getBody().getAllDamage())) {
 				if (entry.getValue().getDamageLevel().equals(BodyPartDamageLevel.Destroyed)) {
 					continue;
@@ -202,14 +244,14 @@ public class SleepOnFloorAction extends Action {
 				while (organDamageIterator.hasNext()) {
 					Map.Entry<BodyPartOrgan, OrganDamageLevel> organDamageLevelEntry = organDamageIterator.next();
 					if (!organDamageLevelEntry.getValue().equals(OrganDamageLevel.DESTROYED)) {
-						if (gameContext.getRandom().nextFloat() < CHANCE_TO_HEAL_ORGAN_DAMAGE) {
+						if (gameContext.getRandom().nextFloat() < CHANCE_TO_HEAL_ORGAN_DAMAGE * factor) {
 							organDamageIterator.remove();
 						}
 					}
 				}
 
 				if (!entry.getValue().getDamageLevel().equals(BodyPartDamageLevel.None)) {
-					if (gameContext.getRandom().nextFloat() < CHANCE_TO_HEAL_BODY_DAMAGE) {
+					if (gameContext.getRandom().nextFloat() < CHANCE_TO_HEAL_BODY_DAMAGE * factor) {
 						entry.getValue().healOneLevel();
 					}
 				}

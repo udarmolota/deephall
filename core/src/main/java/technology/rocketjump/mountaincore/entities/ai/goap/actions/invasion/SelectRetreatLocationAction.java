@@ -54,10 +54,32 @@ public class SelectRetreatLocationAction extends Action {
 				}
 			}
 		} else {
-			// Not yet implemented
-			Logger.error("Not yet implemented: " + getSimpleName() + " for creature not part of CreatureGroup");
-			completionType = CompletionType.FAILURE;
+			// A creature on its own, such as a settler leaving the settlement: the nearest map edge it can walk to
+			MapTile nearestTileToMapEdge = nearestNavigableMapEdgeTile(gameContext);
+			if (nearestTileToMapEdge == null) {
+				completionType = CompletionType.FAILURE;
+			} else {
+				parent.setTargetLocation(VectorUtils.toVector(nearestTileToMapEdge.getTilePosition()));
+				completionType = CompletionType.SUCCESS;
+			}
 		}
+	}
+
+	private MapTile nearestNavigableMapEdgeTile(GameContext gameContext) {
+		MapTile parentEntityTile = gameContext.getAreaMap().getTile(parent.parentEntity.getLocationComponent().getWorldOrParentPosition());
+		if (parentEntityTile == null) {
+			return null;
+		}
+		MapTile nearest = null;
+		float distance2ToNearest = Float.MAX_VALUE;
+		for (MapTile edgeTile : InvasionMessageHandler.getNavigableMapEdgeTiles(parentEntityTile.getRegionId(), gameContext)) {
+			float distanceToTile = edgeTile.getTilePosition().dst2(parentEntityTile.getTilePosition());
+			if (distanceToTile < distance2ToNearest) {
+				nearest = edgeTile;
+				distance2ToNearest = distanceToTile;
+			}
+		}
+		return nearest;
 	}
 
 	private boolean isAdjacentToMapEdge(GridPoint2 location, GameContext gameContext) {
