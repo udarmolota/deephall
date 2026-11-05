@@ -82,6 +82,7 @@ public class DebugGuiView implements GuiView, GameContextAware, Telegraph {
 
 	private final MessageDispatcher messageDispatcher;
 	private final Skin skin;
+	private final GuiSkinRepository guiSkinRepository;
 	private final Label titleLabel;
 	private final SelectBox<DebugAction> actionSelect;
 	private final SelectBox<ItemType> itemTypeSelect;
@@ -134,6 +135,7 @@ public class DebugGuiView implements GuiView, GameContextAware, Telegraph {
 						InvasionDefinitionDictionary invasionDefinitionDictionary) {
 		this.messageDispatcher = messageDispatcher;
 		this.skin = guiSkinRepository.getMenuSkin();
+		this.guiSkinRepository = guiSkinRepository;
 		this.itemTypeDictionary = itemTypeDictionary;
 		this.materialDictionary = materialDictionary;
 		this.itemEntityAttributesFactory = itemEntityAttributesFactory;
@@ -252,11 +254,29 @@ public class DebugGuiView implements GuiView, GameContextAware, Telegraph {
 	}
 
 
+	/**
+	 * The styles are looked up again each time the menu opens: the skin's fonts are replaced when the
+	 * language or the interface scale is set, and styles kept from startup draw with fonts that no longer
+	 * exist, as black blocks.
+	 */
+	private void refreshStyles() {
+		Skin menuSkin = guiSkinRepository.getMenuSkin();
+		titleLabel.setStyle(menuSkin.get("white_text", Label.LabelStyle.class));
+		SelectBox.SelectBoxStyle selectBoxStyle = menuSkin.get(SelectBox.SelectBoxStyle.class);
+		for (SelectBox<?> selectBox : List.of(actionSelect, itemTypeSelect, materialSelect, raceSelect,
+				plantSpeciesSelect, plantSpeciesGrowthStageSelect, vehicleTypeSelect, needSelect, needValueSelect, bodyPartSelect)) {
+			selectBox.setStyle(selectBoxStyle);
+		}
+	}
+
 	@Override
 	public boolean handleMessage(Telegram msg) {
 		switch (msg.message) {
 			case MessageType.TOGGLE_DEBUG_VIEW: {
 				this.displayed = !this.displayed;
+				if (displayed) {
+					refreshStyles();
+				}
 				update();
 				return true;
 			}

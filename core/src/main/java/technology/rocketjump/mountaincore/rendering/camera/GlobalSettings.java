@@ -11,7 +11,9 @@ import java.nio.charset.Charset;
 public class GlobalSettings {
 
 	public static final boolean MAP_REVEALED = false;
-	public static boolean DEV_MODE = false;
+	// Ctrl+Shift+D in the main menu toggles it; MOUNTAINCORE_DEV=1 in the environment starts with it on,
+	// for a phone with no keyboard (the launcher's instance settings take environment variables)
+	public static boolean DEV_MODE = "1".equals(System.getenv("MOUNTAINCORE_DEV"));
 	public static final boolean CHOOSE_SPAWN_LOCATION = false;
 
 	public static boolean USE_EDGE_SCROLLING = true;

@@ -96,13 +96,6 @@ Inv_Overview_Top_Level
   orig: 102, 102
   offset: 0, 0
   index: -1
-Inv_Overview_Treasure
-  rotate: false
-  xy: 2860, 2106
-  size: 102, 102
-  orig: 102, 102
-  offset: 0, 0
-  index: -1
 Inv_Overview_Weapons
   rotate: false
   xy: 1582, 2180
@@ -734,13 +727,6 @@ btn_room_armory
   orig: 181, 181
   offset: 0, 0
   index: -1
-btn_room_artisan
-  rotate: false
-  xy: 2139, 2506
-  size: 181, 181
-  orig: 181, 181
-  offset: 0, 0
-  index: -1
 btn_room_bakery
   rotate: false
   xy: 1956, 2506
@@ -1010,13 +996,6 @@ btn_stockpile_seeds
 btn_stockpile_tools
   rotate: false
   xy: 1773, 2650
-  size: 181, 181
-  orig: 181, 181
-  offset: 0, 0
-  index: -1
-btn_stockpile_treasure
-  rotate: false
-  xy: 1956, 2689
   size: 181, 181
   orig: 181, 181
   offset: 0, 0
@@ -1533,7 +1512,7 @@ vertical_scrollbar_fg
   index: -1
 
 main-game-skin2.png
-size: 197, 208
+size: 661, 208
 format: RGBA8888
 filter: Linear, Linear
 repeat: none
@@ -1542,5 +1521,26 @@ btn_current_orders_hunt
   xy: 0, 0
   size: 197, 208
   orig: 197, 208
+  offset: 0, 0
+  index: -1
+btn_stockpile_treasure
+  rotate: false
+  xy: 197, 0
+  size: 181, 181
+  orig: 181, 181
+  offset: 0, 0
+  index: -1
+Inv_Overview_Treasure
+  rotate: false
+  xy: 378, 0
+  size: 102, 102
+  orig: 102, 102
+  offset: 0, 0
+  index: -1
+btn_room_artisan
+  rotate: false
+  xy: 480, 0
+  size: 181, 181
+  orig: 181, 181
   offset: 0, 0
   index: -1

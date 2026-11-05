@@ -30,6 +30,7 @@ import technology.rocketjump.mountaincore.entities.model.EntityType;
 import technology.rocketjump.mountaincore.entities.model.physical.EntityAttributes;
 import technology.rocketjump.mountaincore.entities.model.physical.LocationComponent;
 import technology.rocketjump.mountaincore.entities.model.physical.creature.*;
+import technology.rocketjump.mountaincore.entities.model.physical.creature.features.RaceFeatures;
 import technology.rocketjump.mountaincore.entities.model.physical.creature.status.Death;
 import technology.rocketjump.mountaincore.entities.model.physical.creature.status.StatusEffect;
 import technology.rocketjump.mountaincore.entities.model.physical.furniture.FurnitureEntityAttributes;
@@ -1174,6 +1175,16 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 		return true;
 	}
 
+	private static boolean yieldsAnythingWhenButchered(Entity corpse) {
+		if (corpse.getPhysicalEntityComponent().getAttributes() instanceof CreatureEntityAttributes attributes) {
+			RaceFeatures features = attributes.getRace().getFeatures();
+			return features != null && (features.getMeat() != null ||
+					(features.getSkin() != null && features.getSkin().getItemType() != null) ||
+					features.getBones() != null);
+		}
+		return false;
+	}
+
 	private void handleFindButcherableCorpse(RequestCorpseMessage requestCorpseMessage) {
 		TiledMap areaMap = gameContext.getAreaMap();
 		int requesterRegionId = areaMap.getNavigableRegionId(requestCorpseMessage.requestingEntity, requestCorpseMessage.requesterPosition);
@@ -1181,6 +1192,10 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 		Map<Float, Entity> eligibleCorpsesByDistance = new TreeMap<>();
 
 		for (Entity deadCreatureEntity : creatureTracker.getDead()) {
+			if (!yieldsAnythingWhenButchered(deadCreatureEntity)) {
+				// An orc or a monster gives no meat, hide or bones: carrying it to the table only wastes the chef's time
+				continue;
+			}
 			MapTile corpseTile = areaMap.getTile(deadCreatureEntity.getLocationComponent().getWorldOrParentPosition());
 
 			if (corpseTile == null) {
@@ -1235,7 +1250,25 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 			for (Entity equipmentEntity : equippedItemComponent.clearHeldEquipment()) {
 				placeOnGround(equipmentEntity, entityPosition);
 			}
+			// Worn armour too: removing the component used to take it with it, so a fallen orc's armour vanished
+			Entity wornItem = equippedItemComponent.clearEquippedClothing();
+			if (wornItem != null) {
+				placeOnGround(wornItem, entityPosition);
+			}
 			entity.removeComponent(EquippedItemComponent.class);
+		}
+		// And what was carried, which otherwise stays inside the corpse for good
+		InventoryComponent inventoryComponent = entity.getComponent(InventoryComponent.class);
+		if (inventoryComponent != null) {
+			List<Long> carriedIds = inventoryComponent.getInventoryEntries().stream()
+					.map(entry -> entry.entity.getId())
+					.toList();
+			for (Long carriedId : carriedIds) {
+				Entity carried = inventoryComponent.remove(carriedId);
+				if (carried != null) {
+					placeOnGround(carried, entityPosition);
+				}
+			}
 		}
 	}
 

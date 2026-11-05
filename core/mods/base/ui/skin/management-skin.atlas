@@ -221,13 +221,6 @@ btn_add_squad
   orig: 93, 94
   offset: 0, 0
   index: -1
-btn_drag_job_artisan
-  rotate: false
-  xy: 901, 651
-  size: 170, 182
-  orig: 170, 182
-  offset: 0, 0
-  index: -1
 btn_drag_job_blacksmith
   rotate: false
   xy: 2787, 1821
@@ -833,13 +826,6 @@ settlers_all
   orig: 192, 192
   offset: 0, 0
   index: -1
-settlers_job_artisan
-  rotate: false
-  xy: 1091, 1270
-  size: 206, 206
-  orig: 206, 206
-  offset: 0, 0
-  index: -1
 settlers_job_blacksmith
   rotate: false
   xy: 1301, 1480
@@ -965,7 +951,7 @@ vertical_scrollbar_fg
   index: -1
 
 management-skin2.png
-size: 376, 206
+size: 752, 206
 format: RGBA8888
 filter: Linear, Linear
 repeat: none
@@ -979,6 +965,20 @@ settlers_job_hunter
 btn_drag_job_hunter
   rotate: false
   xy: 206, 0
+  size: 170, 182
+  orig: 170, 182
+  offset: 0, 0
+  index: -1
+settlers_job_artisan
+  rotate: false
+  xy: 376, 0
+  size: 206, 206
+  orig: 206, 206
+  offset: 0, 0
+  index: -1
+btn_drag_job_artisan
+  rotate: false
+  xy: 582, 0
   size: 170, 182
   orig: 170, 182
   offset: 0, 0

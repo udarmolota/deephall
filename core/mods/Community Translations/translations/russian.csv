@@ -1661,7 +1661,7 @@ STOCKPILE.GROUP.RAW_MATERIALS,,Raw materials,Сырье
 STOCKPILE.GROUP.SEEDS,,Seeds,Семена
 STOCKPILE.GROUP.TOOLS,,Tools,Инструменты
 STOCKPILE.GROUP.TOOLS.TOOLTIP,,Stores tools required for working on jobs.,Хранит инструменты для работы.
-STOCKPILE.GROUP.TREASURE,,Treasure,Сокровища
+STOCKPILE.GROUP.TREASURE,,Valuables,Ценности
 STOCKPILE.GROUP.WEAPONS,,Weapons,Оружие
 STOCKPILE.GROUP.WEAPONS.TOOLTIP,,Stores harvested fruit and vegetables which can expire.,Хранит оружие.
 
