@@ -264,8 +264,13 @@ public class LauncherFragment extends Fragment {
         };
         binding.gameInstancesRv.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.gameInstancesRv.setAdapter(adapter);
-        binding.launcherEmptyQuickStartBtn.setOnClickListener(v -> Navigation.findNavController(v)
-                .navigate(R.id.action_open_wiki_fragment, WikiFragment.section("quick-start")));
+        // Deephall: no instance means the game has not been unpacked yet; the start screen does that
+        // and then starts the game (it was Zomdroid's quick start guide for Project Zomboid)
+        binding.launcherEmptyQuickStartBtn.setOnClickListener(v -> {
+            android.content.Intent start = new android.content.Intent(requireContext(), com.zomdroid.DeephallStartActivity.class);
+            start.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(start);
+        });
         updateEmptyState();
 
         binding.gameInstancesRv.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {

@@ -162,9 +162,17 @@ public class LauncherActivity extends AppCompatActivity {
         String action = intent != null ? intent.getAction() : null;
         if (ACTION_OPEN_SETTINGS.equals(action)) {
             // The bundled instance's own settings - renderer, env vars, scale - are the ones that
-            // matter. Without that instance the launcher itself is the settings screen.
-            if (GameInstanceManager.requireSingleton().getInstanceByName(BundledGame.INSTANCE_NAME) == null)
+            // matter. Before the game has been unpacked there is no instance yet, and the launcher
+            // would only show an empty list: unpack it first on the start screen, which then comes
+            // back here with the instance in place.
+            if (GameInstanceManager.requireSingleton().getInstanceByName(BundledGame.INSTANCE_NAME) == null) {
+                Intent prepare = new Intent(this, DeephallStartActivity.class);
+                prepare.putExtra(DeephallStartActivity.EXTRA_THEN_OPEN_SETTINGS, true);
+                prepare.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(prepare);
+                finish();
                 return;
+            }
             // Posted: the navigation graph is attached once the host fragment is created.
             binding.getRoot().post(() -> {
                 Bundle args = new Bundle();

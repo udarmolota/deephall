@@ -407,7 +407,11 @@
     <string name="launcher_empty_title">С чего начать</string>
     <string name="launcher_empty_body">Чтобы начать играть, создайте инстанс — установленную копию Project Zomboid. Добавьте файлы игры кнопкой + вверху или скачайте игру из Steam или GOG через боковое меню. Загрузку из Steam сначала нужно упаковать в .zip; из GOG после загрузки нажмите «Создать инстанс».</string>
     <string name="launcher_empty_quick_start">Быстрый старт</string>
+    <string name="deephall_empty_title">Deephall ещё не установлен</string>
+    <string name="deephall_empty_body">Игра распаковывается из приложения при первом запуске. Нажмите кнопку ниже или запустите Deephall с его иконки. Это займёт минуту, а первый запуск самой игры — ещё несколько.</string>
+    <string name="deephall_empty_start">Запустить Deephall</string>
     <string name="game_loading">Игра загружается…</string>
+    <string name="game_loading_preparing_files">При первом запуске и после обновления игра готовит свои файлы. На некоторых телефонах это занимает несколько минут.</string>
 
     <string name="deephall_preparing">Подготовка игры…</string>
     <string name="deephall_installing_game">Установка файлов игры…</string>

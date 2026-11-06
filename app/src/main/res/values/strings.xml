@@ -450,7 +450,13 @@
     <string name="launcher_empty_title">Getting started</string>
     <string name="launcher_empty_body">To start playing, create an instance — an installed copy of Project Zomboid. Add your game files with the + at the top, or download the game from Steam or GOG in the side menu. A Steam download must be packed into a .zip first; from GOG, tap “Create an instance” once the download is done.</string>
     <string name="launcher_empty_quick_start">Quick start</string>
+    <!-- Deephall: the empty launcher means the game is not unpacked yet (normally the Settings shortcut
+         unpacks it first, see LauncherActivity#handleShortcutAction) -->
+    <string name="deephall_empty_title">Deephall is not installed yet</string>
+    <string name="deephall_empty_body">The game is unpacked from the app the first time you start it. Tap the button below, or start Deephall from its icon. It takes a minute, and the first start of the game itself can take a few more.</string>
+    <string name="deephall_empty_start">Start Deephall</string>
     <string name="game_loading">Loading the game…</string>
+    <string name="game_loading_preparing_files">On the first start and after an update the game prepares its files. On some phones this takes several minutes.</string>
 
     <!-- Standalone Deephall app: start screen and the app icon's shortcuts -->
     <string name="deephall_preparing">Preparing the game…</string>

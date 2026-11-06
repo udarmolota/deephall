@@ -427,32 +427,96 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
       });
     }
 
-    // The game shows nothing until it has finished loading; say so instead of a black screen.
-    // It goes away once the game has presented a few frames of its own.
+    // The game shows nothing until it has finished loading; on its first start (and after an update)
+    // it also builds its texture atlases and other files from the mods, which on a slow phone takes
+    // minutes. A still line of text there read as a hang, so the wait shows the app's logo, a bar that
+    // keeps moving, the time so far and, when the game is preparing its files, why it takes long.
+    // It all goes away once the game has presented a few frames of its own.
     private static final long FRAMES_BEFORE_GAME_IS_SHOWN = 5;
+    // Without a first start to recognise (an update rebuilds only some files), explain any wait this long
+    private static final long LOADING_HINT_AFTER_MS = 15_000;
+    private android.view.View loadingView;
     private android.widget.TextView loadingText;
+    private android.widget.TextView loadingHint;
+    private long loadingStartedAt;
 
     private void setUpLoadingMessage() {
         android.widget.FrameLayout root = (android.widget.FrameLayout) binding.getRoot();
+        final float dp = getResources().getDisplayMetrics().density;
+
+        android.widget.LinearLayout box = new android.widget.LinearLayout(this);
+        box.setOrientation(android.widget.LinearLayout.VERTICAL);
+        box.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+
+        android.widget.ImageView logo = new android.widget.ImageView(this);
+        logo.setImageResource(R.mipmap.ic_launcher);
+        box.addView(logo, new android.widget.LinearLayout.LayoutParams((int) (96 * dp), (int) (96 * dp)));
+
+        com.google.android.material.progressindicator.LinearProgressIndicator bar =
+                new com.google.android.material.progressindicator.LinearProgressIndicator(this);
+        bar.setIndeterminate(true);
+        android.widget.LinearLayout.LayoutParams barParams =
+                new android.widget.LinearLayout.LayoutParams((int) (240 * dp), android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        barParams.topMargin = (int) (24 * dp);
+        box.addView(bar, barParams);
+
         loadingText = new android.widget.TextView(this);
         loadingText.setText(R.string.game_loading);
         loadingText.setTextColor(0xFFFFFFFF);
         loadingText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16);
         loadingText.setShadowLayer(4f, 0f, 0f, 0xFF000000);
-        root.addView(loadingText, new android.widget.FrameLayout.LayoutParams(
+        android.widget.LinearLayout.LayoutParams textParams = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        textParams.topMargin = (int) (16 * dp);
+        box.addView(loadingText, textParams);
+
+        loadingHint = new android.widget.TextView(this);
+        loadingHint.setText(R.string.game_loading_preparing_files);
+        loadingHint.setTextColor(0xB3FFFFFF);
+        loadingHint.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+        loadingHint.setGravity(android.view.Gravity.CENTER);
+        loadingHint.setMaxWidth((int) (360 * dp));
+        loadingHint.setVisibility(isGameFilesFirstBuild() ? android.view.View.VISIBLE : android.view.View.GONE);
+        android.widget.LinearLayout.LayoutParams hintParams = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        hintParams.topMargin = (int) (8 * dp);
+        box.addView(loadingHint, hintParams);
+
+        loadingView = box;
+        root.addView(box, new android.widget.FrameLayout.LayoutParams(
                 android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
                 android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
                 android.view.Gravity.CENTER));
+        loadingStartedAt = android.os.SystemClock.elapsedRealtime();
         hudHandler.postDelayed(loadingTick, 250);
+    }
+
+    /** The game has never built its files from the mods: it writes assets/metadata/checksums.json when it has. */
+    private boolean isGameFilesFirstBuild() {
+        try {
+            GameInstance instance = GameInstanceManager.requireSingleton().getInstanceByName(
+                    getIntent().getStringExtra(EXTRA_GAME_INSTANCE_NAME));
+            return instance != null && !new java.io.File(instance.getGamePath(), "assets/metadata/checksums.json").isFile();
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     private final Runnable loadingTick = new Runnable() {
         @Override public void run() {
-            if (loadingText == null) return;
+            if (loadingView == null) return;
             if (GameLauncher.getPresentedFrameCount() >= FRAMES_BEFORE_GAME_IS_SHOWN) {
-                ((android.view.ViewGroup) loadingText.getParent()).removeView(loadingText);
+                ((android.view.ViewGroup) loadingView.getParent()).removeView(loadingView);
+                loadingView = null;
                 loadingText = null;
+                loadingHint = null;
                 return;
+            }
+            long elapsed = android.os.SystemClock.elapsedRealtime() - loadingStartedAt;
+            long seconds = elapsed / 1000;
+            loadingText.setText(getString(R.string.game_loading) + "  " + (seconds / 60) + ":" + String.format(java.util.Locale.ROOT, "%02d", seconds % 60));
+            if (elapsed >= LOADING_HINT_AFTER_MS) {
+                loadingHint.setVisibility(android.view.View.VISIBLE);
             }
             hudHandler.postDelayed(this, 250);
         }

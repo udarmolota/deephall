@@ -34,7 +34,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/launcher_empty_title"
+                android:text="@string/deephall_empty_title"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textStyle="bold"/>
 
@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:lineSpacingMultiplier="1.2"
-                android:text="@string/launcher_empty_body"
+                android:text="@string/deephall_empty_body"
                 android:textAppearance="?attr/textAppearanceBodyMedium"/>
 
             <com.google.android.material.button.MaterialButton
@@ -51,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="@string/launcher_empty_quick_start"/>
+                android:text="@string/deephall_empty_start"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

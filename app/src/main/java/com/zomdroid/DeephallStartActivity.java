@@ -138,9 +138,23 @@ public class DeephallStartActivity extends AppCompatActivity {
         binding.startOpenLauncherMb.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Set by the Settings shortcut when the game is not unpacked yet: prepare it as usual, then open the
+     * instance settings instead of starting the game, so the player never meets an empty launcher.
+     */
+    public static final String EXTRA_THEN_OPEN_SETTINGS = "com.zomdroid.extra.THEN_OPEN_SETTINGS";
+
     // Same intent and flags as LauncherFragment#launchGame. CLEAR_TASK takes this screen out of
     // the back stack, so Back from the game does not land here.
     private void launchGame() {
+        if (getIntent().getBooleanExtra(EXTRA_THEN_OPEN_SETTINGS, false)) {
+            Intent settings = new Intent(this, LauncherActivity.class);
+            settings.setAction(LauncherActivity.ACTION_OPEN_SETTINGS);
+            settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(settings);
+            finish();
+            return;
+        }
         Intent intent = new Intent(this, GameActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(GameActivity.EXTRA_GAME_INSTANCE_NAME, BundledGame.INSTANCE_NAME);
