@@ -7,6 +7,7 @@ import technology.rocketjump.mountaincore.entities.ai.goap.actions.invasion.Crea
 import technology.rocketjump.mountaincore.entities.ai.goap.actions.invasion.VictoryPointsForStealingAction;
 import technology.rocketjump.mountaincore.entities.components.Faction;
 import technology.rocketjump.mountaincore.entities.components.FactionComponent;
+import technology.rocketjump.mountaincore.entities.components.creature.CombatStateComponent;
 import technology.rocketjump.mountaincore.entities.model.Entity;
 import technology.rocketjump.mountaincore.entities.model.physical.furniture.FurnitureEntityAttributes;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
@@ -38,6 +39,25 @@ public class InvasionCreatureGroup extends CreatureGroup {
 		double elapsed = now - lastUpdateGameTime;
 		lastUpdateGameTime = now;
 		hoursInCurrentStage += elapsed;
+
+		strongestMemberCount = Math.max(strongestMemberCount, memberEntityIds.size());
+		if ((invasionStage.equals(InvasionStage.ARRIVING) || invasionStage.equals(InvasionStage.PREPARING))
+				&& (memberLostBeforeRaid || anyMemberInCombat(gameContext))) {
+			// Attacked in their camp: the preparation is over. A group that has lost more than half of its
+			// fighters runs, the rest raid at once instead of standing about until their time is up
+			memberLostBeforeRaid = false;
+			if (invasionStage.equals(InvasionStage.PREPARING)) {
+				removeCampfire(gameContext, messageDispatcher);
+			}
+			this.pendingSpecialGoal = null;
+			this.invasionStage = memberEntityIds.size() * 2 < strongestMemberCount ? InvasionStage.RETREATING : InvasionStage.RAIDING;
+			this.hoursInCurrentStage = 0;
+		}
+
+		if (invasionStage.equals(InvasionStage.RAIDING)) {
+			// Keeps the settlement's soldiers on duty past the end of their shift (CreatureBehaviour#getCurrentSchedule)
+			gameContext.getSettlementState().reportRaiding(now);
+		}
 
 		if (invasionStage.equals(InvasionStage.RAIDING) && victoryPointsEarned >= victoryPointsTarget) {
 			this.invasionStage = InvasionStage.RETREATING;
@@ -121,7 +141,28 @@ public class InvasionCreatureGroup extends CreatureGroup {
 	public void removeMemberId(long entityId) {
 		super.removeMemberId(entityId);
 		this.victoryPointsTarget -= POINTS_LOST_ON_MEMBER_DEATH;
+		if (invasionStage.equals(InvasionStage.ARRIVING) || invasionStage.equals(InvasionStage.PREPARING)) {
+			memberLostBeforeRaid = true;
+		}
 	}
+
+	private boolean anyMemberInCombat(GameContext gameContext) {
+		for (Long memberId : memberEntityIds) {
+			Entity member = gameContext.getEntities().get(memberId);
+			if (member != null) {
+				CombatStateComponent combatState = member.getComponent(CombatStateComponent.class);
+				if (combatState != null && combatState.isInCombat()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	// The most fighters this group has had, to tell a beaten group (more than half lost) from a wounded one
+	private int strongestMemberCount;
+	// A member fell before the raid began; picked up on the next update (not saved: a load re-checks combat)
+	private transient boolean memberLostBeforeRaid;
 
 	@Override
 	public void writeTo(SavedGameStateHolder savedGameStateHolder) {
@@ -144,6 +185,7 @@ public class InvasionCreatureGroup extends CreatureGroup {
 
 			asJson.put("victoryPointsEarned", victoryPointsEarned);
 			asJson.put("victoryPointsTarget", victoryPointsTarget);
+			asJson.put("strongestMemberCount", strongestMemberCount);
 		}
 	}
 
@@ -163,5 +205,6 @@ public class InvasionCreatureGroup extends CreatureGroup {
 
 		this.victoryPointsEarned = asJson.getIntValue("victoryPointsEarned");
 		this.victoryPointsTarget = asJson.getIntValue("victoryPointsTarget");
+		this.strongestMemberCount = asJson.getIntValue("strongestMemberCount");
 	}
 }

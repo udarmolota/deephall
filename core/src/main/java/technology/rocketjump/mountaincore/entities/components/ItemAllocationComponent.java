@@ -178,6 +178,14 @@ public class ItemAllocationComponent implements ParentDependentEntityComponent, 
 				ItemAllocation itemAllocation = savedGameStateHolder.itemAllocations.get(allocationId);
 				if (itemAllocation == null) {
 					throw new InvalidSaveException("Could not find item allocation with ID " + allocationId);
+				} else if (itemAllocation.getPurpose() == ItemAllocation.Purpose.DUE_TO_BE_HAULED
+						&& itemAllocation.getRelatedHaulingAllocationId() != null
+						&& !savedGameStateHolder.haulingAllocations.containsKey(itemAllocation.getRelatedHaulingAllocationId())) {
+					// "Due to be hauled" by a haul that no longer exists (its hauler died or left mid-way, e.g. a
+					// fallen orc's weapon): the item would stay reserved forever and nobody would pick it up
+					Logger.warn("Dropping orphaned item allocation " + allocationId + ": its hauling allocation "
+							+ itemAllocation.getRelatedHaulingAllocationId() + " no longer exists");
+					itemAllocation.markAsCancelled();
 				} else {
 					this.allocations.add(itemAllocation);
 				}

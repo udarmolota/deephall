@@ -102,7 +102,9 @@ public class IdleAction extends Action {
 				return null;
 			}
 			MilitaryComponent militaryComponent = entity.getComponent(MilitaryComponent.class);
-			if (militaryComponent != null && militaryComponent.isInMilitary()) {
+			// Only the settlement's own soldiers (in a squad): isInMilitary() is also true for every invader, and an
+			// orc camping before its raid was sent to wander by the fortress instead of its camp, spinning on the spot
+			if (militaryComponent != null && militaryComponent.getSquadId() != null) {
 				Vector2 settlementCentre = toVector(gameContext.getAreaMap().getEmbarkPoint());
 				if (centralPosition.dst(settlementCentre) > MAX_MILITARY_WANDER_FROM_SETTLEMENT) {
 					centralPosition = settlementCentre;

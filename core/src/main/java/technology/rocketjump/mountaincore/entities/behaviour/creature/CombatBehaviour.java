@@ -16,6 +16,10 @@ import technology.rocketjump.mountaincore.entities.ai.goap.actions.military.Uneq
 import technology.rocketjump.mountaincore.entities.behaviour.furniture.SelectableDescription;
 import technology.rocketjump.mountaincore.entities.components.EntityComponent;
 import technology.rocketjump.mountaincore.entities.components.FactionComponent;
+import technology.rocketjump.mountaincore.entities.components.Faction;
+import technology.rocketjump.mountaincore.entities.ai.goap.condition.GoalSelectionByBadlyWounded;
+import technology.rocketjump.mountaincore.entities.model.EntityType;
+import technology.rocketjump.mountaincore.mapping.tile.MapTile;
 import technology.rocketjump.mountaincore.entities.components.InventoryComponent;
 import technology.rocketjump.mountaincore.entities.components.ParentDependentEntityComponent;
 import technology.rocketjump.mountaincore.entities.components.creature.CombatStateComponent;
@@ -66,6 +70,7 @@ public class CombatBehaviour implements ParentDependentEntityComponent, Particle
 		SelectableDescription {
 
 	private static final Double LOW_NEED_VALUE = 25.0;
+	private static final double RAID_LOW_NEED_VALUE = 10.0;
 	private static final float MAX_DISTANCE_FROM_COMBAT_START = 18f;
 	private static final float MAX_DISTANCE_FROM_COMBAT_START_SQUARED = MAX_DISTANCE_FROM_COMBAT_START * MAX_DISTANCE_FROM_COMBAT_START;
 	private Entity parentEntity;
@@ -276,7 +281,86 @@ public class CombatBehaviour implements ParentDependentEntityComponent, Particle
 			return new FleeFromCombatAction(parentEntity);
 		}
 
+		CombatAction withdraw = withdrawBehindAllyAction(combatStateComponent);
+		if (withdraw != null) {
+			return withdraw;
+		}
+
 		return attackOrDefendAgainstOpponentAction();
+	}
+
+	private static final float ALLY_NEAR_OPPONENT_TILES = 4f;
+	private static final float STEP_BEHIND_ALLY_TILES = 1.5f;
+
+	/**
+	 * A settler bleeding badly (broken bones already make it flee) whose opponent is also faced by a healthy
+	 * comrade steps back behind that comrade and only defends from there, instead of trading blows. Without
+	 * such a comrade nearby it fights on as before.
+	 */
+	private CombatAction withdrawBehindAllyAction(CombatStateComponent combatStateComponent) {
+		if (!Faction.SETTLEMENT.equals(parentEntity.getOrCreateComponent(FactionComponent.class).getFaction())
+				|| !GoalSelectionByBadlyWounded.isBadlyWounded(parentEntity)
+				|| combatStateComponent.getTargetedOpponentId() == null) {
+			return null;
+		}
+		Entity opponent = gameContext.getEntities().get(combatStateComponent.getTargetedOpponentId());
+		if (opponent == null) {
+			return null;
+		}
+		Vector2 opponentPosition = opponent.getLocationComponent().getWorldOrParentPosition();
+		Vector2 myPosition = parentEntity.getLocationComponent().getWorldOrParentPosition();
+
+		Entity ally = null;
+		float allyDistance = Float.MAX_VALUE;
+		int radius = (int) ALLY_NEAR_OPPONENT_TILES;
+		int centreX = (int) Math.floor(opponentPosition.x), centreY = (int) Math.floor(opponentPosition.y);
+		for (int x = centreX - radius; x <= centreX + radius; x++) for (int y = centreY - radius; y <= centreY + radius; y++) {
+			MapTile tile = gameContext.getAreaMap().getTile(x, y);
+			if (tile == null) {
+				continue;
+			}
+			for (Entity entity : tile.getEntities()) {
+				if (entity == parentEntity || !EntityType.CREATURE.equals(entity.getType())
+						|| !Faction.SETTLEMENT.equals(entity.getOrCreateComponent(FactionComponent.class).getFaction())
+						|| !(entity.getPhysicalEntityComponent().getAttributes() instanceof CreatureEntityAttributes attributes)
+						|| !Consciousness.AWAKE.equals(attributes.getConsciousness())
+						|| GoalSelectionByBadlyWounded.isBadlyWounded(entity)) {
+					continue;
+				}
+				CombatStateComponent allyCombat = entity.getComponent(CombatStateComponent.class);
+				if (allyCombat == null || !allyCombat.isInCombat()) {
+					continue;
+				}
+				float distance = entity.getLocationComponent().getWorldOrParentPosition().dst(opponentPosition);
+				if (distance < allyDistance) {
+					ally = entity;
+					allyDistance = distance;
+				}
+			}
+		}
+		if (ally == null) {
+			return null;
+		}
+
+		float myDistance = myPosition.dst(opponentPosition);
+		if (myDistance > allyDistance + 0.5f && myDistance >= 2f) {
+			// Already behind the comrade: hold and defend
+			return new DefensiveCombatAction(parentEntity);
+		}
+
+		Vector2 allyPosition = ally.getLocationComponent().getWorldOrParentPosition();
+		Vector2 awayFromOpponent = allyPosition.cpy().sub(opponentPosition);
+		if (awayFromOpponent.len2() < 0.0001f) {
+			return null;
+		}
+		Vector2 behindAlly = allyPosition.cpy().add(awayFromOpponent.nor().scl(STEP_BEHIND_ALLY_TILES));
+		MapTile targetTile = gameContext.getAreaMap().getTile(behindAlly);
+		if (targetTile == null || !targetTile.isNavigable(parentEntity)) {
+			return null;
+		}
+		WithdrawBehindAllyCombatAction withdraw = new WithdrawBehindAllyCombatAction(parentEntity);
+		withdraw.setWithdrawTo(VectorUtils.toVector(targetTile.getTilePosition()));
+		return withdraw;
 	}
 
 	public void attackedInCombat(Entity attackerEntity) {
@@ -413,8 +497,14 @@ public class CombatBehaviour implements ParentDependentEntityComponent, Particle
 	private boolean needsTooLow() {
 		NeedsComponent needsComponent = parentEntity.getComponent(NeedsComponent.class);
 		if (needsComponent != null) {
+			// During a raid a squad soldier holds on until a need is urgent (as the sleep goal's urgent selector),
+			// rather than leaving the fight half-tired
+			MilitaryComponent militaryComponent = parentEntity.getComponent(MilitaryComponent.class);
+			double lowNeedValue = militaryComponent != null && militaryComponent.getSquadId() != null
+					&& gameContext.getSettlementState().isRaidUnderway(gameContext.getGameClock().getCurrentGameTime())
+					? RAID_LOW_NEED_VALUE : LOW_NEED_VALUE;
 			for (Map.Entry<EntityNeed, Double> needEntry : needsComponent.getAll()) {
-				if (needEntry.getValue() <= LOW_NEED_VALUE) {
+				if (needEntry.getValue() <= lowNeedValue) {
 					return true;
 				}
 			}

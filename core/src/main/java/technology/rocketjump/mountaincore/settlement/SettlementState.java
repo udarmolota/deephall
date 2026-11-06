@@ -144,6 +144,19 @@ public class SettlementState implements Persistable {
 		return huntTargetEntityIds;
 	}
 
+	// Game time an invasion group last reported itself raiding (InvasionCreatureGroup), not saved: the raid
+	// reports again on its next update after a load. Soldiers stay on duty while it is recent.
+	private transient double lastRaidingGameTime = Double.NEGATIVE_INFINITY;
+	private static final double RAID_ALERT_HOURS = 0.5;
+
+	public void reportRaiding(double gameTime) {
+		this.lastRaidingGameTime = gameTime;
+	}
+
+	public boolean isRaidUnderway(double gameTime) {
+		return gameTime - lastRaidingGameTime < RAID_ALERT_HOURS;
+	}
+
 	public InvasionDefinition getIncomingInvasion() {
 		return incomingInvasion;
 	}

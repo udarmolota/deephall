@@ -1281,6 +1281,11 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 		hauledEntity.getLocationComponent().setWorldPosition(position, false);
 		hauledEntity.getLocationComponent().setFacing(EntityAssetOrientation.DOWN.toVector2());
 		hauledEntity.getOrCreateComponent(FactionComponent.class).setFaction(SETTLEMENT);
+		// Whatever the fallen creature had reserved it for is over: free it, or haulers leave it lying there forever
+		ItemAllocationComponent itemAllocationComponent = hauledEntity.getComponent(ItemAllocationComponent.class);
+		if (itemAllocationComponent != null) {
+			itemAllocationComponent.cancelAll();
+		}
 		messageDispatcher.dispatchMessage(MessageType.ENTITY_ASSET_UPDATE_REQUIRED, hauledEntity);
 	}
 

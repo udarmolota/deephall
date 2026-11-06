@@ -279,6 +279,8 @@ FURNITURE.COKE_OVEN,,Coke oven,Коксовая печь
 FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} into {{ORE.COKE.NOUN}} so that it can be used as {{FUEL.SACK}}.,"Сырье: {{ORE.BITUMINOUS_COAL.NOUN}}. Продукт: {{ORE.COKE.NOUN}}, который используется как {{FUEL.SACK}}."
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}},{{furnitureType.noun}} {{materialType.adjective}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%,Прогресс до завершения: {{progress}}%
+FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room,Нечего делать: выберите продукт на поддоне экспорта в этой комнате
+FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}},Не хватает: {{inputs}}. Нужно для: {{targetDescription}}
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%,Заселение грибницы: {{progress}}%
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%,Прогресс: {{progress}}%
 FURNITURE.DESCRIPTION.WAITING_FOR_ITEM,,Waiting for {{itemType.noun}},Ожидание: {{itemType.noun}}

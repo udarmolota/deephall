@@ -47,6 +47,22 @@ public class ScheduleDictionary {
 		if (militaryNightShiftSchedule == null) {
 			throw new RuntimeException("Could not find schedule with name: " + MILITARY_NIGHT_SHIFT_SCHEDULE_NAME);
 		}
+		// Optional, so a mod without it still loads: then soldiers keep their shift during a raid as before
+		militaryAlertSchedule = byName.get(MILITARY_ALERT_SCHEDULE_NAME);
+	}
+
+	private static final String MILITARY_ALERT_SCHEDULE_NAME = "Military alert";
+	private static Schedule militaryAlertSchedule;
+
+	/**
+	 * While a raid is underway every squad is on duty whatever its shift: no going off to bed in the middle of
+	 * a fight. Only an urgent need for sleep (the sleep goal's own selector, any hour) still sends a soldier off.
+	 */
+	public static Schedule getScheduleForSquadShift(MilitaryShift shift, boolean raidUnderway) {
+		if (raidUnderway && militaryAlertSchedule != null) {
+			return militaryAlertSchedule;
+		}
+		return getScheduleForSquadShift(shift);
 	}
 
 	public Schedule getByName(String name) {

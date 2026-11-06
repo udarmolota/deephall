@@ -268,6 +268,8 @@ FURNITURE.COKE_OVEN,,Coke oven
 FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} into {{ORE.COKE.NOUN}} so that it can be used as {{FUEL.SACK}}.
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%
+FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room
+FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}}
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%
 FURNITURE.DESCRIPTION.WAITING_FOR_ITEM,,Waiting for {{itemType.noun}}

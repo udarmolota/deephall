@@ -30,6 +30,35 @@
   },
 
   {
+    "name": "Military alert",
+    "hourlyCategories": {
+      "0": ["MILITARY_DUTY", "NOURISHMENT"],
+      "1": ["MILITARY_DUTY", "NOURISHMENT"],
+      "2": ["MILITARY_DUTY", "NOURISHMENT"],
+      "3": ["MILITARY_DUTY", "NOURISHMENT"],
+      "4": ["MILITARY_DUTY", "NOURISHMENT"],
+      "5": ["MILITARY_DUTY", "NOURISHMENT"],
+      "6": ["MILITARY_DUTY", "NOURISHMENT"],
+      "7": ["MILITARY_DUTY", "NOURISHMENT"],
+      "8": ["MILITARY_DUTY", "NOURISHMENT"],
+      "9": ["MILITARY_DUTY", "NOURISHMENT"],
+      "10": ["MILITARY_DUTY", "NOURISHMENT"],
+      "11": ["MILITARY_DUTY", "NOURISHMENT"],
+      "12": ["MILITARY_DUTY", "NOURISHMENT"],
+      "13": ["MILITARY_DUTY", "NOURISHMENT"],
+      "14": ["MILITARY_DUTY", "NOURISHMENT"],
+      "15": ["MILITARY_DUTY", "NOURISHMENT"],
+      "16": ["MILITARY_DUTY", "NOURISHMENT"],
+      "17": ["MILITARY_DUTY", "NOURISHMENT"],
+      "18": ["MILITARY_DUTY", "NOURISHMENT"],
+      "19": ["MILITARY_DUTY", "NOURISHMENT"],
+      "20": ["MILITARY_DUTY", "NOURISHMENT"],
+      "21": ["MILITARY_DUTY", "NOURISHMENT"],
+      "22": ["MILITARY_DUTY", "NOURISHMENT"],
+      "23": ["MILITARY_DUTY", "NOURISHMENT"]
+    }
+  },
+  {
     "name": "Military day shift",
     "hourlyCategories": {
       "0": ["SLEEP"],

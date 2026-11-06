@@ -69,6 +69,10 @@ public class CraftingStationBehaviour extends FurnitureBehaviour
 	private CraftingOutputQualityDictionary craftingOutputQualityDictionary;
 
 	private CraftingAssignment craftingAssignment;
+	// Why the last search found nothing to craft, for the selection description; not saved, refreshed on the next search
+	private transient CraftingRecipe waitingForRecipe;
+	private transient List<QuantifiedItemTypeWithMaterial> waitingForInputs = List.of();
+	private transient boolean nothingOrdered;
 	private boolean requiresExtraTime;
 	private Double extraTimeToProcess;
 	private Entity jobCompletedByEntity;
@@ -312,6 +316,9 @@ public class CraftingStationBehaviour extends FurnitureBehaviour
 	}
 
 	private void selectCraftingAssignment() {
+		waitingForRecipe = null;
+		waitingForInputs = List.of();
+		nothingOrdered = true;
 		List<CraftingRecipe> recipesForCraftingType = new ArrayList<>(craftingRecipeDictionary.getByCraftingType(craftingType));
 		// Randomly sort the recipes so that different recipes with the same output are tried in different updates
 		Collections.shuffle(recipesForCraftingType, gameContext.getRandom());
@@ -324,6 +331,8 @@ public class CraftingStationBehaviour extends FurnitureBehaviour
 
 		for (CraftingRecipe craftingRecipe : recipesForCraftingType) {
 			if (craftingRecipe.getOutput().isLiquid()) {
+				// Liquids are made without an order on an export pallet, so a liquid station always has something to make
+				nothingOrdered = false;
 				// Recipes that produce liquid do not currently go to export furniture
 				if (craftingRecipe.getInput().stream().allMatch(r -> inputIsAvailable(r, craftingRecipe, importFurniture, liquidContainers, null))) {
 					createCraftingAssignment(craftingRecipe, importFurniture, liquidContainers, null, null);
@@ -347,10 +356,18 @@ public class CraftingStationBehaviour extends FurnitureBehaviour
 			for (CraftingRecipe craftingRecipe : potentialRecipes) {
 				int quantityRequired = getAmountRequired(exportFurnitureBehaviour);
 				if (quantityRequired > 0 && quantityRequired >= craftingRecipe.getOutput().getQuantity()) {
-					if (craftingRecipe.getInput().stream().allMatch(r -> inputIsAvailable(r, craftingRecipe, importFurniture, liquidContainers, desiredMaterial))) {
+					nothingOrdered = false;
+					List<QuantifiedItemTypeWithMaterial> missing = craftingRecipe.getInput().stream()
+							.filter(r -> !inputIsAvailable(r, craftingRecipe, importFurniture, liquidContainers, desiredMaterial))
+							.collect(Collectors.toList());
+					if (missing.isEmpty()) {
 						// This recipe can be crafted, so use this and create a CraftingAssignment
 						createCraftingAssignment(craftingRecipe, importFurniture, liquidContainers, exportFurnitureBehaviour, desiredMaterial);
 						return;
+					} else if (waitingForRecipe == null) {
+						// Shown when the station is selected, so the player can see why nothing is being made
+						waitingForRecipe = craftingRecipe;
+						waitingForInputs = missing;
 					}
 				}
 			}
@@ -888,6 +905,23 @@ public class CraftingStationBehaviour extends FurnitureBehaviour
 				descriptions.add(i18nTranslator.getTranslatedWordWithReplacements("FURNITURE.DESCRIPTION.GENERIC_PROGRESS",
 						ImmutableMap.of("progress", new I18nWord(I18nTranslator.oneDecimalFormat.format(100f * progress)))));
 			}
+		} else if (waitingForRecipe != null && !waitingForInputs.isEmpty()) {
+			// e.g. "Waiting for 3 sacks of flour to make bread dough"
+			I18nText inputsDescription = null;
+			for (QuantifiedItemTypeWithMaterial input : waitingForInputs) {
+				I18nText one = input.isLiquid()
+						? i18nTranslator.getLiquidDescription(input.getMaterial(), input.getQuantity())
+						: i18nTranslator.getItemDescription(input.getQuantity(), input.getMaterial(), input.getItemType(), null);
+				inputsDescription = inputsDescription == null ? one : inputsDescription.append(new I18nWord(", ")).append(one);
+			}
+			QuantifiedItemTypeWithMaterial output = waitingForRecipe.getOutput();
+			I18nText targetDescription = output.isLiquid()
+					? i18nTranslator.getLiquidDescription(output.getMaterial(), output.getQuantity())
+					: i18nTranslator.getItemDescription(output.getQuantity(), output.getMaterial(), output.getItemType(), null);
+			descriptions.add(i18nTranslator.getTranslatedWordWithReplacements("FURNITURE.DESCRIPTION.WAITING_FOR_INPUT",
+					ImmutableMap.of("inputs", inputsDescription, "targetDescription", targetDescription)));
+		} else if (nothingOrdered) {
+			descriptions.add(i18nTranslator.getTranslatedString("FURNITURE.DESCRIPTION.NOTHING_ORDERED"));
 		}
 		return descriptions;
 	}
