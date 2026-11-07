@@ -6,5 +6,6 @@
   "maxStackSize": 10,
   "maxHauledAtOnce": 10,
   "stockpileGroupName": "FOOD",
-  "describeAsMaterialOnly": true
+  "describeAsMaterialOnly": true,
+  "tags": { "PERISHABLE": [2, 4, 8] }
 }

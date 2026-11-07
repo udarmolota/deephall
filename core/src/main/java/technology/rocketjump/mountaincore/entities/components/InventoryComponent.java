@@ -182,6 +182,8 @@ public class InventoryComponent implements ParentDependentEntityComponent, Destr
 					ItemEntityAttributes matchingItemAttributes = (ItemEntityAttributes) matchingEntry.entity.getPhysicalEntityComponent().getAttributes();
 					if (matchingItemAttributes.getQuantity() + attributesToAdd.getQuantity() <= attributesToAdd.getItemType().getMaxStackSize()) {
 						// Can merge into existing item
+						PerishableComponent.mergeSpoilage(matchingEntry.entity, matchingItemAttributes.getQuantity(),
+								PerishableComponent.spoilageOf(entityToAdd), attributesToAdd.getQuantity());
 						matchingItemAttributes.setQuantity(matchingItemAttributes.getQuantity() + attributesToAdd.getQuantity());
 						if (addAsAllocationPurpose != null) {
 							ItemAllocationComponent itemAllocationComponent = matchingEntry.entity.getOrCreateComponent(ItemAllocationComponent.class);

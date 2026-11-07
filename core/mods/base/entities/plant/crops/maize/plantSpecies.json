@@ -21,6 +21,7 @@
   },
   "seasons": {
     "WINTER": {
+      "growth": false,
       "switchToGrowthStage": 7
     }
   },

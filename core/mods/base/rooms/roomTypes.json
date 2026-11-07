@@ -110,7 +110,8 @@
     "drawableName": "btn_room_bedroom",
     "furnitureNames": [
       "SINGLE_BED",
-      "SLEEPING_SPOT"
+      "SLEEPING_SPOT",
+      "BEDSIDE_TABLE"
     ]
   },
   {

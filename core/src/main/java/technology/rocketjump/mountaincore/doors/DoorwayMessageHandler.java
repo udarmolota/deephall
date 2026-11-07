@@ -80,6 +80,7 @@ public class DoorwayMessageHandler implements GameContextAware, Telegraph {
 
 		messageDispatcher.addListener(this, MessageType.CREATE_DOORWAY);
 		messageDispatcher.addListener(this, MessageType.DECONSTRUCT_DOOR);
+		messageDispatcher.addListener(this, MessageType.DOOR_BROKEN_DOWN);
 
 		dustCloudParticleEffect = particleEffectTypeDictionary.getByName("Dust cloud above"); // MODDING expose this
 	}
@@ -90,14 +91,19 @@ public class DoorwayMessageHandler implements GameContextAware, Telegraph {
 			case MessageType.CREATE_DOORWAY: {
 				return handle((DoorwayPlacementMessage) msg.extraInfo);
 			}
-			case MessageType.DECONSTRUCT_DOOR: {
+			case MessageType.DECONSTRUCT_DOOR:
+			case MessageType.DOOR_BROKEN_DOWN: {
+				// A door broken down by invaders goes completely, leaving a gap in the wall to rebuild
+				boolean returnResources = msg.message == MessageType.DECONSTRUCT_DOOR;
 				Doorway target = (Doorway) msg.extraInfo;
 				MapTile targetTile = gameContext.getAreaMap().getTile(target.getTileLocation());
 				if (targetTile != null && targetTile.hasDoorway()) {
 					Doorway doorway = targetTile.getDoorway();
 
-					ItemEntityAttributes itemAttributes = itemEntityAttributesFactory.resourceFromDoorway(doorway);
-					itemEntityFactory.create(itemAttributes, target.getTileLocation(), true, gameContext, Faction.SETTLEMENT);
+					if (returnResources) {
+						ItemEntityAttributes itemAttributes = itemEntityAttributesFactory.resourceFromDoorway(doorway);
+						itemEntityFactory.create(itemAttributes, target.getTileLocation(), true, gameContext, Faction.SETTLEMENT);
+					}
 
 					messageDispatcher.dispatchMessage(MessageType.PARTICLE_REQUEST, new ParticleRequestMessage(dustCloudParticleEffect,
 							Optional.empty(), Optional.of(new JobTarget(targetTile)), (p) -> {}));

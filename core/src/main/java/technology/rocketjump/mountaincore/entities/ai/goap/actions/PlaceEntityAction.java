@@ -3,6 +3,7 @@ package technology.rocketjump.mountaincore.entities.ai.goap.actions;
 import com.alibaba.fastjson.JSONObject;
 import com.badlogic.gdx.math.GridPoint2;
 import org.pmw.tinylog.Logger;
+import technology.rocketjump.mountaincore.entities.components.PerishableComponent;
 import technology.rocketjump.mountaincore.assets.entities.item.model.ItemPlacement;
 import technology.rocketjump.mountaincore.assets.entities.model.EntityAssetOrientation;
 import technology.rocketjump.mountaincore.entities.ai.goap.AssignedGoal;
@@ -193,6 +194,8 @@ public class PlaceEntityAction extends Action {
 					}
 
 					// Merge item into tile
+					PerishableComponent.mergeSpoilage(itemAlreadyInTile, itemInTileAttributes.getQuantity(),
+							PerishableComponent.spoilageOf(entityToPlace), quantityToPlace);
 					itemInTileAttributes.setQuantity(itemInTileAttributes.getQuantity() + quantityToPlace);
 					if (currentTile.hasConstruction() && currentTile.getConstruction().isItemUsedInConstruction(itemAlreadyInTile)) {
 						// This item is used as part of this construction, so set it to be fully allocated

@@ -25,6 +25,7 @@ import technology.rocketjump.mountaincore.entities.model.physical.creature.Equip
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemEntityAttributes;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemQuality;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemType;
+import technology.rocketjump.mountaincore.entities.model.physical.item.ItemTypeDictionary;
 import technology.rocketjump.mountaincore.entities.model.physical.item.QuantifiedItemTypeWithMaterial;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.gamecontext.GameContextAware;
@@ -52,10 +53,18 @@ public class InvasionGenerator implements GameContextAware {
 	private final CreatureEntityFactory creatureEntityFactory;
 	private final GameMaterialDictionary materialDictionary;
 	private GameContext gameContext;
+	private final ItemTypeDictionary itemTypeDictionary;
+
+	// Every third invader of a raid is an archer (Inna: an archer only once there are more than two): a raid
+	// of 1-2 has none, 3-5 has one, 6-8 two
+	private static final int ARCHER_EVERY_NTH_INVADER = 3;
+	private static final int AMMO_PER_ARCHER = 20;
 
 	@Inject
 	public InvasionGenerator(MessageDispatcher messageDispatcher, ItemEntityAttributesFactory itemEntityAttributesFactory,
-							 ItemEntityFactory itemEntityFactory, CreatureEntityAttributesFactory creatureEntityAttributesFactory, CreatureEntityFactory creatureEntityFactory, GameMaterialDictionary materialDictionary) {
+							 ItemEntityFactory itemEntityFactory, CreatureEntityAttributesFactory creatureEntityAttributesFactory, CreatureEntityFactory creatureEntityFactory, GameMaterialDictionary materialDictionary,
+							 ItemTypeDictionary itemTypeDictionary) {
+		this.itemTypeDictionary = itemTypeDictionary;
 		this.messageDispatcher = messageDispatcher;
 		this.itemEntityAttributesFactory = itemEntityAttributesFactory;
 
@@ -78,7 +87,9 @@ public class InvasionGenerator implements GameContextAware {
 		group.setInvasionDefinition(definition);
 
 		int pointsSpent = 0;
+		int invaderNumber = 0;
 		while (pointsSpent < pointsBudget) {
+			invaderNumber++;
 			InvasionParticipant participant = definition.getParticipants().get(random.nextInt(definition.getParticipants().size()));
 
 			CreatureEntityAttributes creatureAttributes = creatureEntityAttributesFactory.create(participant.getRace());
@@ -107,7 +118,8 @@ public class InvasionGenerator implements GameContextAware {
 				inventoryComponent.add(inventoryEntity, invader, messageDispatcher, gameContext.getGameClock());
 			}
 
-			InvasionEquipmentDescriptor weaponOption = participant.getEquipmentOptions().getWeapons().get(random.nextInt(participant.getEquipmentOptions().getWeapons().size()));
+			InvasionEquipmentDescriptor weaponOption = pickWeapon(participant.getEquipmentOptions().getWeapons(),
+					invaderNumber % ARCHER_EVERY_NTH_INVADER == 0, random);
 			Entity weaponEntity = null;
 			if (!weaponOption.isNone()) {
 				ItemQuality quality = pickQuality(participant.getItemQualities());
@@ -119,6 +131,7 @@ public class InvasionGenerator implements GameContextAware {
 					inventoryComponent.add(weaponEntity, invader, messageDispatcher, gameContext.getGameClock());
 					skillsComponent.setSkillLevel(weaponOption.getItemType().getWeaponInfo().getCombatSkill(),
 							MIN_WEAPON_SKILL + gameContext.getRandom().nextInt(MAX_WEAPON_SKILL - MIN_WEAPON_SKILL));
+					giveAmmo(weaponOption.getItemType(), invader, inventoryComponent);
 				}
 			} else {
 				skillsComponent.setSkillLevel(participant.getRace().getFeatures().getUnarmedWeapon().getCombatSkill(),
@@ -178,6 +191,40 @@ public class InvasionGenerator implements GameContextAware {
 		itemAttributes.setItemQuality(quality);
 
 		return itemEntityFactory.create(itemAttributes, null, true, gameContext, Faction.HOSTILE_INVASION);
+	}
+
+	private static boolean isRanged(InvasionEquipmentDescriptor option) {
+		return !option.isNone() && option.getItemType() != null && option.getItemType().getWeaponInfo() != null
+				&& option.getItemType().getWeaponInfo().isRanged();
+	}
+
+	/** An archer gets one of the ranged weapons on the list, everyone else one of the others. */
+	private InvasionEquipmentDescriptor pickWeapon(List<InvasionEquipmentDescriptor> options, boolean archer, Random random) {
+		List<InvasionEquipmentDescriptor> eligible = options.stream().filter(o -> isRanged(o) == archer).toList();
+		if (eligible.isEmpty()) {
+			eligible = options;
+		}
+		return eligible.get(random.nextInt(eligible.size()));
+	}
+
+	/** A stack of the cheapest ammo the weapon fires (bone arrows for a bow), if it needs any. */
+	private void giveAmmo(ItemType weaponType, Entity invader, InventoryComponent inventoryComponent) {
+		if (weaponType.getWeaponInfo() == null || weaponType.getWeaponInfo().getRequiresAmmoType() == null) {
+			return;
+		}
+		ItemType ammoType = itemTypeDictionary.getAll().stream()
+				.filter(t -> weaponType.getWeaponInfo().getRequiresAmmoType().equals(t.getIsAmmoType()))
+				.min(Comparator.comparingInt(ItemType::getBaseValuePerItem))
+				.orElse(null);
+		if (ammoType == null) {
+			Logger.error("No ammo item type for " + weaponType.getItemTypeName());
+			return;
+		}
+		GameMaterial material = pickMaterial(ammoType.getPrimaryMaterialType());
+		ItemEntityAttributes ammoAttributes = itemEntityAttributesFactory.createItemAttributes(ammoType,
+				Math.min(AMMO_PER_ARCHER, ammoType.getMaxStackSize()), material);
+		Entity ammoEntity = itemEntityFactory.create(ammoAttributes, null, true, gameContext, Faction.HOSTILE_INVASION);
+		inventoryComponent.add(ammoEntity, invader, messageDispatcher, gameContext.getGameClock());
 	}
 
 	private GameMaterial pickMaterial(GameMaterialType materialType) {

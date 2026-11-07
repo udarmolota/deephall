@@ -1,13 +1,13 @@
 [
   {
-    "uniqueName": "table-1x1-metal",
+    "uniqueName": "bedside-table-metal",
     "type": "BASE_LAYER",
-    "furnitureTypeName": "SMALL_TABLE",
+    "furnitureTypeName": "BEDSIDE_TABLE",
     "furnitureLayoutName": "1x1",
     "validMaterialTypes": ["METAL"],
     "spriteDescriptors": {
       "DOWN": {
-        "filename": "table-1x1-metal.png",
+        "filename": "bedside-table-metal.png",
         "coloringLayer": "METAL_COLOR",
         "offsetPixels": {
           "x": 0,
@@ -17,14 +17,14 @@
     }
   },
   {
-    "uniqueName": "table-1x1-stone",
+    "uniqueName": "bedside-table-stone",
     "type": "BASE_LAYER",
-    "furnitureTypeName": "SMALL_TABLE",
+    "furnitureTypeName": "BEDSIDE_TABLE",
     "furnitureLayoutName": "1x1",
     "validMaterialTypes": ["STONE"],
     "spriteDescriptors": {
       "DOWN": {
-        "filename": "table-1x1-stone.png",
+        "filename": "bedside-table-stone.png",
         "coloringLayer": "STONE_COLOR",
         "offsetPixels": {
           "x": 0,
@@ -34,14 +34,14 @@
     }
   },
   {
-    "uniqueName": "table-1x1-wood",
+    "uniqueName": "bedside-table-wood",
     "type": "BASE_LAYER",
-    "furnitureTypeName": "SMALL_TABLE",
+    "furnitureTypeName": "BEDSIDE_TABLE",
     "furnitureLayoutName": "1x1",
     "validMaterialTypes": ["WOOD"],
     "spriteDescriptors": {
       "DOWN": {
-        "filename": "table-1x1-wood.png",
+        "filename": "bedside-table-wood.png",
         "coloringLayer": "WOOD_COLOR",
         "offsetPixels": {
           "x": 0,

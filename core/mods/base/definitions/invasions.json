@@ -47,6 +47,10 @@
             {
               "itemTypeName": "Tool-Pickaxe",
               "standardPointsCost": 10
+            },
+            {
+              "itemTypeName": "Weapon-Bow",
+              "standardPointsCost": 20
             }
           ],
           "shield": [

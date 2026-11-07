@@ -30,6 +30,10 @@ public class InvasionMessageHandler implements Telegraph, GameContextAware {
 	// A raid kept out by a sealed settlement grows by this share for every day it waits, up to the cap
 	private static final float RAID_GROWTH_PER_DAY_HELD_BACK = 0.15f;
 	private static final float MAX_RAID_GROWTH = 3f;
+	// Raids grow with the settlement's age as well as its population: +3% of the budget per day lived,
+	// so twice as strong by day 33 and at most four times as strong (day 100 on)
+	private static final float RAID_GROWTH_PER_SETTLEMENT_DAY = 0.03f;
+	private static final float MAX_RAID_AGE_GROWTH = 4f;
 	private final MessageDispatcher messageDispatcher;
 	private final SettlerTracker settlerTracker;
 	private final InvasionGenerator invasionGenerator;
@@ -102,7 +106,8 @@ public class InvasionMessageHandler implements Telegraph, GameContextAware {
 		}
 
 		float growth = Math.min(MAX_RAID_GROWTH, 1f + RAID_GROWTH_PER_DAY_HELD_BACK * gameContext.getSettlementState().getDaysInvasionHeldBack());
-		int pointsBudget = Math.round(calculatePointsBudget(invasionDefinition.getTriggeredBy()) * growth);
+		float ageGrowth = Math.min(MAX_RAID_AGE_GROWTH, 1f + RAID_GROWTH_PER_SETTLEMENT_DAY * gameContext.getGameClock().getCurrentDayNumber());
+		int pointsBudget = Math.round(calculatePointsBudget(invasionDefinition.getTriggeredBy()) * growth * ageGrowth);
 		invasionGenerator.generateInvasionParticipants(invasionDefinition, invasionLocation, pointsBudget);
 
 		messageDispatcher.dispatchMessage(4.5f, MessageType.POST_NOTIFICATION, new Notification(NotificationType.INVASION, invasionLocation, null));

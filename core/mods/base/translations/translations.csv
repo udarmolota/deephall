@@ -288,7 +288,7 @@ FURNITURE.FISH_BARREL.TOOLTIP,,Neatly store away your caught fish for future coo
 FURNITURE.FLETCHERS_WORKBENCH,,Fletcher's workbench
 FURNITURE.FLETCHERS_WORKBENCH.TOOLTIP,,This is a crafting station for ranged weapons and ammunition.
 FURNITURE.FLOUR_MILL,This is a table with a hand-operated flour mill stone on top,Gristmill
-FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}.
+FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}. Works twice as fast when shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} turn it.
 FURNITURE.FORGE,,Forge
 FURNITURE.FORGE.TOOLTIP,,This is where a {{PROFESSION.BLACKSMITH}} works with {{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.METAL.INGOT.PLURAL}} and {{FUEL.SACK}} to craft items and weapons.
 FURNITURE.GRAVE,,Grave
@@ -302,6 +302,8 @@ FURNITURE.KITCHEN_WORKTOP,Simple piece of furniture in a kitchen used to hold in
 FURNITURE.KITCHEN_WORKTOP.TOOLTIP,,An area to store ingredients for a {{PROFESSION.CHEF}} to cook soup.
 FURNITURE.LANTERN,,Lantern
 FURNITURE.LANTERN.TOOLTIP,,A lantern provides light. This does not currently have an in-game effect.
+FURNITURE.BEDSIDE_TABLE,,Bedside table
+FURNITURE.BEDSIDE_TABLE.TOOLTIP,,A small table next to the bed. A settler who sleeps in a bedroom with one wakes up in a better mood.
 FURNITURE.LEATHERWORKING_STATION,,Leatherworking station
 FURNITURE.LEATHERWORKING_STATION.TOOLTIP,,A workbench to produce leather goods like armour and waterskins.
 FURNITURE.LEDGER_TABLE,,Ledger table
@@ -477,7 +479,7 @@ GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring
 GUI.BUILD.PILLARS,,Pillars
 GUI.BUILD.PIPING,,Pipes
 GUI.BUILD.POWER,,Shafts
-GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump or ore crusher. Straight runs are planks, turns need stone gears from the artisan."
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump, ore crusher or gristmill. Straight runs are planks, turns need stone gears from the artisan."
 GUI.BUILD.ROOFING,,Roofing
 GUI.BUILD.WALLS,,Walls
 GUI.BUILD_FURNITURE,,Furniture
@@ -689,7 +691,7 @@ GUI.ORDERS.MINE,,Mine
 GUI.ORDERS_LABEL,,Orders
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size
 GUI.POWER_LABEL,,Power & Water
-GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} turn underground shafts {{drawable|tooltip_icon_power}}{{\n}}Shafts {{drawable|tooltip_icon_power}} drive {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and ore crushers{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}
+GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps, ore crushers and gristmills.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} turn underground shafts {{drawable|tooltip_icon_power}}{{\n}}Shafts {{drawable|tooltip_icon_power}} drive {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, ore crushers and gristmills{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}
 GUI.PRIORITY_LABEL,,Priority
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}}
@@ -772,6 +774,7 @@ HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated
 HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam
+HAPPINESS_MODIFIER.COZY_BEDROOM,,Cozy bedroom
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned
 HAPPINESS_MODIFIER.POISONED,,Poisoned
@@ -919,8 +922,8 @@ MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power
-MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,Turns underground shafts. The shafts carry its power to an ore crusher or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.
-MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,Not connected - lay shafts from here to an ore crusher or a water pump
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,Turns underground shafts. The shafts carry its power to an ore crusher, a gristmill or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,Not connected - lay shafts from here to an ore crusher, gristmill or water pump
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power
 MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.
@@ -1070,6 +1073,8 @@ NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture 
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away
 NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust."
 NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting
+NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot."
+NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.

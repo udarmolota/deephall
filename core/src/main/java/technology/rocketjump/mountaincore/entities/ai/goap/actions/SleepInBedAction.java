@@ -26,6 +26,7 @@ import technology.rocketjump.mountaincore.rooms.RoomTile;
 import static technology.rocketjump.mountaincore.assets.entities.model.EntityAssetOrientation.DOWN;
 import static technology.rocketjump.mountaincore.entities.ai.goap.actions.Action.CompletionType.FAILURE;
 import static technology.rocketjump.mountaincore.entities.ai.goap.actions.Action.CompletionType.SUCCESS;
+import static technology.rocketjump.mountaincore.entities.components.creature.HappinessComponent.HappinessModifier.COZY_BEDROOM;
 import static technology.rocketjump.mountaincore.entities.components.creature.HappinessComponent.HappinessModifier.SLEPT_IN_BED;
 import static technology.rocketjump.mountaincore.entities.components.creature.HappinessComponent.HappinessModifier.SLEPT_ON_GROUND;
 
@@ -68,6 +69,9 @@ public class SleepInBedAction extends SleepOnFloorAction {
 			checkForWakingUp(gameContext);
 
 			if (completionType == SUCCESS) {
+				if (bedroom != null && hasBedsideTable(bedroom)) {
+					parent.parentEntity.getComponent(HappinessComponent.class).add(COZY_BEDROOM);
+				}
 				getOutOfBed(gameContext);
 			}
 		}
@@ -82,6 +86,22 @@ public class SleepInBedAction extends SleepOnFloorAction {
 			return super.healingFactor(gameContext);
 		}
 		return 1.0f;
+	}
+
+	private static final String BEDSIDE_TABLE_FURNITURE_TYPE_NAME = "BEDSIDE_TABLE";
+
+	/** Checked once, on waking up after a full sleep, so the room is not scanned every frame. */
+	private boolean hasBedsideTable(Room room) {
+		for (RoomTile roomTile : room.getRoomTiles().values()) {
+			for (Entity entity : roomTile.getTile().getEntities()) {
+				if (entity.getPhysicalEntityComponent().getAttributes() instanceof FurnitureEntityAttributes attributes
+						&& !attributes.isDestroyed()
+						&& BEDSIDE_TABLE_FURNITURE_TYPE_NAME.equals(attributes.getFurnitureType().getName())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private boolean bedroomIsSmall(Room bedroom) {

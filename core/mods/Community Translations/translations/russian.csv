@@ -298,8 +298,8 @@ FURNITURE.FISH_BARREL,,Fish barrel,Бочка для рыбы
 FURNITURE.FISH_BARREL.TOOLTIP,,Neatly store away your caught fish for future cooking.,Здесь аккуратно хранят пойманную рыбу до готовки.
 FURNITURE.FLETCHERS_WORKBENCH,,Fletcher's workbench,Верстак оружейника-лучника
 FURNITURE.FLETCHERS_WORKBENCH.TOOLTIP,,This is a crafting station for ranged weapons and ammunition.,Здесь делают оружие дальнего боя и боеприпасы.
-FURNITURE.FLOUR_MILL,This is a table with a hand-operated flour mill stone on top,Gristmill,Ручная мельница
-FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}.,"Сырье: {{VEGETABLE.WHEAT}}. Продукт: {{RESOURCE.FLOUR.SACK.NOUN}}, с которой работает {{PROFESSION.CHEF}}."
+FURNITURE.FLOUR_MILL,This is a table with a hand-operated flour mill stone on top,Gristmill,Мельница
+FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}. Works twice as fast when shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} turn it.,"Сырье: {{VEGETABLE.WHEAT}}. Продукт: {{RESOURCE.FLOUR.SACK.NOUN}}, с которой работает {{PROFESSION.CHEF}}. Если её крутят валы от ветряной мельницы или водяного колеса, мелет вдвое быстрее."
 FURNITURE.FORGE,,Forge,Кузнечный горн
 FURNITURE.FORGE.TOOLTIP,,This is where a {{PROFESSION.BLACKSMITH}} works with {{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.METAL.INGOT.PLURAL}} and {{FUEL.SACK}} to craft items and weapons.,Здесь работает {{PROFESSION.BLACKSMITH}}. Сырье: {{RESOURCE.METAL.INGOT.PLURAL}} и {{FUEL.SACK}}. Продукт: инструменты и оружие.
 FURNITURE.GRAVE,,Grave,Могила
@@ -313,6 +313,8 @@ FURNITURE.KITCHEN_WORKTOP,Simple piece of furniture in a kitchen used to hold in
 FURNITURE.KITCHEN_WORKTOP.TOOLTIP,,An area to store ingredients for a {{PROFESSION.CHEF}} to cook soup.,"Здесь хранятся ингредиенты, из которых {{PROFESSION.CHEF}} варит суп."
 FURNITURE.LANTERN,,Lantern,Фонарь
 FURNITURE.LANTERN.TOOLTIP,,A lantern provides light. This does not currently have an in-game effect.,Фонарь дает свет. Пока это никак не влияет на игру.
+FURNITURE.BEDSIDE_TABLE,,Bedside table,Тумбочка
+FURNITURE.BEDSIDE_TABLE.TOOLTIP,,A small table next to the bed. A settler who sleeps in a bedroom with one wakes up in a better mood.,"Маленький столик у кровати. Кто спит в спальне с тумбочкой, просыпается в лучшем настроении."
 FURNITURE.LEATHERWORKING_STATION,,Leatherworking station,Кожевенный верстак
 FURNITURE.LEATHERWORKING_STATION.TOOLTIP,,A workbench to produce leather goods like armour and waterskins.,"Верстак для кожаных изделий, например брони и бурдюков."
 FURNITURE.LEDGER_TABLE,,Ledger table,Стол учета
@@ -488,7 +490,7 @@ GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring,
 GUI.BUILD.PILLARS,,Pillars,Колонны
 GUI.BUILD.PIPING,,Pipes,Трубы
 GUI.BUILD.POWER,,Shafts,Валы
-GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump or ore crusher. Straight runs are planks, turns need stone gears from the artisan.","Валы: от мельницы или водяного колеса к насосу или рудодробилке. Прямые участки из досок, повороты из шестерён ремесленника."
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump, ore crusher or gristmill. Straight runs are planks, turns need stone gears from the artisan.","Валы: от ветряной мельницы или водяного колеса к насосу, рудодробилке или мельнице. Прямые участки из досок, повороты из шестерён ремесленника."
 GUI.BUILD.ROOFING,,Roofing,Крыша
 GUI.BUILD.WALLS,,Walls,Стены
 GUI.BUILD_FURNITURE,,Furniture,Мебель
@@ -700,7 +702,7 @@ GUI.ORDERS.MINE,,Mine,Копать
 GUI.ORDERS_LABEL,,Orders,Приказы
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size,Мост должен покрывать обе стороны реки и иметь размер не менее 3x3 клетки
 GUI.POWER_LABEL,,Power & Water,Энергия и вода
-GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},Ветряные мельницы и водяные колёса вырабатывают силу для механизмов: водяного насоса и рудодробилки.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} и {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} крутят подземные валы {{drawable|tooltip_icon_power}}{{\n}}Валы {{drawable|tooltip_icon_power}} крутят {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} и рудодробилки{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} и орошение {{drawable|tooltip_icon_irrigation}} соединяются через {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}
+GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps, ore crushers and gristmills.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},Ветряные мельницы и водяные колёса вырабатывают силу для механизмов: водяного насоса, рудодробилки и мельницы.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} и {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} крутят подземные валы {{drawable|tooltip_icon_power}}{{\n}}Валы {{drawable|tooltip_icon_power}} крутят {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, рудодробилки и мельницы{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} и орошение {{drawable|tooltip_icon_irrigation}} соединяются через {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}
 GUI.PRIORITY_LABEL,,Priority,Приоритет
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export,Что экспортировать
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}},Производство остановлено: лимит {{quantity}}
@@ -783,6 +785,7 @@ HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water,Пришлось пить
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving,Умирает от голода
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated,Сильное обезвоживание
 HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam,Выпустил пар
+HAPPINESS_MODIFIER.COZY_BEDROOM,,Cozy bedroom,Уютная спальня
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement,Надежды на новое поселение
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned,Сильные ожоги
 HAPPINESS_MODIFIER.POISONED,,Poisoned,Отравление
@@ -930,8 +933,8 @@ MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power,Раб�
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power,Работает очень медленно - не хватает энергии
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,"Чтобы работать в полную силу, нужны подземные валы от мельницы или водяного колеса. Валы строятся в меню «{{GUI.BUILD_LABEL}}» → «{{GUI.BUILD.POWER}}»."
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power,Работает - вырабатывает энергию: {{power}}
-MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,Turns underground shafts. The shafts carry its power to an ore crusher or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Крутит подземные валы. По валам сила идёт к рудодробилке и водяному насосу. Валы строятся в меню «{{GUI.BUILD_LABEL}}» → «{{GUI.BUILD.POWER}}».
-MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,Not connected - lay shafts from here to an ore crusher or a water pump,Не подключено - проложите отсюда валы к рудодробилке или водяному насосу
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,Turns underground shafts. The shafts carry its power to an ore crusher, a gristmill or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Крутит подземные валы. По валам сила идёт к рудодробилке, мельнице и водяному насосу. Валы строятся в меню «{{GUI.BUILD_LABEL}}» → «{{GUI.BUILD.POWER}}».
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,Not connected - lay shafts from here to an ore crusher, gristmill or water pump,Не подключено - проложите отсюда валы к рудодробилке, мельнице или водяному насосу
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly,Для работы должно стоять снаружи
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power,Отключено - не хватает энергии
 MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.,Валы дают мало силы: поставьте на те же валы ещё мельницу или водяное колесо.
@@ -1080,6 +1083,8 @@ NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture 
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away,Заржавело
 NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust.","Железо или сталь под дождём заржавели. Со временем ржавчина это разрушит: постройте сверху крышу или перестройте из бронзы или олова, они не ржавеют."
 NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting,Ржавеет
+NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot.","Еда сгнила. Мясо, рыба, овощи, хлеб и тесто портятся за несколько дней, быстрее всего летом; под крышей хранятся в полтора раза дольше. Сухпайки, зерно, мука и семена не портятся."
+NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted,Еда сгнила
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,Пираты! Не дайте им украсть ваше добро!
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,Пираты!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,Крыша обрушилась: не хватило колонн и опор.

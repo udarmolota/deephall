@@ -216,6 +216,7 @@ public class MessageType {
 	public static final int FURNITURE_ATTRIBUTES_CREATION_REQUEST = 826;
 	public static final int FURNITURE_CREATION_REQUEST = 827;
 	public static final int ROOF_MATERIAL_SELECTED = 828;
+	public static final int DOOR_BROKEN_DOWN = 829; // extraInfo: the Doorway; removed like DECONSTRUCT_DOOR but gives nothing back
 
 	// Construction-specific messages
 	public static final int CANCEL_CONSTRUCTION = 900;

@@ -267,7 +267,7 @@ public class CombatBehaviour implements ParentDependentEntityComponent, Particle
 								return false;
 							}
 						})
-						.min(Comparator.comparingInt(e -> (int)(100f * e.getLocationComponent().getWorldOrParentPosition().dst2(parentPosition))));
+						.min(Comparator.comparingDouble(e -> targetChoiceCost(e, parentPosition)));
 				if (nearestOpponent.isPresent()) {
 					combatStateComponent.setTargetedOpponentId(nearestOpponent.get().getId());
 				} else {
@@ -290,6 +290,26 @@ public class CombatBehaviour implements ParentDependentEntityComponent, Particle
 		}
 
 		return attackOrDefendAgainstOpponentAction();
+	}
+
+	private static final float TILES_PER_WOUND_POINT = 0.3f;
+	private static final int MAX_WOUND_POINTS = 10;
+
+	/**
+	 * Distance to an opponent in tiles, less a bonus for its wounds, so a fighter finishes off a wounded
+	 * opponent instead of turning to a fresh one standing slightly nearer. Wound points add up the damage
+	 * levels of its body parts (bruise 1, bleeding 3, broken bones 8, destroyed 10), capped at 10, and each
+	 * point counts as 0.3 tiles: at most 3 tiles out of the way.
+	 */
+	private static double targetChoiceCost(Entity opponent, Vector2 fromPosition) {
+		double distance = opponent.getLocationComponent().getWorldOrParentPosition().dst(fromPosition);
+		int woundPoints = 0;
+		if (opponent.getPhysicalEntityComponent().getAttributes() instanceof CreatureEntityAttributes attributes) {
+			for (var entry : attributes.getBody().getAllDamage()) {
+				woundPoints += entry.getValue().getDamageLevel().damageRequiredToCause;
+			}
+		}
+		return distance - TILES_PER_WOUND_POINT * Math.min(woundPoints, MAX_WOUND_POINTS);
 	}
 
 	private static final float ALLY_NEAR_OPPONENT_TILES = 4f;

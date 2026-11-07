@@ -36,5 +36,24 @@
     "materialTypesToCopyOver": ["METAL"],
     "minimumTimeToCompleteCrafting": 3.5,
     "maximumTimeToCompleteCrafting": 16.5
+  },
+  {
+    "recipeName": "Cut up orc light armour for leather",
+    "craftingTypeName": "LEATHERWORKING",
+    "verbOverrideI18nKey": "CRAFTING_TYPE.LEATHERWORKING",
+    "input": [
+      {
+        "itemTypeName": "Armour-Orc-Light",
+        "quantity": 1
+      }
+    ],
+    "output": {
+      "itemTypeName": "Product-Leather",
+      "quantity": 2
+    },
+    "itemTypeRequiredName": "Tool-Kitchen-Knife",
+    "materialTypesToCopyOver": ["SKIN"],
+    "minimumTimeToCompleteCrafting": 1.5,
+    "maximumTimeToCompleteCrafting": 3.5
   }
 ]

@@ -50,8 +50,17 @@ public class InvasionCreatureGroup extends CreatureGroup {
 				removeCampfire(gameContext, messageDispatcher);
 			}
 			this.pendingSpecialGoal = null;
-			this.invasionStage = memberEntityIds.size() * 2 < strongestMemberCount ? InvasionStage.RETREATING : InvasionStage.RAIDING;
-			this.hoursInCurrentStage = 0;
+			if (isBeaten()) {
+				retreatNow(gameContext);
+			} else {
+				this.invasionStage = InvasionStage.RAIDING;
+				this.hoursInCurrentStage = 0;
+			}
+		}
+
+		if (invasionStage.equals(InvasionStage.RAIDING) && isBeaten()) {
+			// Morale breaks in the raid too: with more than half of the group fallen the rest run for it
+			retreatNow(gameContext);
 		}
 
 		if (invasionStage.equals(InvasionStage.RAIDING)) {
@@ -143,6 +152,32 @@ public class InvasionCreatureGroup extends CreatureGroup {
 		this.victoryPointsTarget -= POINTS_LOST_ON_MEMBER_DEATH;
 		if (invasionStage.equals(InvasionStage.ARRIVING) || invasionStage.equals(InvasionStage.PREPARING)) {
 			memberLostBeforeRaid = true;
+		}
+	}
+
+	private boolean isBeaten() {
+		return memberEntityIds.size() * 2 < strongestMemberCount;
+	}
+
+	/**
+	 * Switches to RETREATING and makes members still fighting break off (as a squad's retreat order does,
+	 * see MilitaryMessageHandler), so they leave instead of fighting on until their combat ends by itself.
+	 */
+	private void retreatNow(GameContext gameContext) {
+		this.invasionStage = InvasionStage.RETREATING;
+		this.hoursInCurrentStage = 0;
+		for (Long memberId : memberEntityIds) {
+			Entity member = gameContext.getEntities().get(memberId);
+			if (member != null) {
+				CombatStateComponent combatState = member.getComponent(CombatStateComponent.class);
+				if (combatState != null && combatState.isInCombat()) {
+					combatState.setForceRetreat(true);
+				} else if (member.getBehaviourComponent() instanceof CreatureBehaviour creatureBehaviour
+						&& creatureBehaviour.getCurrentGoal() != null) {
+					// Drop the raid goal it is on (going to attack or steal) so it picks the retreat goal next
+					creatureBehaviour.getCurrentGoal().setInterrupted(true);
+				}
+			}
 		}
 	}
 

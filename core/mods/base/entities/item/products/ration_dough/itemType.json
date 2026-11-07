@@ -8,5 +8,6 @@
   "equippedWhileWorkingOnJob" : false,
   "hoursInInventoryUntilUnused" : 1.0,
   "i18nKey" : "PRODUCT.RATION.DOUGH",
-  "specificMaterialNames": ["Wheat"]
+  "specificMaterialNames": ["Wheat"],
+  "tags": { "PERISHABLE": [2, 3, 5] }
 }

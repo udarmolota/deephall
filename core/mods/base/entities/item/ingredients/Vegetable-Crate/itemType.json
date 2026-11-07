@@ -15,5 +15,6 @@
   "describeAsMaterialOnly" : true,
   "i18nKey" : "INGREDIENT.VEGETABLE.CRATE",
   "tradeExportable": true,
-  "tradeImportable": true
+  "tradeImportable": true,
+  "tags": { "PERISHABLE": [5, 8, 15] }
 }

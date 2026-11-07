@@ -31,7 +31,8 @@ public class NeedsComponent implements EntityComponent {
 
 	private static final double SLEEP_HOURS_TO_FULLY_RESTED = 12;
 	private static final double AWAKE_HOURS_UNTIL_UNCONSCIOUS = 30;
-	private static final double HOURS_TO_STARVING_FROM_FULL = 46;
+	// 23 h: a settler eats twice a day, in the morning and the evening nourishment hours (was 46: once a day)
+	private static final double HOURS_TO_STARVING_FROM_FULL = 23;
 	private static final double HOURS_TO_DEHYDRATED_FROM_QUENCHED = 40;
 
 	public NeedsComponent() {

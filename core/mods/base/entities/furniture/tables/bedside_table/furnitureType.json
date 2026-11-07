@@ -1,0 +1,26 @@
+{
+  "name": "BEDSIDE_TABLE",
+  "i18nKey": "FURNITURE.BEDSIDE_TABLE",
+  "blocksMovement": true,
+  "defaultLayoutName": "1x1",
+  "requirements": {
+    "WOOD": [
+      {
+        "itemTypeName": "Resource-Planks",
+        "quantity": 2
+      }
+    ],
+    "STONE": [
+      {
+        "itemTypeName": "Resource-Stone-Block",
+        "quantity": 2
+      }
+    ],
+    "METAL": [
+      {
+        "itemTypeName": "Resource-Metal-Ingot",
+        "quantity": 2
+      }
+    ]
+  }
+}

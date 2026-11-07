@@ -8,6 +8,7 @@ import technology.rocketjump.mountaincore.entities.components.BehaviourComponent
 import technology.rocketjump.mountaincore.entities.components.creature.SteeringComponent;
 import technology.rocketjump.mountaincore.entities.model.Entity;
 import technology.rocketjump.mountaincore.entities.model.physical.PhysicalEntityComponent;
+import technology.rocketjump.mountaincore.entities.model.physical.furniture.FurnitureEntityAttributes;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.mapping.tile.MapTile;
 import technology.rocketjump.mountaincore.messaging.MessageType;
@@ -48,6 +49,7 @@ public class DoorBehaviour implements BehaviourComponent {
 		cloned.currentStateElapsedTime = this.currentStateElapsedTime;
 		cloned.doorOpenRequested = this.doorOpenRequested;
 		cloned.state = this.state;
+		cloned.bashDamage = this.bashDamage;
 		return cloned;
 	}
 
@@ -65,6 +67,51 @@ public class DoorBehaviour implements BehaviourComponent {
 		}
 	}
 
+	// Breaking doors down: invaders do not open doors, they bash them (SteeringComponent). Each invader standing at
+	// the door adds its time to the damage; when the damage reaches the door's strength the whole doorway is gone
+	// (DOOR_BROKEN_DOWN), leaving a gap in the wall for the player to rebuild.
+	private static final float WOOD_DOOR_STRENGTH = 20f;  // seconds of bashing by one invader: about a game hour
+	private static final float STONE_DOOR_STRENGTH = 40f;
+	private static final float METAL_DOOR_STRENGTH = 60f;
+	private static final float SECONDS_BETWEEN_BASH_SOUNDS = 1.5f;
+
+	private float bashDamage;
+	private transient boolean brokenDown;
+	private transient float secondsToNextBashSound;
+
+	public void bashed(float deltaTime) {
+		if (brokenDown || state.equals(OPEN) || state.equals(OPENING)) {
+			return;
+		}
+		bashDamage += deltaTime;
+		secondsToNextBashSound -= deltaTime;
+		if (secondsToNextBashSound <= 0 && closeSound != null) {
+			secondsToNextBashSound = SECONDS_BETWEEN_BASH_SOUNDS;
+			messageDispatcher.dispatchMessage(MessageType.REQUEST_SOUND, new RequestSoundMessage(closeSound, parentEntity.getId(),
+					parentEntity.getLocationComponent().getWorldOrParentPosition(), null));
+		}
+		if (bashDamage >= strength()) {
+			MapTile doorTile = gameContext.getAreaMap().getTile(parentEntity.getLocationComponent().getWorldPosition());
+			if (doorTile != null && doorTile.hasDoorway()) {
+				brokenDown = true;
+				// Delayed: this is called from a creature's update, so the door is not destroyed mid-update
+				messageDispatcher.dispatchMessage(0.01f, MessageType.DOOR_BROKEN_DOWN, doorTile.getDoorway());
+			}
+		}
+	}
+
+	private float strength() {
+		if (parentEntity.getPhysicalEntityComponent().getAttributes() instanceof FurnitureEntityAttributes attributes
+				&& attributes.getPrimaryMaterial() != null) {
+			return switch (attributes.getPrimaryMaterial().getMaterialType()) {
+				case STONE -> STONE_DOOR_STRENGTH;
+				case METAL -> METAL_DOOR_STRENGTH;
+				default -> WOOD_DOOR_STRENGTH;
+			};
+		}
+		return WOOD_DOOR_STRENGTH;
+	}
+
 	public void setSoundAssets(SoundAsset openSound, SoundAsset closeSound) {
 		this.openSound = openSound;
 		this.closeSound = closeSound;
@@ -79,6 +126,7 @@ public class DoorBehaviour implements BehaviourComponent {
 
 		MapTile doorTile = gameContext.getAreaMap().getTile(parentEntity.getLocationComponent().getWorldPosition());
 		boolean otherEntityInTile = doorTile.getEntities().size() > 1;
+
 
 		if (doorOpenRequested) {
 			switchState(OPENING);
@@ -185,6 +233,9 @@ public class DoorBehaviour implements BehaviourComponent {
 		if (!state.equals(CLOSED)) {
 			asJson.put("state", state.name());
 		}
+		if (bashDamage > 0) {
+			asJson.put("bashDamage", bashDamage);
+		}
 
 		if (openSound != null) {
 			asJson.put("openSound", openSound.getName());
@@ -199,6 +250,7 @@ public class DoorBehaviour implements BehaviourComponent {
 		this.currentStateElapsedTime = asJson.getFloatValue("elapsedTime");
 		this.doorOpenRequested = asJson.getBooleanValue("openRequested");
 		this.state = EnumParser.getEnumValue(asJson, "state", DoorState.class, DoorState.CLOSED);
+		this.bashDamage = asJson.getFloatValue("bashDamage");
 
 		String openSoundName = asJson.getString("openSound");
 		if (openSoundName != null) {

@@ -8,5 +8,6 @@
   "stockpileGroupName" : "FOOD",
   "describeAsMaterialOnly" : true,
   "tradeExportable" : true,
-  "i18nKey" : "CARCASS.PIKE.PREPARED"
+  "i18nKey" : "CARCASS.PIKE.PREPARED",
+  "tags": { "PERISHABLE": [2, 4, 8] }
 }

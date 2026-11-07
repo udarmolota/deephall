@@ -383,5 +383,28 @@
     "itemTypeRequiredName": "Tool-Tongs",
     "minimumTimeToCompleteCrafting": 2.5,
     "maximumTimeToCompleteCrafting": 7.5
+  },
+  {
+    "recipeName": "Melt down orc heavy armour",
+    "craftingTypeName": "SMELTING",
+    "input": [
+      {
+        "itemTypeName": "Fuel-Sack",
+        "quantity": 1
+      },
+      {
+        "itemTypeName": "Armour-Orc-Heavy",
+        "quantity": 1
+      }
+    ],
+    "output": {
+      "itemTypeName": "Resource-Metal-Ingot",
+      "quantity": 3
+    },
+    "materialTypesToCopyOver": ["METAL"],
+    "extraGameHoursToComplete": 3.0,
+    "itemTypeRequiredName": "Tool-Tongs",
+    "minimumTimeToCompleteCrafting": 1.5,
+    "maximumTimeToCompleteCrafting": 3.5
   }
 ]

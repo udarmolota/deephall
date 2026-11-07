@@ -5,6 +5,9 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.math.Vector2;
 import org.pmw.tinylog.Logger;
 import technology.rocketjump.mountaincore.assets.entities.furniture.model.DoorState;
+import technology.rocketjump.mountaincore.entities.behaviour.furniture.DoorBehaviour;
+import technology.rocketjump.mountaincore.entities.components.Faction;
+import technology.rocketjump.mountaincore.entities.components.FactionComponent;
 import technology.rocketjump.mountaincore.entities.model.Entity;
 import technology.rocketjump.mountaincore.entities.model.EntityType;
 import technology.rocketjump.mountaincore.entities.model.physical.creature.CreatureEntityAttributes;
@@ -86,7 +89,14 @@ public class SteeringComponent implements ChildPersistable {
 				if (nextTile.hasDoorway()) {
 					DoorState doorState = nextTile.getDoorway().getDoorState();
 					if (!doorState.equals(DoorState.OPEN)) {
-						messageDispatcher.dispatchMessage(MessageType.REQUEST_DOOR_OPEN, nextTile.getDoorway().getDoorEntity());
+						Entity doorEntity = nextTile.getDoorway().getDoorEntity();
+						if (Faction.HOSTILE_INVASION.equals(parentEntity.getOrCreateComponent(FactionComponent.class).getFaction())
+								&& doorEntity.getBehaviourComponent() instanceof DoorBehaviour doorBehaviour) {
+							// Invaders cannot open the settlement's doors: they break them down
+							doorBehaviour.bashed(deltaTime);
+						} else {
+							messageDispatcher.dispatchMessage(MessageType.REQUEST_DOOR_OPEN, doorEntity);
+						}
 						waitingForDoorToOpen = true;
 					}
 				}

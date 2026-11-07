@@ -8,5 +8,6 @@
   "equippedWhileWorkingOnJob" : false,
   "hoursInInventoryUntilUnused" : 1.0,
   "consumeSoundAssetName" : "EatFood",
-  "i18nKey" : "PRODUCT.BREAD.LOAF"
+  "i18nKey" : "PRODUCT.BREAD.LOAF",
+  "tags": { "PERISHABLE": [6, 8, 12] }
 }

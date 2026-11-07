@@ -403,7 +403,10 @@ public class JobMessageHandler implements GameContextAware, Telegraph {
 								if (!attributes.isBurned()) {
 									for (PlantSpeciesItem harvestedItem : currentGrowthStage.getHarvestedItems()) {
 										if (gameContext.getRandom().nextFloat() < harvestedItem.getChance()) {
-											harvest(harvestedItem, completedByEntity);
+											int quantity = seedsByMoisture(harvestedItem, attributes);
+											if (quantity > 0) {
+												harvest(harvestedItem, completedByEntity, quantity);
+											}
 										}
 									}
 								}
@@ -1083,7 +1086,32 @@ public class JobMessageHandler implements GameContextAware, Telegraph {
 		return true;
 	}
 
+	private static final String SEEDS_ITEM_TYPE_NAME = "Ingredient-Seeds";
+
+	/**
+	 * A crop gives back its full seeds only when watered (rain on an open plot, a river or an irrigation
+	 * channel nearby): one seed less when it needs watering, none in a drought. Every crop gives 2 seeds,
+	 * one of which goes back into the ground, so an unwatered field slowly shrinks unless seeds are bought.
+	 * Anything else harvested keeps its quantity.
+	 */
+	private int seedsByMoisture(PlantSpeciesItem harvestedItem, PlantEntityAttributes attributes) {
+		int quantity = harvestedItem.getQuantity();
+		if (harvestedItem.getItemType() == null || !SEEDS_ITEM_TYPE_NAME.equals(harvestedItem.getItemType().getItemTypeName())
+				|| !PlantSpeciesType.CROP.equals(attributes.getSpecies().getPlantType())) {
+			return quantity;
+		}
+		return switch (attributes.getMoistureState()) {
+			case WATERED -> quantity;
+			case NEEDS_WATERING -> Math.max(0, quantity - 1);
+			case DROUGHTED -> 0;
+		};
+	}
+
 	private void harvest(PlantSpeciesItem harvestedItem, Entity completedByEntity) {
+		harvest(harvestedItem, completedByEntity, harvestedItem.getQuantity());
+	}
+
+	private void harvest(PlantSpeciesItem harvestedItem, Entity completedByEntity, int quantity) {
 		InventoryComponent inventoryComponent = completedByEntity.getComponent(InventoryComponent.class);
 		if (harvestedItem.getItemType() == null || harvestedItem.getMaterial() == null) {
 			Logger.error("Attempting to harvest unrecognised item");
@@ -1093,7 +1121,7 @@ public class JobMessageHandler implements GameContextAware, Telegraph {
 		Entity createdItem = itemEntityFactory.createByItemType(harvestedItem.getItemType(), gameContext, true, Faction.SETTLEMENT);
 		ItemEntityAttributes createdAttributes = (ItemEntityAttributes) createdItem.getPhysicalEntityComponent().getAttributes();
 		GameMaterial oldPrimaryMaterial = createdAttributes.getPrimaryMaterial();
-		createdAttributes.setQuantity(harvestedItem.getQuantity());
+		createdAttributes.setQuantity(quantity);
 		createdAttributes.setMaterial(harvestedItem.getMaterial());
 		if (!oldPrimaryMaterial.equals(createdAttributes.getPrimaryMaterial())) {
 			messageDispatcher.dispatchMessage(MessageType.ITEM_PRIMARY_MATERIAL_CHANGED, new ItemPrimaryMaterialChangedMessage(createdItem, oldPrimaryMaterial));
@@ -1104,7 +1132,7 @@ public class JobMessageHandler implements GameContextAware, Telegraph {
 		inventoryEntry = inventoryComponent.add(createdItem, completedByEntity, messageDispatcher, gameContext.getGameClock());
 
 		int quantityInInventory = ((ItemEntityAttributes) inventoryEntry.entity.getPhysicalEntityComponent().getAttributes()).getQuantity();
-		if (quantityInInventory >= createdAttributes.getItemType().getMaxStackSize() - harvestedItem.getQuantity()) {
+		if (quantityInInventory >= createdAttributes.getItemType().getMaxStackSize() - quantity) {
 			needsHaulingNow = true;
 		}
 
