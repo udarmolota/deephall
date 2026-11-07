@@ -800,6 +800,29 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
         super.onPause();
     }
 
+    /**
+     * Going to the background: ask Deephall to save, since Android may kill the app while it is away. The game
+     * keeps running in the background (it renders into a 1x1 pbuffer once the surface is gone), checks for this
+     * file every 2 seconds, deletes it and saves (PhoneAutosaver in the game).
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (!isGameStarted) return;
+        try {
+            GameInstance instance = GameInstanceManager.requireSingleton().getInstanceByName(
+                    getIntent().getStringExtra(EXTRA_GAME_INSTANCE_NAME));
+            if (instance != null && BundledGame.PRESET_NAME.equals(instance.getPresetName())) {
+                java.io.File request = new java.io.File(instance.getGamePath(), "save-request");
+                if (!request.exists() && !request.createNewFile()) {
+                    Log.w(LOG_TAG, "Could not create " + request);
+                }
+            }
+        } catch (java.io.IOException | RuntimeException e) {
+            Log.w(LOG_TAG, "Could not ask the game to save", e);
+        }
+    }
+
     private boolean isMouseEvent(MotionEvent e, int pointerIndex) {
         return e.isFromSource(InputDevice.SOURCE_MOUSE)
             || e.isFromSource(InputDevice.SOURCE_TOUCHPAD)
