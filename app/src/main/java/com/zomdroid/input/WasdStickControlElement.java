@@ -307,6 +307,19 @@ public class WasdStickControlElement extends AbstractControlElement {
         }
 
         void draw(Canvas canvas) {
+            // Orange ring under the outer circle so the stick stands out on snow and other light ground
+            int savedColor = strokePaint.getColor();
+            int savedAlpha = strokePaint.getAlpha();
+            ColorFilter savedFilter = strokePaint.getColorFilter();
+            strokePaint.setColorFilter(null);
+            strokePaint.setColor(StickControlElement.STICK_OUTLINE_COLOR);
+            strokePaint.setAlpha(StickControlElement.STICK_OUTLINE_ALPHA);
+            strokePaint.setStrokeWidth((PAINT_STROKE_WIDTH + 5f) * parentView.pixelScale);
+            canvas.drawCircle(outerCenterX, outerCenterY, outerRadius, strokePaint);
+            strokePaint.setColor(savedColor);
+            strokePaint.setAlpha(savedAlpha);
+            strokePaint.setColorFilter(savedFilter);
+
             strokePaint.setStrokeWidth(PAINT_STROKE_WIDTH * parentView.pixelScale);
 
             // outer

@@ -16,6 +16,9 @@ import java.util.Arrays;
 
 public class StickControlElement extends AbstractControlElement {
     public static final float SQRT_2 = (float) Math.sqrt(2.0);
+    // The ring drawn around sticks (this one and the WASD stick) so they stay visible on snow
+    static final int STICK_OUTLINE_COLOR = android.graphics.Color.rgb(255, 152, 0);
+    static final int STICK_OUTLINE_ALPHA = 200;
     private static final float STICK_DEAD_ZONE = 0.3f;
     private final StickControlDrawable drawable;
     int pointerId = -1;
@@ -285,8 +288,9 @@ public class StickControlElement extends AbstractControlElement {
             float os = op.getStrokeWidth();
         
             //op.setColor(android.graphics.Color.BLACK);
-            op.setColor(android.graphics.Color.rgb(40, 40, 40));
-            op.setAlpha(70);
+            // Orange ring so the stick stands out on snow and other light ground (was dark grey at 70)
+            op.setColor(STICK_OUTLINE_COLOR);
+            op.setAlpha(STICK_OUTLINE_ALPHA);
             op.setStrokeWidth(os + 5f * parentView.pixelScale);
             outerShapeDrawable.draw(canvas);
         

@@ -301,9 +301,10 @@ public class ButtonControlElement extends AbstractControlElement {
 
     public class ButtonControlDrawable {
         private static final int PAINT_STROKE_WIDTH = 4;
-        private static final int OUTLINE_ALPHA = 70;          // 0..255
+        // Strong enough to read on snow and other light ground (was 70 and 1.25 px, capped by the button alpha)
+        private static final int OUTLINE_ALPHA = 170;         // 0..255
         //private static final float OUTLINE_EXTRA_PX = 5f;
-        private static final float OUTLINE_EXTRA_PX = 1.25f; // или 1.5f
+        private static final float OUTLINE_EXTRA_PX = 3f;
         private static final float TEXT_OUTLINE_PX = 2.5f; //4f;
         private static final float BUTTON_CIRCLE_DIAMETER = 160.f;
         private static final float BUTTON_RECT_WIDTH = 240.f;
@@ -419,7 +420,7 @@ public class ButtonControlElement extends AbstractControlElement {
 
             p.setColor(android.graphics.Color.rgb(40, 40, 40));
             //p.setAlpha(OUTLINE_ALPHA);
-            p.setAlpha(Math.min(oldAlpha, OUTLINE_ALPHA));
+            p.setAlpha(OUTLINE_ALPHA);
             p.setStrokeWidth(oldStroke + OUTLINE_EXTRA_PX * parentView.pixelScale);
             p.setColorFilter(null);
             this.shapeDrawable.draw(canvas);

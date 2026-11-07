@@ -24,9 +24,10 @@ public class DpadControlElement extends AbstractControlElement {
     private int pointerId = -1;
     private static final float DPAD_DEAD_ZONE = 0.3f;
     private final AbstractControlElement.Type type;
-    private static final int OUTLINE_ALPHA = 70; // 120;
+    // Strong enough to read on snow and other light ground (was 70 and 1.25 px, capped by the button alpha)
+    private static final int OUTLINE_ALPHA = 170;
     //private static final float OUTLINE_EXTRA_PX = 5f;
-    private static final float OUTLINE_EXTRA_PX = 1.25f; // или 1.5f
+    private static final float OUTLINE_EXTRA_PX = 3f;
 
     public DpadControlElement(InputControlsView parentView, ControlElementDescription elementDescription) {
         super(parentView, elementDescription);
@@ -398,7 +399,7 @@ public class DpadControlElement extends AbstractControlElement {
             //this.paint.setColor(android.graphics.Color.BLACK);
             this.paint.setColor(android.graphics.Color.rgb(40, 40, 40));
             //this.paint.setAlpha(OUTLINE_ALPHA);
-            this.paint.setAlpha(Math.min(oldAlpha, OUTLINE_ALPHA));
+            this.paint.setAlpha(OUTLINE_ALPHA);
             this.paint.setStrokeWidth(oldStroke + OUTLINE_EXTRA_PX * parentView.pixelScale);
             canvas.drawPath(this.path, this.paint);
         
