@@ -51,6 +51,30 @@ public class GoalQueue implements ChildPersistable {
 		return next;
 	}
 
+	/**
+	 * As popNextGoal, but passes over a goal for which postpone is true while another applicable goal is
+	 * queued; the postponed goal stays in the queue. With every need low, the sleep goal (interrupted by low
+	 * needs) came first each time and was interrupted at once, so the drink and eat goals behind it were
+	 * never reached and the settler slowly died.
+	 */
+	public QueuedGoal popNextGoal(List<ScheduleCategory> applicableCategories, java.util.function.Predicate<Goal> postpone) {
+		QueuedGoal first = peekNextGoal(applicableCategories);
+		if (first == null || !postpone.test(first.getGoal())) {
+			return popNextGoal(applicableCategories);
+		}
+		List<QueuedGoal> applicable = priorityQueue.stream()
+				.filter(q -> applicableCategories.contains(q.getCategory()) || q.getCategory().equals(ScheduleCategory.ANY))
+				.sorted()
+				.toList();
+		for (QueuedGoal queuedGoal : applicable) {
+			if (!postpone.test(queuedGoal.getGoal())) {
+				priorityQueue.removeIf(goal -> goal.equals(queuedGoal));
+				return queuedGoal;
+			}
+		}
+		return popNextGoal(applicableCategories);
+	}
+
 	public void removeExpiredGoals(GameClock gameClock) {
 		final double currentGameTime = gameClock.getCurrentGameTime();
 		priorityQueue.removeIf(queuedGoal -> queuedGoal.getExpiryTime() < currentGameTime);

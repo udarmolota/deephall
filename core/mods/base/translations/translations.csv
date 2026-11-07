@@ -771,7 +771,7 @@ HAPPINESS_MODIFIER.DRANK_ALCOHOL,,Under the effects of alcohol
 HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated
-HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Had a tantrum
+HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned
 HAPPINESS_MODIFIER.POISONED,,Poisoned
@@ -1068,6 +1068,8 @@ NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of 
 NOTIFICATION.MINING_COLLAPSE.TITLE,,Mining Collapse
 NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture has been destroyed due to prolonged exposure to rain.\nSome materials such as iron and steel should not be left outside for a long period.
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away
+NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust."
+NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.

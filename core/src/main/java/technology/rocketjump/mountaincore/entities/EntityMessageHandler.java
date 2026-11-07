@@ -1111,6 +1111,14 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 					attributes.setMaterial(newMaterial);
 					if (message.targetEntity.getOrCreateComponent(FactionComponent.class).getFaction().equals(SETTLEMENT)) {
 						settlementFurnitureTracker.furnitureAdded(message.targetEntity);
+						if (newMaterial.getOxidisation() != null
+								&& newMaterial.getOxidisation().getEffect() == technology.rocketjump.mountaincore.materials.model.MaterialOxidisation.OxidisationEffect.DESTROY_PARENT
+								&& newMaterial.equals(attributes.getPrimaryMaterial())) {
+							// Iron or steel has turned to rust, which in time destroys the furniture: say so while
+							// there is still time to put a roof over it (the only notice used to be its destruction)
+							Notification notification = new Notification(NotificationType.OXIDISATION_STARTED, null, new Selectable(message.targetEntity, 0));
+							messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, notification);
+						}
 					}
 				} else {
 					Logger.error("Not yet implemented: material oxidised within " + entityAttributes.getClass().getSimpleName());

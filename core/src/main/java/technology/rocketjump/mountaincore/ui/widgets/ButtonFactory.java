@@ -59,6 +59,20 @@ public class ButtonFactory {
 	public Button buildDrawableButton(String drawableName, String tooltipI18nKey, Runnable onClick) {
 		return buildDrawableButton(drawableName, tooltipI18nKey, TooltipLocationHint.ABOVE, onClick);
 	}
+	/** As buildDrawableButton, with a tooltip text already translated (e.g. a word's TOOLTIP form). */
+	public Button buildDrawableButton(String drawableName, technology.rocketjump.mountaincore.ui.i18n.I18nText tooltipText, Runnable onClick) {
+		Button button = new Button(getDrawable(drawableName));
+		attachClickCursor(button, GameCursor.SELECT);
+		button.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				onClick.run();
+			}
+		});
+		tooltipFactory.simpleTooltip(button, tooltipText, TooltipLocationHint.ABOVE);
+		return button;
+	}
+
 	public Button buildDrawableButton(String drawableName, String tooltipI18nKey, TooltipLocationHint tooltipLocationHint, Runnable onClick) {
 		Button button = new Button(getDrawable(drawableName));
 		attachClickCursor(button, GameCursor.SELECT);

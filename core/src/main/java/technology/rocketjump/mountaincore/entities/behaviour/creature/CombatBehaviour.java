@@ -16,6 +16,9 @@ import technology.rocketjump.mountaincore.entities.ai.goap.actions.military.Uneq
 import technology.rocketjump.mountaincore.entities.behaviour.furniture.SelectableDescription;
 import technology.rocketjump.mountaincore.entities.components.EntityComponent;
 import technology.rocketjump.mountaincore.entities.components.FactionComponent;
+import technology.rocketjump.mountaincore.entities.components.creature.MemoryComponent;
+import technology.rocketjump.mountaincore.entities.ai.memory.Memory;
+import technology.rocketjump.mountaincore.entities.ai.memory.MemoryType;
 import technology.rocketjump.mountaincore.entities.components.Faction;
 import technology.rocketjump.mountaincore.entities.ai.goap.condition.GoalSelectionByBadlyWounded;
 import technology.rocketjump.mountaincore.entities.model.EntityType;
@@ -452,7 +455,31 @@ public class CombatBehaviour implements ParentDependentEntityComponent, Particle
 		return opponentsInMelee;
 	}
 
+	// How long a tantrum keeps a settler swinging whatever its needs or temperament; after that the usual
+	// rules (flee when hungry, thirsty, tired, or as a civilian) apply again
+	private static final double TANTRUM_FIGHT_HOURS = 0.25;
+
+	/** Threw a tantrum moments ago (AssignedGoalFactory.tantrumGoal records it as a long-term memory). */
+	private boolean isInTantrum() {
+		MemoryComponent memoryComponent = parentEntity.getComponent(MemoryComponent.class);
+		if (memoryComponent == null) {
+			return false;
+		}
+		double now = gameContext.getGameClock().getCurrentGameTime();
+		for (Memory memory : memoryComponent.getLongTermMemories()) {
+			if (memory.getType() == MemoryType.HAD_A_TANTRUM && now - memory.getGameTimeMemoryOccurred() < TANTRUM_FIGHT_HOURS) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private AggressionResponse getAggressionResponse() {
+		if (isInTantrum()) {
+			// A tantrum is an attack: without this a civilian, or a hungry settler (hunger is a common cause),
+			// fled from the barrel it had just gone for without a single blow
+			return ATTACK;
+		}
 		MilitaryComponent militaryComponent = parentEntity.getComponent(MilitaryComponent.class);
 		if (militaryComponent != null && militaryComponent.isInMilitary()) {
 			return ATTACK;
@@ -496,7 +523,7 @@ public class CombatBehaviour implements ParentDependentEntityComponent, Particle
 
 	private boolean needsTooLow() {
 		NeedsComponent needsComponent = parentEntity.getComponent(NeedsComponent.class);
-		if (needsComponent != null) {
+		if (needsComponent != null && !isInTantrum()) {
 			// During a raid a squad soldier holds on until a need is urgent (as the sleep goal's urgent selector),
 			// rather than leaving the fight half-tired
 			MilitaryComponent militaryComponent = parentEntity.getComponent(MilitaryComponent.class);

@@ -782,7 +782,7 @@ HAPPINESS_MODIFIER.DRANK_ALCOHOL,,Under the effects of alcohol,"Под возд�
 HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water,Пришлось пить из реки
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving,Умирает от голода
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated,Сильное обезвоживание
-HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Had a tantrum,Недавняя истерика
+HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam,Выпустил пар
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement,Надежды на новое поселение
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned,Сильные ожоги
 HAPPINESS_MODIFIER.POISONED,,Poisoned,Отравление
@@ -1078,6 +1078,8 @@ NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of 
 NOTIFICATION.MINING_COLLAPSE.TITLE,,Mining Collapse,Шахта обрушилась
 NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture has been destroyed due to prolonged exposure to rain.\nSome materials such as iron and steel should not be left outside for a long period.,"Предмет или мебель разрушились от долгого пребывания под дождем.\nНекоторые материалы, например железо и сталь, нельзя надолго оставлять снаружи."
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away,Заржавело
+NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust.","Железо или сталь под дождём заржавели. Со временем ржавчина это разрушит: постройте сверху крышу или перестройте из бронзы или олова, они не ржавеют."
+NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting,Ржавеет
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,Пираты! Не дайте им украсть ваше добро!
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,Пираты!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,Крыша обрушилась: не хватило колонн и опор.
@@ -1659,7 +1661,7 @@ STOCKPILE.GROUP.FOOD.TOOLTIP,,Stores harvested fruit and vegetables which can ex
 STOCKPILE.GROUP.FUEL,,Fuel,Топливо
 STOCKPILE.GROUP.GRANARY,,Granary,Амбар
 STOCKPILE.GROUP.GRANARY.TOOLTIP,,Stores grains and seeds which will not expire.,"Хранит зерно и семена, которые не портятся."
-STOCKPILE.GROUP.PRODUCTS,,Products,Продукты
+STOCKPILE.GROUP.PRODUCTS,,Products,Изделия
 STOCKPILE.GROUP.RAW_MATERIALS,,Raw materials,Сырье
 STOCKPILE.GROUP.SEEDS,,Seeds,Семена
 STOCKPILE.GROUP.TOOLS,,Tools,Инструменты

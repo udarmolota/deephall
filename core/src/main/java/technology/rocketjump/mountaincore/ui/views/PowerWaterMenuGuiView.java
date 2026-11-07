@@ -30,6 +30,7 @@ import technology.rocketjump.mountaincore.ui.eventlistener.TooltipFactory;
 import technology.rocketjump.mountaincore.ui.eventlistener.TooltipLocationHint;
 import technology.rocketjump.mountaincore.ui.i18n.DisplaysText;
 import technology.rocketjump.mountaincore.ui.i18n.I18nTranslator;
+import technology.rocketjump.mountaincore.ui.i18n.I18nWordClass;
 import technology.rocketjump.mountaincore.ui.skins.GuiSkinRepository;
 import technology.rocketjump.mountaincore.ui.widgets.ButtonFactory;
 import technology.rocketjump.mountaincore.ui.widgets.EntityDrawable;
@@ -239,7 +240,12 @@ public class PowerWaterMenuGuiView implements GuiView, DisplaysText, Telegraph {
 		}
 		buttonContainer.pad(18);
 
-		Button button = buttonFactory.buildDrawableButton(drawableName, i18nKey, onClick);
+		// A key ending in .TOOLTIP is a word's tooltip form, which the dictionary keeps under the word itself
+		// (GUI.BUILD.POWER, class TOOLTIP): looked up whole it is not found and the key itself was shown
+		Button button = i18nKey.endsWith(".TOOLTIP")
+				? buttonFactory.buildDrawableButton(drawableName,
+						i18nTranslator.getTranslatedString(i18nKey.substring(0, i18nKey.length() - ".TOOLTIP".length()), I18nWordClass.TOOLTIP), onClick)
+				: buttonFactory.buildDrawableButton(drawableName, i18nKey, onClick);
 
 		buttonContainer.setActor(button);
 		return buttonContainer;

@@ -237,6 +237,24 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 		return goalQueue;
 	}
 
+	/** The same test AssignedGoal makes every update: this goal would be interrupted as soon as it started. */
+	private boolean wouldBeInterruptedByLowNeed(Goal goal) {
+		if (!goal.interruptedByLowNeeds) {
+			return false;
+		}
+		NeedsComponent needsComponent = parentEntity.getComponent(NeedsComponent.class);
+		if (needsComponent == null) {
+			return false;
+		}
+		double minNeedBeforeInterrupted = gameContext.getConstantsRepo().getWorldConstants().getMinNeedBeforeGoalInterrupted();
+		for (Map.Entry<EntityNeed, Double> need : needsComponent.getAll()) {
+			if (!need.getKey().equals(goal.satisfiesNeed) && need.getValue() < minNeedBeforeInterrupted) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private boolean hasCriticallyLowNeed() {
 		NeedsComponent needsComponent = parentEntity.getComponent(NeedsComponent.class);
 		if (needsComponent == null) {
@@ -311,9 +329,14 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 			}
 		}
 
-		AssignedGoal placeInventoryItemsGoal = AssignedGoalFactory.checkToPlaceInventoryItems(parentEntity, messageDispatcher, gameContext);
-		if (placeInventoryItemsGoal != null) {
-			return placeInventoryItemsGoal;
+		// Like the hauled item above, spare inventory waits while a need is critical: the place item goal is
+		// interrupted by low needs at once, so it was picked and dropped again and again and the settler stood
+		// still until it died of thirst
+		if (!hasCriticallyLowNeed()) {
+			AssignedGoal placeInventoryItemsGoal = AssignedGoalFactory.checkToPlaceInventoryItems(parentEntity, messageDispatcher, gameContext);
+			if (placeInventoryItemsGoal != null) {
+				return placeInventoryItemsGoal;
+			}
 		}
 
 		if (creatureGroup != null && creatureGroup instanceof InvasionCreatureGroup invasionCreatureGroup) {
@@ -334,7 +357,7 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 		// the settler would walk off to eat or sleep on an urge that had passed, and look
 		// like it was ignoring its work. Sweep before taking the next one.
 		goalQueue.removeExpiredGoals(gameContext.getGameClock());
-		QueuedGoal nextGoal = goalQueue.popNextGoal(currentScheduleCategories);
+		QueuedGoal nextGoal = goalQueue.popNextGoal(currentScheduleCategories, this::wouldBeInterruptedByLowNeed);
 		if (nextGoal == null) {
 			return new AssignedGoal(SpecialGoal.IDLE.getInstance(), parentEntity, messageDispatcher, gameContext);
 		}
