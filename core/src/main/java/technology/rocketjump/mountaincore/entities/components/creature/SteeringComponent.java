@@ -75,6 +75,7 @@ public class SteeringComponent implements ChildPersistable {
 			Logger.error("Attempting to update null position in " + this.getClass().getSimpleName());
 		} else {
 			boolean updateFacing = true;
+			boolean blockedByDoor = false;
 
 			if (nextWaypoint == null) {
 				updateFacing = false;
@@ -92,8 +93,9 @@ public class SteeringComponent implements ChildPersistable {
 						Entity doorEntity = nextTile.getDoorway().getDoorEntity();
 						if (Faction.HOSTILE_INVASION.equals(parentEntity.getOrCreateComponent(FactionComponent.class).getFaction())
 								&& doorEntity.getBehaviourComponent() instanceof DoorBehaviour doorBehaviour) {
-							// Invaders cannot open the settlement's doors: they break them down
+							// Invaders cannot open the settlement's doors: they break them down, standing still
 							doorBehaviour.bashed(deltaTime);
+							blockedByDoor = true;
 						} else {
 							messageDispatcher.dispatchMessage(MessageType.REQUEST_DOOR_OPEN, doorEntity);
 						}
@@ -177,6 +179,15 @@ public class SteeringComponent implements ChildPersistable {
 
 			if (immobilised) {
 				maxSpeed = 0.01f;
+			}
+
+			if (blockedByDoor) {
+				// Stop dead at the door: momentum and the push of the crowd behind would otherwise carry an
+				// invader into the doorway tile, its path would count the door as passed and it would walk
+				// through the closed door
+				maxSpeed = 0.01f;
+				currentVelocity.setZero();
+				steeringOutputForce.setZero();
 			}
 
 			if (pauseTime > 0) {
