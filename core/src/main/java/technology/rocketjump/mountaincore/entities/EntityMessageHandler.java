@@ -934,6 +934,12 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 		if (militaryComponent != null && militaryComponent.isInMilitary()) {
 			militaryComponent.removeFromMilitary();
 		}
+		// The dead own nothing: no assigned equipment, no reservations on items anywhere on the map
+		if (militaryComponent != null) {
+			militaryComponent.releaseEverythingOnDeath();
+		} else {
+			ItemAllocationComponent.cancelAllOwnedBy(deceased.getId(), gameContext);
+		}
 
 		// Rotate and change orientation of deceased
 		if (previousConciousness.equals(AWAKE)) {

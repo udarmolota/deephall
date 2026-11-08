@@ -7,6 +7,8 @@ import technology.rocketjump.mountaincore.entities.ai.goap.AssignedGoal;
 import technology.rocketjump.mountaincore.entities.behaviour.creature.CreatureBehaviour;
 import technology.rocketjump.mountaincore.entities.components.*;
 import technology.rocketjump.mountaincore.entities.model.Entity;
+import technology.rocketjump.mountaincore.entities.model.physical.creature.Consciousness;
+import technology.rocketjump.mountaincore.entities.model.physical.creature.CreatureEntityAttributes;
 import technology.rocketjump.mountaincore.entities.model.physical.creature.EquippedItemComponent;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemEntityAttributes;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
@@ -101,6 +103,13 @@ public class MilitaryComponent implements InfrequentlyUpdatableComponent, Destru
 
 	@Override
 	public void infrequentUpdate(double elapsedTime) {
+		if (isDead()) {
+			// A corpse from a save made before deaths released equipment lets go of it here, once
+			if (assignedWeaponId != null || assignedShieldId != null || assignedArmorId != null) {
+				releaseEverythingOnDeath();
+			}
+			return;
+		}
 		// set up hauling allocations
 		if (isInMilitary()) {
 			createHaulingAllocationIfRequired(assignedWeaponId);
@@ -115,6 +124,26 @@ public class MilitaryComponent implements InfrequentlyUpdatableComponent, Destru
 				createHaulingAllocationIfRequired(assignedWeaponId);
 			}
 		}
+	}
+
+	/**
+	 * The owner has died: it no longer owns its weapon, shield and armour, and gives up every reservation it holds on
+	 * items anywhere. Without this a dead invader still counted as a soldier (by its faction) and reserved its dropped
+	 * equipment again on the next update, so haulers left it lying where it fell. A dead hunter did the same with its bow.
+	 */
+	public void releaseEverythingOnDeath() {
+		cancelHauling(assignedWeaponId);
+		cancelHauling(assignedShieldId);
+		cancelHauling(assignedArmorId);
+		assignedWeaponId = null;
+		assignedShieldId = null;
+		assignedArmorId = null;
+		ItemAllocationComponent.cancelAllOwnedBy(parentEntity.getId(), gameContext);
+	}
+
+	private boolean isDead() {
+		return parentEntity.getPhysicalEntityComponent().getAttributes() instanceof CreatureEntityAttributes attributes
+				&& Consciousness.DEAD.equals(attributes.getConsciousness());
 	}
 
 	private void cancelHauling(Long entityId) {

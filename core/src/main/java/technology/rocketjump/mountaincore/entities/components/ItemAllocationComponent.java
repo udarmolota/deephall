@@ -92,6 +92,24 @@ public class ItemAllocationComponent implements ParentDependentEntityComponent, 
 		}
 	}
 
+	/**
+	 * Frees every reservation the given owner holds on any item in the game. For an owner that is gone: a dead
+	 * creature can never come for what it set aside, and haulers leave a reserved item alone.
+	 */
+	public static void cancelAllOwnedBy(long ownerId, GameContext gameContext) {
+		for (Entity entity : gameContext.getEntities().values()) {
+			ItemAllocationComponent component = entity.getComponent(ItemAllocationComponent.class);
+			if (component == null) {
+				continue;
+			}
+			for (ItemAllocation allocation : new ArrayList<>(component.allocations)) {
+				if (Objects.equals(allocation.getOwningEntityId(), ownerId)) {
+					component.cancel(allocation);
+				}
+			}
+		}
+	}
+
 	public ItemAllocation swapAllocationPurpose(ItemAllocation.Purpose existingPurpose, ItemAllocation.Purpose newPurpose, ItemAllocation itemAllocation) {
 		int quantity = itemAllocation.getAllocationAmount();
 
