@@ -83,10 +83,10 @@ task phoneDist(type: Zip, dependsOn: dist) {
 
 // The game payload the launcher packs into its APK (its packDeephallGame task reads this folder):
 // the phone jar as mountaincore.jar, lwjgl336/, mods/, and the few assets/ files the game reads
-// directly instead of building them from mods/ at start (main menu art, metadata, the texture
-// placeholders, a few definitions, LibGDX's default skin). metadata/checksums.json stays out on purpose: it would tell a fresh install that
-// its assets are already built. Point the launcher at it with -PdeephallGameDir=<this folder> or
-// DEEPHALL_GAME_DIR.
+// directly instead of building them from mods/ (main menu art, metadata, the texture placeholders,
+// a few definitions, LibGDX's default skin). phoneAssets then builds the rest of assets/ from mods/
+// here on the PC, with metadata/checksums.json, so the phone finds them built and skips that step on
+// its first start. Point the launcher at it with -PdeephallGameDir=<this folder> or DEEPHALL_GAME_DIR.
 task phoneGame(type: Sync) {
     description = 'Stages the Deephall game payload for the Android launcher in desktop/build/phone-game'
     group = 'distribution'
@@ -108,6 +108,25 @@ task phoneGame(type: Sync) {
         include 'definitions/types/furnitureCategories.json', 'definitions/types/professions.json'
         include 'ui/libgdx-default/**', 'ui/TwitchGlitchPurple.png'
         into 'assets'
+    }
+    finalizedBy 'phoneAssets'
+}
+
+// Builds assets/ (texture atlases, collated translations, sounds, definitions) from mods/ in the
+// staged payload, as the game would on the phone's first start, which takes minutes on a slow phone.
+// The checksums the game compares cover only the mod files' contents and names, so they hold on the
+// phone too, and the game there rebuilds only what a later mod change touches.
+task phoneAssets(type: JavaExec, dependsOn: classes) {
+    description = 'Builds assets/ from mods/ in desktop/build/phone-game, so the phone does not have to'
+    group = 'distribution'
+    mainClass = 'technology.rocketjump.mountaincore.AssetsPackager'
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir = "$buildDir/phone-game"
+    systemProperty 'java.awt.headless', 'true'
+    doLast {
+        if (!file("$buildDir/phone-game/assets/metadata/checksums.json").isFile()) {
+            throw new GradleException('phoneAssets: assets/metadata/checksums.json was not written')
+        }
     }
 }
 

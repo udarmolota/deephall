@@ -1085,6 +1085,12 @@ NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rai
 NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting,Ржавеет
 NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot.","Еда сгнила. Мясо, рыба, овощи, хлеб и тесто портятся за несколько дней, быстрее всего летом; под крышей хранятся в полтора раза дольше. Сухпайки, зерно, мука и семена не портятся."
 NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted,Еда сгнила
+NOTIFICATION.COLONY_UNHAPPY.DESCRIPTION,,"Your settlers are unhappy. Check what upsets them: food, drink, sleep, rooms, the dead lying about.","Ваши поселенцы несчастны. Посмотрите, что их огорчает: еда, питьё, сон, комнаты, неубранные тела."
+NOTIFICATION.COLONY_UNHAPPY.TITLE,,Settlers unhappy,Поселенцы несчастны
+NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,"{{character}} is close to a tantrum. Worst of all: {{reason}}.","{{character}} на грани срыва. Хуже всего: {{reason}}."
+NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum,На грани срыва
+NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot.","Через десять дней зима, а еды на неё не хватит: зимой ничего не растёт. Запасите сухпайки, хлеб, зерно и муку, они не портятся; мясо и овощи гниют."
+NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming,Скоро зима
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,Пираты! Не дайте им украсть ваше добро!
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,Пираты!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,Крыша обрушилась: не хватило колонн и опор.

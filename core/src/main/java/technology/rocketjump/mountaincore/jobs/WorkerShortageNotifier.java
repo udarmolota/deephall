@@ -26,6 +26,9 @@ public class WorkerShortageNotifier implements Telegraph, GameContextAware {
 
 	// A tool that is only in somebody's hands for a moment should not raise an alarm
 	private static final int HOURS_BEFORE_NOTIFYING = 6;
+	// A shortage that keeps coming and going (fishing jobs appear and vanish) is told again only after a week
+	private static final double HOURS_BETWEEN_SAME_NOTIFICATION = 7 * 24;
+	private final Map<WorkerAvailability.Shortage, Double> lastNotified = new HashMap<>();
 
 	private final MessageDispatcher messageDispatcher;
 	private final JobStore jobStore;
@@ -64,7 +67,10 @@ public class WorkerShortageNotifier implements Telegraph, GameContextAware {
 
 		hoursSeen.keySet().retainAll(shortages.keySet());
 		shortages.forEach((shortage, job) -> {
-			if (hoursSeen.merge(shortage, 1, Integer::sum) == HOURS_BEFORE_NOTIFYING) {
+			double now = gameContext.getGameClock().getCurrentGameTime();
+			if (hoursSeen.merge(shortage, 1, Integer::sum) == HOURS_BEFORE_NOTIFYING
+					&& now - lastNotified.getOrDefault(shortage, -Double.MAX_VALUE) >= HOURS_BETWEEN_SAME_NOTIFICATION) {
+				lastNotified.put(shortage, now);
 				Notification notification = new Notification(shortage.problem().notificationType, VectorUtils.toVector(job.getJobLocation()), null);
 				workerAvailability.textReplacements(shortage, i18nTranslator).forEach(notification::addTextReplacement);
 				messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, notification);
@@ -80,6 +86,7 @@ public class WorkerShortageNotifier implements Telegraph, GameContextAware {
 	@Override
 	public void clearContextRelatedState() {
 		hoursSeen.clear();
+		lastNotified.clear();
 		gameContext = null;
 	}
 }

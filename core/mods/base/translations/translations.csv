@@ -1075,6 +1075,12 @@ NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rai
 NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting
 NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot."
 NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted
+NOTIFICATION.COLONY_UNHAPPY.DESCRIPTION,,"Your settlers are unhappy. Check what upsets them: food, drink, sleep, rooms, the dead lying about."
+NOTIFICATION.COLONY_UNHAPPY.TITLE,,Settlers unhappy
+NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,"{{character}} is close to a tantrum. Worst of all: {{reason}}."
+NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum
+NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot."
+NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.

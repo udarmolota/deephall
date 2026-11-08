@@ -14,13 +14,9 @@ import technology.rocketjump.mountaincore.ui.skins.GuiSkinRepository;
 import technology.rocketjump.mountaincore.ui.widgets.MenuButtonFactory;
 
 public abstract class BannerMenu implements Menu {
-    public static final String DISCORD_URL = "https://discord.gg/M57GrFp";
-    public static final String GITHUB_REPO_URL = "https://github.com/rossturner/mountaincore";
     protected final Skin menuSkin;
     protected final MenuButtonFactory menuButtonFactory;
     protected final MessageDispatcher messageDispatcher;
-    protected final Image discordIconImage;
-    protected final Image twitchIconImage;
     protected final Image bannerPoleImage;
     protected final I18nTranslator i18nTranslator;
 
@@ -32,8 +28,6 @@ public abstract class BannerMenu implements Menu {
         this.menuButtonFactory = menuButtonFactory;
         this.messageDispatcher = messageDispatcher;
         this.i18nTranslator = i18nTranslator;
-        this.discordIconImage = new Image(menuSkin.getDrawable("icon_discord"), Scaling.fit);
-        this.twitchIconImage = new Image(menuSkin.getDrawable("icon_twitch"), Scaling.fit);
         this.bannerPoleImage = new Image(menuSkin.getDrawable("asset_bg_banner_pole"), Scaling.fit); //TODO: Decide on what to do about the pole
 
         bannerPoleImage.setAlign(Align.top);
@@ -61,41 +55,6 @@ public abstract class BannerMenu implements Menu {
     }
 
     public abstract void savedGamesUpdated();
-
-    private Table buildSocialMediaLayer() {
-        Container<TextButton> discordButton = menuButtonFactory.createButton("MENU.JOIN_DISCORD", menuSkin, MenuButtonFactory.ButtonStyle.BTN_BANNER_3_36PT)
-                .withAction(() -> {
-                    Gdx.net.openURI(DISCORD_URL);
-                })
-                .build();
-
-        Container<TextButton> sourceCodeButton = menuButtonFactory.createButton("MENU.SOURCE_CODE", menuSkin, MenuButtonFactory.ButtonStyle.BTN_BANNER_3_36PT)
-                .withAction(() -> {
-                    Gdx.net.openURI(GITHUB_REPO_URL);
-                })
-                .build();
-
-        Container<TextButton> twitchButton = menuButtonFactory.createButton("MENU.LINK_TWITCH_ACCOUNT", menuSkin, MenuButtonFactory.ButtonStyle.BTN_BANNER_4_36PT)
-                .withAction(() -> {
-                    messageDispatcher.dispatchMessage(MessageType.SWITCH_MENU, MenuType.TWITCH_OPTIONS_MENU);
-                })
-                .build();
-
-        discordButton.getActor().add(discordIconImage).size(100, 86).padLeft(20f).padRight(88f);
-        discordButton.getActor().getLabel().setAlignment(Align.right);
-
-        twitchButton.getActor().add(twitchIconImage).size(90, 100).padLeft(20f).padRight(100f);
-        twitchButton.getActor().getLabel().setAlignment(Align.right);
-
-        Table table = new Table();
-        table.defaults().padBottom(88f);
-//        table.add(twitchButton).padLeft(82f);
-        table.add(sourceCodeButton).padLeft(82f);
-        table.add(discordButton).padLeft(72f);
-        table.bottom().left();
-
-        return table;
-    }
 
     private Actor buildMainMenuLayer() {
         //main banner
@@ -164,7 +123,6 @@ public abstract class BannerMenu implements Menu {
     public void rebuild() {
         sceneStack.clear();
         sceneStack.add(bannerPoleImage);
-        sceneStack.add(buildSocialMediaLayer());
         sceneStack.add(buildMainMenuLayer());
     }
 

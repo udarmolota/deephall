@@ -24,7 +24,7 @@ public class HuntingNotifier implements Telegraph, GameContextAware {
 
 	// A bow that is being fetched, or ammunition on its way, should not raise an alarm
 	private static final int HOURS_BEFORE_NOTIFYING = 3;
-	private static final int HOURS_BETWEEN_REMINDERS = 24;
+	private static final int HOURS_BETWEEN_REMINDERS = 7 * 24;
 
 	private final MessageDispatcher messageDispatcher;
 	private final SettlerTracker settlerTracker;
@@ -53,7 +53,11 @@ public class HuntingNotifier implements Telegraph, GameContextAware {
 
 	private void onHourElapsed() {
 		List<Entity> targets = HuntingRules.livingHuntTargets(gameContext);
-		NotificationType problem = targets.isEmpty() ? null : findProblem();
+		NotificationType problem = findProblem();
+		if (targets.isEmpty() && problem != NotificationType.HUNTING_WEAPON_MISSING) {
+			// With nothing marked only a hunter without a bow or crossbow is worth telling about
+			problem = null;
+		}
 		if (problem != currentProblem) {
 			currentProblem = problem;
 			hoursSeen = 0;
@@ -65,9 +69,10 @@ public class HuntingNotifier implements Telegraph, GameContextAware {
 		hoursSeen++;
 		if (hoursSeen == HOURS_BEFORE_NOTIFYING || (hoursSeen > HOURS_BEFORE_NOTIFYING &&
 				(hoursSeen - HOURS_BEFORE_NOTIFYING) % HOURS_BETWEEN_REMINDERS == 0)) {
-			Entity target = targets.get(0);
-			messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION,
-					new Notification(problem, target.getLocationComponent().getWorldOrParentPosition().cpy(), null));
+			Entity target = !targets.isEmpty() ? targets.get(0)
+					: settlerTracker.getLiving().stream().filter(HuntingRules::isHunter).findFirst().orElse(null);
+			messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, new Notification(problem,
+					target == null ? null : target.getLocationComponent().getWorldOrParentPosition().cpy(), null));
 		}
 	}
 
