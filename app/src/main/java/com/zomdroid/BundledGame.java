@@ -112,7 +112,7 @@ public final class BundledGame {
     /** The settings Deephall is known to run with on the developer's phone. */
     private static void applyDefaultSettings(InstanceSettings settings) {
         settings.setRenderer(LauncherPreferences.Renderer.GL4ES);
-        settings.setEnvVars("LIBGL_GL=30");
+        // LIBGL_GL=30 is set by GameLauncher for Deephall itself, so the environment field stays empty
         settings.setRenderScale(0.6f);
         settings.setVibrateOnTouch(true);
         settings.setHudMode(InstanceSettings.HUD_OFF);
