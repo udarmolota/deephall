@@ -314,7 +314,8 @@ public class WasdStickControlElement extends AbstractControlElement {
             strokePaint.setColorFilter(null);
             strokePaint.setColor(StickControlElement.STICK_OUTLINE_COLOR);
             strokePaint.setAlpha(StickControlElement.STICK_OUTLINE_ALPHA);
-            strokePaint.setStrokeWidth((PAINT_STROKE_WIDTH + 5f) * parentView.pixelScale);
+            // The ring keeps the outline's own thickness: the wider ring (+5) looked too heavy
+            strokePaint.setStrokeWidth(PAINT_STROKE_WIDTH * parentView.pixelScale);
             canvas.drawCircle(outerCenterX, outerCenterY, outerRadius, strokePaint);
             strokePaint.setColor(savedColor);
             strokePaint.setAlpha(savedAlpha);
