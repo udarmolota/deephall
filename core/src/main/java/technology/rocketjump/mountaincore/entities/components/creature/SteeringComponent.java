@@ -2,6 +2,7 @@ package technology.rocketjump.mountaincore.entities.components.creature;
 
 import com.alibaba.fastjson.JSONObject;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import org.pmw.tinylog.Logger;
 import technology.rocketjump.mountaincore.assets.entities.furniture.model.DoorState;
@@ -28,6 +29,7 @@ public class SteeringComponent implements ChildPersistable {
 	private static final float ROTATION_MULTIPLIER = 1.5f; // for quicker turning speed
 	private static final float KNOCKBACK_DISTANCE_PER_SECOND = 8f;
 	static final float MAX_DISTANCE_WITHIN_TILE_TO_ARRIVE = 0.08f;
+	private static final float MAP_EDGE_MARGIN = 0.01f;
 	private MessageDispatcher messageDispatcher;
 	private Entity parentEntity;
 	private TiledMap areaMap;
@@ -216,6 +218,7 @@ public class SteeringComponent implements ChildPersistable {
 				vehicle.getPhysicalEntityComponent().setAnimationProgress(animationProgress);
 			}
 			Vector2 newPosition = currentPosition.cpy().mulAdd(newVelocity, deltaTime);
+			keepWithinMap(newPosition);
 
 			parentEntity.getOwnOrVehicleLocationComponent().setLinearVelocity(newVelocity);
 			parentEntity.getOwnOrVehicleLocationComponent().setWorldPosition(newPosition, updateFacing);
@@ -279,6 +282,12 @@ public class SteeringComponent implements ChildPersistable {
 		this.nextWaypoint = nextWaypoint;
 	}
 
+	// Movement is plain integration with nothing bounding it, so wildlife roaming the border could walk off the map
+	private void keepWithinMap(Vector2 position) {
+		position.x = MathUtils.clamp(position.x, 0f, areaMap.getWidth() - MAP_EDGE_MARGIN);
+		position.y = MathUtils.clamp(position.y, 0f, areaMap.getHeight() - MAP_EDGE_MARGIN);
+	}
+
 	private void repelFromImpassableCollisions(float deltaTime, MapTile currentTile) {
 		Vector2 currentPosition = parentEntity.getOwnOrVehicleLocationComponent().getWorldPosition().cpy();
 		Vector2 adjustmentForce = new Vector2();
@@ -297,6 +306,7 @@ public class SteeringComponent implements ChildPersistable {
 		}
 		// Each force is a 1 tile/second speed, could do with being proportional to nearness of wall
 		currentPosition.mulAdd(adjustmentForce, deltaTime);
+		keepWithinMap(currentPosition);
 		parentEntity.getOwnOrVehicleLocationComponent().setWorldPosition(currentPosition, false);
 	}
 
