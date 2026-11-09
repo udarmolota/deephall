@@ -1,5 +1,6 @@
 package technology.rocketjump.mountaincore.screens;
 
+import technology.rocketjump.mountaincore.assets.ScaledTextures;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -94,7 +95,7 @@ public class MainMenuScreen extends AbstractGameScreen implements Telegraph, Dis
 		this.i18nTranslator = i18nTranslator;
 		this.creditsMenu = creditsMenu;
 
-		backgroundImage = new Texture("assets/main_menu/Dwarven Settlement.png");
+		backgroundImage = ScaledTextures.texture("assets/main_menu/Dwarven Settlement.png");
 		setupBackgroundRegion();
 
 		containerTable = new Table(uiSkin);

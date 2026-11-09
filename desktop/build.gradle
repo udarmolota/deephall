@@ -128,6 +128,21 @@ task phoneAssets(type: JavaExec, dependsOn: classes) {
             throw new GradleException('phoneAssets: assets/metadata/checksums.json was not written')
         }
     }
+    finalizedBy 'phoneTextures'
+}
+
+// Makes half-size copies of the biggest textures of the phone build (atlas pages, the main menu background)
+// under assets/reduced/: the PC game's textures come to near 600 MB decoded, too much for a 4 GB phone. The
+// originals stay. The launcher tells the game which set to load (-Ddeephall.textures=reduced, by default
+// below 6 GB of RAM), and the game loads a copy reporting the original's size, so nothing on screen moves
+// (ScaledTextures). The desktop game is not touched: it never sets that property.
+task phoneTextures(type: JavaExec, dependsOn: classes) {
+    description = 'Makes half-size copies of the biggest textures in desktop/build/phone-game for small phones'
+    group = 'distribution'
+    mainClass = 'technology.rocketjump.mountaincore.PhoneTextureShrinker'
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir = "$buildDir/phone-game"
+    systemProperty 'java.awt.headless', 'true'
 }
 
 eclipse {

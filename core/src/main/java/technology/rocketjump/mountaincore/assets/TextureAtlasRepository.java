@@ -16,7 +16,7 @@ public class TextureAtlasRepository implements AssetDisposable {
 
 	public TextureAtlasRepository() {
 		for (TextureAtlasType textureAtlasType : TextureAtlasType.values()) {
-			typeMap.put(textureAtlasType, new TextureAtlas(new FileHandle("assets/tilesets/" + textureAtlasType.getFilename())));
+			typeMap.put(textureAtlasType, ScaledTextures.atlas(new FileHandle("assets/tilesets/" + textureAtlasType.getFilename())));
 		}
 	}
 

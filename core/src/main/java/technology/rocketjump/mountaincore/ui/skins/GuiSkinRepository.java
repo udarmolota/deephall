@@ -1,5 +1,6 @@
 package technology.rocketjump.mountaincore.ui.skins;
 
+import technology.rocketjump.mountaincore.assets.ScaledTextures;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.ai.msg.Telegram;
@@ -56,7 +57,7 @@ public class GuiSkinRepository implements Telegraph {
 		skin.add("default-font-23", onDemandFontRepository.getDefaultFont(23));
 		skin.add("default-font-24", onDemandFontRepository.getDefaultFont(24));
 
-		skin.addRegions(new TextureAtlas(menuSkinAtlasFile));
+		skin.addRegions(ScaledTextures.atlas(menuSkinAtlasFile));
 		skin.load(menuSkinFile);
 		return skin;
 	}

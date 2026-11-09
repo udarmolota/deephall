@@ -1,5 +1,6 @@
 package technology.rocketjump.mountaincore.screens.menus;
 
+import technology.rocketjump.mountaincore.assets.ScaledTextures;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.graphics.Texture;
@@ -42,7 +43,7 @@ public class TopLevelMenu extends BannerMenu implements DisplaysText {
         this.savedGameStore = savedGameStore;
         this.widgetFactory = widgetFactory;
         this.modsMenu = modsMenu;
-        logo = new Texture("assets/main_menu/Deephall_Logo.png");
+        logo = ScaledTextures.texture("assets/main_menu/Deephall_Logo.png");
         logo.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         rebuild();
