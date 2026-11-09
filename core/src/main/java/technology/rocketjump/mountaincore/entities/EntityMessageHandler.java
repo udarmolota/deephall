@@ -177,6 +177,7 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 		messageDispatcher.addListener(this, MessageType.CREATURE_DEATH);
 		messageDispatcher.addListener(this, MessageType.SAPIENT_CREATURE_INSANITY);
 		messageDispatcher.addListener(this, MessageType.SETTLER_TANTRUM);
+		messageDispatcher.addListener(this, MessageType.SETTLER_COLLAPSED);
 		messageDispatcher.addListener(this, MessageType.LIQUID_SPLASH);
 		messageDispatcher.addListener(this, MessageType.TREE_SHED_LEAVES);
 		messageDispatcher.addListener(this, MessageType.FURNITURE_IN_USE);
@@ -640,6 +641,14 @@ public class EntityMessageHandler implements GameContextAware, Telegraph {
 			}
 			case MessageType.SAPIENT_CREATURE_INSANITY: {
 				return handleInsanity((Entity) msg.extraInfo);
+			}
+			case MessageType.SETTLER_COLLAPSED: {
+				Entity collapsed = (Entity) msg.extraInfo;
+				Notification notification = new Notification(NotificationType.SETTLER_COLLAPSED,
+						collapsed.getLocationComponent().getWorldOrParentPosition().cpy(), new Selectable(collapsed, 0));
+				notification.addTextReplacement("character", i18nTranslator.getDescription(collapsed));
+				messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, notification);
+				return true;
 			}
 			case MessageType.SETTLER_TANTRUM: {
 				return handleSettlerTantrum((Entity) msg.extraInfo);

@@ -467,6 +467,7 @@ GOAL.MILITARY.TRAINING.DESCRIPTION,,Weapon training
 GOAL.ON_FIRE.DESCRIPTION,,On fire!
 GOAL.REFILL_WATERSKIN.DESCRIPTION,,Refilling waterskin
 GOAL.SLEEP.DESCRIPTION,,Going to sleep
+GOAL.COLLAPSE_FROM_EXHAUSTION.DESCRIPTION,,Collapsed from exhaustion
 GOAL.TRANSFER_LIQUID.DESCRIPTION,Becomes “Transferring water”,Transferring {{targetZoneMaterial}}
 
 GUI.ADD_REMOVE_TILES,Heading to describe adding or removing an area of a zone/room,Add/remove tiles
@@ -784,6 +785,7 @@ HAPPINESS_MODIFIER.SLEEPING_IN_RAIN,,Slept in the rain
 HAPPINESS_MODIFIER.SLEEPING_IN_SNOW,,Slept in the snow
 HAPPINESS_MODIFIER.SLEPT_IN_BED,,Slept in a comfortable bed
 HAPPINESS_MODIFIER.SLEPT_ON_GROUND,,Slept on rough ground
+HAPPINESS_MODIFIER.SLEPT_ON_SLEEPING_SPOT,,Slept on a sleeping spot
 HAPPINESS_MODIFIER.SLEPT_OUTSIDE,,Slept under the stars
 HAPPINESS_MODIFIER.TITLE,,Happiness:
 HAPPINESS_MODIFIER.VERY_HUNGRY,,Very hungry
@@ -1086,6 +1088,8 @@ NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but ther
 NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go
 NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.
 NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed
+NOTIFICATION.SETTLER_COLLAPSED.DESCRIPTION,,{{character}} collapsed from exhaustion and is asleep on the floor. Settlers who sleep on the floor or on sleeping spots never fully rest: build beds.
+NOTIFICATION.SETTLER_COLLAPSED.TITLE,,Collapsed from exhaustion
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.

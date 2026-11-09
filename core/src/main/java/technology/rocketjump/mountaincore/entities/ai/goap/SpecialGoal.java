@@ -13,6 +13,7 @@ public enum SpecialGoal {
 	DUMP_LIQUID("Dump liquid goal"),
 	PLACE_ITEM("Place item goal"),
 	ROLL_ON_FLOOR("Roll on floor goal"),
+	COLLAPSE_FROM_EXHAUSTION("Collapse from exhaustion goal"),
 	DOUSE_SELF("Douse self goal"),
 	EXTINGUISH_FIRE("Extinguish fire goal"),
 	CREATE_CAMPFIRE("Create camp fire"),

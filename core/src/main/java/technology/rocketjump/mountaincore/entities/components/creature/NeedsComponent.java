@@ -29,8 +29,28 @@ public class NeedsComponent implements EntityComponent {
 	public static final double MIN_NEED_VALUE = -10;
 	private Map<EntityNeed, Double> needValues = new EnumMap<>(EntityNeed.class);
 
-	private static final double SLEEP_HOURS_TO_FULLY_RESTED = 12;
 	private static final double AWAKE_HOURS_UNTIL_UNCONSCIOUS = 30;
+	// Invaders never sleep on a raid; they tire at half a dwarf's pace and retreat when spent (invasion retreat goal)
+	private static final double INVADER_STAMINA_MULTIPLIER = 2;
+
+	/**
+	 * Where a creature sleeps decides how much a night gives back: a full night (MAX_SLEEP_HOURS in
+	 * SleepOnFloorAction) in a bed restores everything, on a sleeping spot three quarters, on the floor half.
+	 * A settler who sleeps on the floor wakes a little more tired every day.
+	 */
+	public enum SleepPlace {
+		FLOOR(0.5), SLEEPING_SPOT(0.75), BED(1.0);
+
+		public static final double FULL_NIGHT_HOURS = 8;
+		final double restPerHour;
+
+		SleepPlace(double shareOfFullNight) {
+			this.restPerHour = shareOfFullNight * MAX_NEED_VALUE / FULL_NIGHT_HOURS;
+		}
+	}
+
+	// Set every update by the sleeping action; anything else (knocked out, fainted) rests as on the floor
+	private transient SleepPlace sleepPlace = SleepPlace.FLOOR;
 	// 23 h: a settler eats twice a day, in the morning and the evening nourishment hours (was 46: once a day)
 	private static final double HOURS_TO_STARVING_FROM_FULL = 23;
 	private static final double HOURS_TO_DEHYDRATED_FROM_QUENCHED = 40;
@@ -59,25 +79,24 @@ public class NeedsComponent implements EntityComponent {
 	public void update(double elapsedGameHours, Entity parentEntity, MessageDispatcher messageDispatcher) {
 		CreatureEntityAttributes attributes = (CreatureEntityAttributes) parentEntity.getPhysicalEntityComponent().getAttributes();
 
-		// Invaders come to raid and then leave. They do not bed down in the middle of somebody else's
-		// settlement, and holding their rest still also keeps them off the exhaustion clock
-		boolean rests = !CreatureCategory.INVADER.equals(CreatureCategory.getCategoryFor(parentEntity));
+		// Invaders come to raid and then leave: they never bed down in somebody else's settlement. They do tire,
+		// slower than settlers, and a spent invader retreats (see the invasion retreat goal) - no endless berserkers
+		boolean invader = CreatureCategory.INVADER.equals(CreatureCategory.getCategoryFor(parentEntity));
 
-		if (rests && needValues.containsKey(EntityNeed.SLEEP)) {
+		if (needValues.containsKey(EntityNeed.SLEEP)) {
 			Double currentSleepValue = needValues.get(EntityNeed.SLEEP);
 
 			// TODO MODDING data-drive this
 			if (AWAKE.equals(attributes.getConsciousness())) {
-				// Assume a dwarf can go from fully rested to desperately needing sleep in... 40 hours?
-				double decrementAmount = (elapsedGameHours / AWAKE_HOURS_UNTIL_UNCONSCIOUS) * MAX_NEED_VALUE;
+				double hoursUntilSpent = invader ? AWAKE_HOURS_UNTIL_UNCONSCIOUS * INVADER_STAMINA_MULTIPLIER : AWAKE_HOURS_UNTIL_UNCONSCIOUS;
+				double decrementAmount = (elapsedGameHours / hoursUntilSpent) * MAX_NEED_VALUE;
 				needValues.put(EntityNeed.SLEEP, Math.max(currentSleepValue - decrementAmount, MIN_NEED_VALUE));
-			} else {
-				// Asleep or unconscious, let's say 10 hours is enough to go from urgently needing sleep to well rested
-				double incrementAmount = (elapsedGameHours / SLEEP_HOURS_TO_FULLY_RESTED) * MAX_NEED_VALUE;
+			} else if (!invader) {
+				double incrementAmount = elapsedGameHours * sleepPlace.restPerHour;
 				needValues.put(EntityNeed.SLEEP, Math.min(currentSleepValue + incrementAmount, MAX_NEED_VALUE));
 			}
 
-			if (getValue(EntityNeed.SLEEP) <= 0) {
+			if (!invader && getValue(EntityNeed.SLEEP) <= 0) {
 				messageDispatcher.dispatchMessage(MessageType.APPLY_STATUS, new StatusMessage(parentEntity, Exhausted.class, null, null));
 			}
 		}
@@ -140,6 +159,10 @@ public class NeedsComponent implements EntityComponent {
 				);
 			}
 		}
+	}
+
+	public void setSleepPlace(SleepPlace sleepPlace) {
+		this.sleepPlace = sleepPlace == null ? SleepPlace.FLOOR : sleepPlace;
 	}
 
 	public boolean has(EntityNeed need) {

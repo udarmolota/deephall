@@ -188,6 +188,10 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 
 		NeedsComponent needsComponent = parentEntity.getComponent(NeedsComponent.class);
 		needsComponent.update(elapsed, parentEntity, messageDispatcher);
+		if (shouldCollapseFromExhaustion() && currentGoal != null && currentGoal.goal.satisfiesNeed != EntityNeed.SLEEP) {
+			// Out on its feet: drop whatever it is doing, the next goal picked is collapsing where it stands
+			currentGoal.setInterrupted(true);
+		}
 
 		HappinessComponent happinessComponent = parentEntity.getComponent(HappinessComponent.class);
 		MilitaryComponent militaryComponent = parentEntity.getComponent(MilitaryComponent.class);
@@ -256,6 +260,21 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 		return false;
 	}
 
+	/**
+	 * A settler with no rest left falls asleep where it stands, on the floor, as in RimWorld. Before, it carried on
+	 * exhausted, miserable, and after 56 hours of it died of exhaustion without ever lying down.
+	 */
+	private boolean shouldCollapseFromExhaustion() {
+		NeedsComponent needsComponent = parentEntity.getComponent(NeedsComponent.class);
+		CreatureEntityAttributes attributes = (CreatureEntityAttributes) parentEntity.getPhysicalEntityComponent().getAttributes();
+		CombatStateComponent combatState = parentEntity.getComponent(CombatStateComponent.class);
+		return needsComponent != null && needsComponent.has(EntityNeed.SLEEP) && needsComponent.getValue(EntityNeed.SLEEP) <= 0
+				&& AWAKE.equals(attributes.getConsciousness())
+				&& Faction.SETTLEMENT.equals(parentEntity.getOrCreateComponent(FactionComponent.class).getFaction())
+				&& (combatState == null || !combatState.isInCombat())
+				&& !parentEntity.isOnFire();
+	}
+
 	private boolean hasCriticallyLowNeed() {
 		NeedsComponent needsComponent = parentEntity.getComponent(NeedsComponent.class);
 		if (needsComponent == null) {
@@ -291,6 +310,11 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 
 		if (parentEntity.isOnFire()) {
 			return AssignedGoalFactory.onFireGoal(parentEntity, messageDispatcher, gameContext);
+		}
+
+		if (shouldCollapseFromExhaustion()) {
+			messageDispatcher.dispatchMessage(MessageType.SETTLER_COLLAPSED, parentEntity);
+			return new AssignedGoal(SpecialGoal.COLLAPSE_FROM_EXHAUSTION.getInstance(), parentEntity, messageDispatcher, gameContext);
 		}
 
 		Optional<Memory> combatMemory = getCombatRelatedMemory(parentEntity, creatureGroup, gameContext);

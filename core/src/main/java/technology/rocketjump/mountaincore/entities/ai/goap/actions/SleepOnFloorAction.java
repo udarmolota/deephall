@@ -4,9 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.math.Vector2;
 import technology.rocketjump.mountaincore.entities.ai.goap.AssignedGoal;
+import technology.rocketjump.mountaincore.entities.ai.goap.CreatureCategory;
 import technology.rocketjump.mountaincore.entities.ai.goap.EntityNeed;
 import technology.rocketjump.mountaincore.entities.ai.goap.condition.GoalSelectionByBadlyWounded;
+import technology.rocketjump.mountaincore.entities.ai.memory.Memory;
+import technology.rocketjump.mountaincore.entities.ai.memory.MemoryType;
 import technology.rocketjump.mountaincore.entities.components.creature.HappinessComponent;
+import technology.rocketjump.mountaincore.entities.components.creature.MemoryComponent;
 import technology.rocketjump.mountaincore.entities.components.creature.NeedsComponent;
 import technology.rocketjump.mountaincore.entities.model.Entity;
 import technology.rocketjump.mountaincore.entities.model.physical.creature.Consciousness;
@@ -50,6 +54,10 @@ public class SleepOnFloorAction extends Action {
 	// A badly wounded sleeper stays in bed once rested, healing again every this many hours (bed rest)
 	private static final double HOURS_BETWEEN_BED_REST_HEALING = 4.0;
 	private transient double lastBedRestHealingGameTime = -1;
+	// A night's sleep ends after this long, slept out or not: where it was slept decides how rested it leaves
+	// the sleeper (NeedsComponent.SleepPlace). Saved, so loading a game does not restart the night.
+	public static final double MAX_SLEEP_HOURS = NeedsComponent.SleepPlace.FULL_NIGHT_HOURS;
+	private double sleepStartedAt = -1;
 
 	public SleepOnFloorAction(AssignedGoal parent) {
 		super(parent);
@@ -57,10 +65,14 @@ public class SleepOnFloorAction extends Action {
 
 	@Override
 	public void update(float deltaTime, GameContext gameContext) {
+		if (wakeIfInvader(gameContext)) {
+			return;
+		}
 		CreatureEntityAttributes attributes = (CreatureEntityAttributes) parent.parentEntity.getPhysicalEntityComponent().getAttributes();
 		if (!Consciousness.SLEEPING.equals(attributes.getConsciousness())) {
 			changeToSleeping(gameContext);
 		}
+		setSleepPlace(NeedsComponent.SleepPlace.FLOOR);
 
 		HappinessComponent happinessComponent = parent.parentEntity.getComponent(HappinessComponent.class);
 		if (happinessComponent != null) {
@@ -77,12 +89,37 @@ public class SleepOnFloorAction extends Action {
 
 	@Override
 	public void writeTo(JSONObject asJson, SavedGameStateHolder savedGameStateHolder) {
-		// No state to write
+		if (sleepStartedAt >= 0) {
+			asJson.put("sleepStartedAt", sleepStartedAt);
+		}
 	}
 
 	@Override
 	public void readFrom(JSONObject asJson, SavedGameStateHolder savedGameStateHolder, SavedGameDependentDictionaries relatedStores) throws InvalidSaveException {
-		// No state to read
+		Double saved = asJson.getDouble("sleepStartedAt");
+		sleepStartedAt = saved == null ? -1 : saved;
+	}
+
+	/**
+	 * Invaders do not sleep on a raid. One that lay down anyway (bed rest used to take wounded invaders too) slept
+	 * for good: a sleeper wakes when rested, and an invader's rest never grows. Up it gets.
+	 */
+	protected boolean wakeIfInvader(GameContext gameContext) {
+		if (!CreatureCategory.INVADER.equals(CreatureCategory.getCategoryFor(parent.parentEntity))) {
+			return false;
+		}
+		if (isAsleep()) {
+			changeToAwake(gameContext);
+		}
+		completionType = SUCCESS;
+		return true;
+	}
+
+	protected void setSleepPlace(NeedsComponent.SleepPlace sleepPlace) {
+		NeedsComponent needsComponent = parent.parentEntity.getComponent(NeedsComponent.class);
+		if (needsComponent != null) {
+			needsComponent.setSleepPlace(sleepPlace);
+		}
 	}
 
 	protected void checkForWakingUp(GameContext gameContext) {
@@ -100,11 +137,16 @@ public class SleepOnFloorAction extends Action {
 		}
 
 		NeedsComponent needsComponent = parent.parentEntity.getComponent(NeedsComponent.class);
+		double now = gameContext.getGameClock().getCurrentGameTime();
+		if (sleepStartedAt < 0 || sleepStartedAt > now) {
+			sleepStartedAt = now;
+		}
 		// All changes in need amounts are handled by SettlerBehaviour
-		if (needsComponent.getValue(EntityNeed.SLEEP) >= 100.0 && stayOnBedRest(needsComponent, gameContext)) {
+		boolean nightIsOver = needsComponent.getValue(EntityNeed.SLEEP) >= 100.0 || now - sleepStartedAt >= MAX_SLEEP_HOURS;
+		if (nightIsOver && stayOnBedRest(needsComponent, gameContext)) {
 			return;
 		}
-		if (needsComponent.getValue(EntityNeed.SLEEP) >= 100.0) {
+		if (nightIsOver) {
 			if (happinessComponent != null) {
 				// Only entities with tracked happiness can freeze outside
 
@@ -194,6 +236,12 @@ public class SleepOnFloorAction extends Action {
 		parent.parentEntity.getLocationComponent().setRotation(0);
 
 		attributes.setConsciousness(Consciousness.AWAKE);
+		setSleepPlace(NeedsComponent.SleepPlace.FLOOR);
+		sleepStartedAt = -1;
+		MemoryComponent memoryComponent = parent.parentEntity.getComponent(MemoryComponent.class);
+		if (memoryComponent != null) {
+			memoryComponent.addShortTerm(new Memory(MemoryType.WOKE_UP, gameContext.getGameClock()), gameContext.getGameClock());
+		}
 		if (parent.parentEntity.isSettler()) {
 			parent.messageDispatcher.dispatchMessage(MessageType.SETTLER_WOKE_UP);
 		}

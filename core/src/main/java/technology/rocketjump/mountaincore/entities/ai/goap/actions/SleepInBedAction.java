@@ -1,5 +1,6 @@
 package technology.rocketjump.mountaincore.entities.ai.goap.actions;
 
+import technology.rocketjump.mountaincore.entities.components.creature.NeedsComponent;
 import com.alibaba.fastjson.JSONObject;
 import com.badlogic.gdx.math.Vector2;
 import org.pmw.tinylog.Logger;
@@ -43,6 +44,9 @@ public class SleepInBedAction extends SleepOnFloorAction {
 
 	@Override
 	public void update(float deltaTime, GameContext gameContext) {
+		if (wakeIfInvader(gameContext)) {
+			return;
+		}
 		if (!isAsleep()) {
 			getIntoAssignedBedAndSleep(gameContext);
 		} else {
@@ -61,9 +65,11 @@ public class SleepInBedAction extends SleepOnFloorAction {
 			Entity assignedFurniture = gameContext.getEntities().get(parent.getAssignedFurnitureId());
 			SleepingPositionComponent sleepingPositionComponent = assignedFurniture.getComponent(SleepingPositionComponent.class);
 			if (sleepingPositionComponent.getBedCreaturePosition().equals(BedSleepingPositionTag.BedCreaturePosition.ON_GROUND)) {
-				parent.parentEntity.getComponent(HappinessComponent.class).add(SLEPT_ON_GROUND);
+				parent.parentEntity.getComponent(HappinessComponent.class).add(HappinessComponent.HappinessModifier.SLEPT_ON_SLEEPING_SPOT);
+				setSleepPlace(NeedsComponent.SleepPlace.SLEEPING_SPOT);
 			} else {
 				parent.parentEntity.getComponent(HappinessComponent.class).add(SLEPT_IN_BED);
+				setSleepPlace(NeedsComponent.SleepPlace.BED);
 			}
 
 			checkForWakingUp(gameContext);
@@ -146,12 +152,12 @@ public class SleepInBedAction extends SleepOnFloorAction {
 
 	@Override
 	public void writeTo(JSONObject asJson, SavedGameStateHolder savedGameStateHolder) {
-		// No state to write
+		super.writeTo(asJson, savedGameStateHolder); // when the night began
 	}
 
 	@Override
 	public void readFrom(JSONObject asJson, SavedGameStateHolder savedGameStateHolder, SavedGameDependentDictionaries relatedStores) throws InvalidSaveException {
-		// No state to read
+		super.readFrom(asJson, savedGameStateHolder, relatedStores);
 	}
 
 	private void getIntoAssignedBedAndSleep(GameContext gameContext) {

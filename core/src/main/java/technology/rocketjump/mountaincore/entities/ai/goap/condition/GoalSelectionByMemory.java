@@ -14,15 +14,22 @@ import java.util.Collection;
 public class GoalSelectionByMemory implements GoalSelectionCondition {
 
 	public final MemoryType memoryType;
+	// "absent": true turns the condition round: it holds while there is no such memory
+	public final boolean absent;
 
 	@JsonCreator
-	public GoalSelectionByMemory(@JsonProperty("memoryType") MemoryType memoryType) {
+	public GoalSelectionByMemory(@JsonProperty("memoryType") MemoryType memoryType, @JsonProperty("absent") Boolean absent) {
 		this.memoryType = memoryType;
+		this.absent = absent != null && absent;
 	}
 
 	@JsonIgnore
 	@Override
 	public boolean apply(Entity parentEntity, GameContext gameContext) {
+		return absent != remembers(parentEntity, gameContext);
+	}
+
+	private boolean remembers(Entity parentEntity, GameContext gameContext) {
 		MemoryComponent memoryComponent = parentEntity.getComponent(MemoryComponent.class);
 		if (memoryComponent == null) {
 			return false;

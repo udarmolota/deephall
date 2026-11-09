@@ -32,6 +32,11 @@
           "need": "SLEEP",
           "operator": "LESS_THAN_OR_EQUAL_TO",
           "value": 70
+        },
+        {
+          "type": "MEMORY",
+          "memoryType": "WOKE_UP",
+          "absent": true
         }
       ],
       "priority": "WANT_NORMAL",

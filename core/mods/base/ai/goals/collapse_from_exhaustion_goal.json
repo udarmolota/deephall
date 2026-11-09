@@ -1,0 +1,10 @@
+{
+  "name": "Collapse from exhaustion goal",
+  "i18nDescription": "GOAL.COLLAPSE_FROM_EXHAUSTION.DESCRIPTION",
+  "satisfiesNeed": "SLEEP",
+  "selectors": [],
+  "initialActions": ["SleepOnFloor"],
+  "actionRelationships": {
+    "SleepOnFloor": {}
+  }
+}

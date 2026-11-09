@@ -6,6 +6,18 @@
     {
       "conditions": [
         {
+          "type": "NEED",
+          "need": "SLEEP",
+          "operator": "LESS_THAN_OR_EQUAL_TO",
+          "value": 10
+        }
+      ],
+      "priority": "HIGHEST",
+      "scheduleCategory": "ANY"
+    },
+    {
+      "conditions": [
+        {
           "type": "INVASION_IN_STAGE",
           "invasionStage": "RETREATING"
         }

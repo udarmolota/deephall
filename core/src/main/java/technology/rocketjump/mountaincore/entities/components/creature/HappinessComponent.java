@@ -142,6 +142,7 @@ public class HappinessComponent implements InfrequentlyUpdatableComponent {
 
 		SLEPT_OUTSIDE(-20, 3.0),
 		SLEPT_ON_GROUND(-10, 5.0),
+		SLEPT_ON_SLEEPING_SPOT(-5, 5.0), // a bedroll: not a bed, but better than bare rock
 		SLEPT_IN_BED(20, 5.0),
 		COZY_BEDROOM(5, 12.0), // woke up in a bedroom with a bedside table (SleepInBedAction)
 
