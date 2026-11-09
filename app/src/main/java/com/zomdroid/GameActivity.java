@@ -472,6 +472,30 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
         hintParams.topMargin = (int) (8 * dp);
         box.addView(loadingHint, hintParams);
 
+        // A new release is out: say so while the player waits, with the release page a tap away
+        String newerVersion = UpdateChecker.newerVersion(this);
+        String releaseUrl = UpdateChecker.releaseUrl(this);
+        if (newerVersion != null && releaseUrl != null) {
+            android.widget.TextView updateLine = new android.widget.TextView(this);
+            updateLine.setText(getString(R.string.game_loading_update_available, newerVersion));
+            updateLine.setTextColor(0xFFFFC107);
+            updateLine.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+            updateLine.setShadowLayer(4f, 0f, 0f, 0xFF000000);
+            updateLine.setGravity(android.view.Gravity.CENTER);
+            updateLine.setPaintFlags(updateLine.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
+            updateLine.setOnClickListener(v -> {
+                try {
+                    startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(releaseUrl)));
+                } catch (android.content.ActivityNotFoundException ignored) {
+                    // No browser: nothing to open it with
+                }
+            });
+            android.widget.LinearLayout.LayoutParams updateParams = new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+            updateParams.topMargin = (int) (16 * dp);
+            box.addView(updateLine, updateParams);
+        }
+
         loadingView = box;
         root.addView(box, new android.widget.FrameLayout.LayoutParams(
                 android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,

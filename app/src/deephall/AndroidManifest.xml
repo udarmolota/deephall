@@ -6,6 +6,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- The daily update check runs only when there is a network (UpdateChecker); Android requires this
+         for such a job. A normal permission: granted at install, the player is never asked. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application>
         <activity android:name=".LauncherActivity">
             <intent-filter tools:node="removeAll" />
@@ -24,5 +28,10 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+        <!-- The daily check for a new Deephall release, see UpdateChecker -->
+        <service
+            android:name=".UpdateCheckJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 </manifest>

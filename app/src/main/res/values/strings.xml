@@ -463,6 +463,10 @@
     <string name="deephall_installing_game">Installing the game files…</string>
     <string name="deephall_prepare_failed">The game could not be prepared</string>
     <string name="deephall_open_launcher">Open the launcher</string>
+    <string name="deephall_update_channel">New versions</string>
+    <string name="deephall_update_title">Deephall %1$s is out</string>
+    <string name="deephall_update_text">Tap to see what is new and download it.</string>
+    <string name="game_loading_update_available">Deephall %1$s is out. Tap to see what is new.</string>
     <string name="shortcut_settings_short">Settings</string>
     <string name="shortcut_settings_long">Settings</string>
     <string name="shortcut_bug_report_short">Bug report</string>

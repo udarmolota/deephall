@@ -417,6 +417,10 @@
     <string name="deephall_installing_game">Установка файлов игры…</string>
     <string name="deephall_prepare_failed">Не удалось подготовить игру</string>
     <string name="deephall_open_launcher">Открыть лаунчер</string>
+    <string name="deephall_update_channel">Новые версии</string>
+    <string name="deephall_update_title">Вышла Deephall %1$s</string>
+    <string name="deephall_update_text">Нажмите, чтобы посмотреть, что нового, и скачать.</string>
+    <string name="game_loading_update_available">Вышла Deephall %1$s. Нажмите, чтобы посмотреть, что нового.</string>
     <string name="shortcut_settings_short">Настройки</string>
     <string name="shortcut_settings_long">Настройки</string>
     <string name="shortcut_bug_report_short">Отчёт</string>

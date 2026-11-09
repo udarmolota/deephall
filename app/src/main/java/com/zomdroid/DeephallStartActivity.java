@@ -69,6 +69,10 @@ public class DeephallStartActivity extends AppCompatActivity {
         // skipped now, so it has to happen here.
         GamepadManager.loadCustomMapping(this);
 
+        // New-version notification: the daily check, and once ever the permission it needs
+        UpdateChecker.onAppStart(this);
+        if (savedInstanceState == null) UpdateChecker.askForNotificationsOnce(this, 1);
+
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_ERROR_MESSAGE)) {
                 showError(savedInstanceState.getString(STATE_ERROR_TITLE),
