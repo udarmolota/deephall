@@ -1086,6 +1086,8 @@ NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the foo
 NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming
 NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but there is no cauldron in the feasting hall to serve it from. Place one there: until then the kitchen cannot cook again and its vegetables rot."
 NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go
+NOTIFICATION.NOT_ENOUGH_GRAVES.DESCRIPTION,,"Settlers lie unburied: there is no free grave for them. Everyone who passes within sight of a body is upset for a day. Dig graves in a graveyard, or have the bodies carried to a stockpile out of the way until then. Tap a body to raise its priority."
+NOTIFICATION.NOT_ENOUGH_GRAVES.TITLE,,Not enough graves
 NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.
 NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed
 NOTIFICATION.SETTLER_COLLAPSED.DESCRIPTION,,{{character}} collapsed from exhaustion and is asleep on the floor. Settlers who sleep on the floor or on sleeping spots never fully rest: build beds.

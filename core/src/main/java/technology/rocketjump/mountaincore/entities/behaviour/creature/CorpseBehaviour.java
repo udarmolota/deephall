@@ -3,6 +3,7 @@ package technology.rocketjump.mountaincore.entities.behaviour.creature;
 import com.alibaba.fastjson.JSONObject;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.graphics.Color;
+import technology.rocketjump.mountaincore.entities.behaviour.furniture.Prioritisable;
 import technology.rocketjump.mountaincore.entities.behaviour.furniture.SelectableDescription;
 import technology.rocketjump.mountaincore.entities.components.BehaviourComponent;
 import technology.rocketjump.mountaincore.entities.components.EntityComponent;
@@ -16,6 +17,7 @@ import technology.rocketjump.mountaincore.entities.model.physical.creature.Death
 import technology.rocketjump.mountaincore.entities.model.physical.creature.Gender;
 import technology.rocketjump.mountaincore.gamecontext.GameContext;
 import technology.rocketjump.mountaincore.jobs.SkillDictionary;
+import technology.rocketjump.mountaincore.jobs.model.JobPriority;
 import technology.rocketjump.mountaincore.mapping.tile.MapTile;
 import technology.rocketjump.mountaincore.messaging.MessageType;
 import technology.rocketjump.mountaincore.messaging.types.RequestHaulingMessage;
@@ -34,7 +36,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CorpseBehaviour implements BehaviourComponent, SelectableDescription {
+/**
+ * A dead creature. It can be given a priority from its selection panel, like furniture: the higher it is, the
+ * sooner it is carried away. GraveManager gives graves to the highest first and carries the body to one when
+ * there is a free grave; only when there is none is the body carried to a stockpile that takes it, out of sight
+ * (settlers who see a body of their own race are upset for a day). DISABLED leaves the body where it is.
+ */
+public class CorpseBehaviour implements BehaviourComponent, SelectableDescription, Prioritisable {
+
+	/** Bodies were always carried to graves at HIGHER, so that stays the default. */
+	public static final JobPriority DEFAULT_PRIORITY = JobPriority.HIGHER;
 
 	private SteeringComponent steeringComponent = new SteeringComponent(); // Is this needed?
 	private double lastUpdateGameTime;
@@ -44,6 +55,9 @@ public class CorpseBehaviour implements BehaviourComponent, SelectableDescriptio
 	private Color FULLY_DECAYED_COLOR;
 	private double HOURS_TO_FULLY_DECAY;
 	private double decayedAmount;
+	private JobPriority priority = DEFAULT_PRIORITY;
+	/** Set by GraveManager: no free grave for this body, so it may go to a stockpile meanwhile. Not saved. */
+	private boolean waitingForGrave;
 
 	@Override
 	public void init(Entity parentEntity, MessageDispatcher messageDispatcher, GameContext gameContext) {
@@ -59,6 +73,7 @@ public class CorpseBehaviour implements BehaviourComponent, SelectableDescriptio
 	public EntityComponent clone(MessageDispatcher messageDispatcher, GameContext gameContext) {
 		CorpseBehaviour corpseBehaviour = new CorpseBehaviour();
 		corpseBehaviour.originalSkinColor = this.originalSkinColor.cpy();
+		corpseBehaviour.priority = this.priority;
 		return corpseBehaviour;
 	}
 
@@ -83,9 +98,10 @@ public class CorpseBehaviour implements BehaviourComponent, SelectableDescriptio
 					}
 				}
 
-				if (!inStockpile) {
+				// A grave comes first: only a body GraveManager found no grave for goes to a stockpile meanwhile
+				if (!inStockpile && waitingForGrave && priority != JobPriority.DISABLED) {
 					// Not in a stockpile and some unallocated, so see if we can be hauled to a stockpile
-					messageDispatcher.dispatchMessage(MessageType.REQUEST_ENTITY_HAULING, new RequestHaulingMessage(parentEntity, parentEntity, false, null, null));
+					messageDispatcher.dispatchMessage(MessageType.REQUEST_ENTITY_HAULING, new RequestHaulingMessage(parentEntity, parentEntity, false, priority, null));
 				}
 			}
 		}
@@ -193,11 +209,34 @@ public class CorpseBehaviour implements BehaviourComponent, SelectableDescriptio
 	public void writeTo(JSONObject asJson, SavedGameStateHolder savedGameStateHolder) {
 		asJson.put("originalSkin", HexColors.toHexString(originalSkinColor));
 		asJson.put("decayed", decayedAmount);
+		if (priority != DEFAULT_PRIORITY) {
+			asJson.put("priority", priority.name());
+		}
 	}
 
 	@Override
 	public void readFrom(JSONObject asJson, SavedGameStateHolder savedGameStateHolder, SavedGameDependentDictionaries relatedStores) throws InvalidSaveException {
 		originalSkinColor = HexColors.get(asJson.getString("originalSkin"));
 		decayedAmount = asJson.getDoubleValue("decayed");
+		String savedPriority = asJson.getString("priority");
+		priority = savedPriority == null ? DEFAULT_PRIORITY : JobPriority.valueOf(savedPriority);
+	}
+
+	@Override
+	public JobPriority getPriority() {
+		return priority;
+	}
+
+	@Override
+	public void setPriority(JobPriority jobPriority) {
+		this.priority = jobPriority;
+	}
+
+	public boolean isWaitingForGrave() {
+		return waitingForGrave;
+	}
+
+	public void setWaitingForGrave(boolean waitingForGrave) {
+		this.waitingForGrave = waitingForGrave;
 	}
 }

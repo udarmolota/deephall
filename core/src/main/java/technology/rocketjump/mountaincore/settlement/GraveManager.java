@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.math.GridPoint2;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import technology.rocketjump.mountaincore.entities.behaviour.creature.CorpseBehaviour;
 import technology.rocketjump.mountaincore.entities.components.InventoryComponent;
 import technology.rocketjump.mountaincore.entities.components.ItemAllocationComponent;
 import technology.rocketjump.mountaincore.entities.components.furniture.ConstructedEntityComponent;
@@ -27,19 +28,28 @@ import technology.rocketjump.mountaincore.messaging.MessageType;
 import technology.rocketjump.mountaincore.misc.VectorUtils;
 import technology.rocketjump.mountaincore.rooms.HaulingAllocation;
 import technology.rocketjump.mountaincore.rooms.HaulingAllocationBuilder;
+import technology.rocketjump.mountaincore.settlement.notifications.Notification;
+import technology.rocketjump.mountaincore.settlement.notifications.NotificationType;
+import technology.rocketjump.mountaincore.ui.Selectable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static technology.rocketjump.mountaincore.entities.model.EntityType.CREATURE;
 
 /**
- * This class is responsible for assigning and moving corpses to graves
+ * This class is responsible for assigning and moving corpses to graves.
+ *
+ * <p>Bodies are taken in order of the priority set on them (CorpseBehaviour), so a body the player marks gets the
+ * next free grave. A body with no free grave is flagged as waiting, which lets it go to a stockpile meanwhile, and
+ * once a day the player is told that settlers lie unburied.
  */
 @Singleton
 public class GraveManager implements Updatable {
 
 	private static final float TIME_BETWEEN_INFREQUENT_UPDATE_SECONDS = 3.4f;
+	private static final double HOURS_BETWEEN_NOT_ENOUGH_GRAVES_WARNINGS = 24.0;
 
 	private final MessageDispatcher messageDispatcher;
 	private final SettlementFurnitureTracker settlementFurnitureTracker;
@@ -50,6 +60,7 @@ public class GraveManager implements Updatable {
 
 	private GameContext gameContext;
 	private float timeSinceLastUpdate = 0f;
+	private double lastNotEnoughGravesWarning = Double.NEGATIVE_INFINITY;
 
 	@Inject
 	public GraveManager(MessageDispatcher messageDispatcher, SettlementFurnitureTracker settlementFurnitureTracker,
@@ -72,16 +83,82 @@ public class GraveManager implements Updatable {
 			List<Entity> allDead = new ArrayList<>();
 			allDead.addAll(settlerTracker.getDead());
 			allDead.addAll(creatureTracker.getDead());
+			// Highest priority first (JobPriority is declared from highest to lowest); the sort is stable
+			allDead.sort(Comparator.comparing(GraveManager::priorityOf));
 
+			Entity unburiedSettler = null;
 			for (Entity deceased : allDead) {
-				if (deceased.getLocationComponent().getContainerEntity() == null && !hasCorpseHaulingJob(deceased) && isUnallocated(deceased)) {
+				CorpseBehaviour corpse = deceased.getBehaviourComponent() instanceof CorpseBehaviour c ? c : null;
+				if (deceased.getLocationComponent().getContainerEntity() != null) {
+					if (corpse != null) {
+						corpse.setWaitingForGrave(false);
+					}
+					continue;
+				}
+				JobPriority priority = priorityOf(deceased);
+				updateHaulingJobPriority(deceased, priority);
+				if (priority == JobPriority.DISABLED) {
+					continue;
+				}
+				if (!hasCorpseHaulingJob(deceased) && isUnallocated(deceased)) {
 					Entity deceasedContainer = findAvailableDeceasedContainer(deceased);
 					if (deceasedContainer != null) {
-						assignAndCreateHaulingJob(deceased, deceasedContainer);
+						assignAndCreateHaulingJob(deceased, deceasedContainer, priority);
+						if (corpse != null) {
+							corpse.setWaitingForGrave(false);
+						}
+					} else {
+						if (corpse != null) {
+							corpse.setWaitingForGrave(true);
+						}
+						if (unburiedSettler == null && isSettlerRace(deceased)) {
+							unburiedSettler = deceased;
+						}
 					}
 				}
 			}
+			warnIfNotEnoughGraves(unburiedSettler);
 		}
+	}
+
+	private static JobPriority priorityOf(Entity deceased) {
+		return deceased.getBehaviourComponent() instanceof CorpseBehaviour corpse ? corpse.getPriority() : CorpseBehaviour.DEFAULT_PRIORITY;
+	}
+
+	/** A priority changed on the body reaches the job already carrying it, to a grave or to a stockpile. */
+	private void updateHaulingJobPriority(Entity deceased, JobPriority priority) {
+		GridPoint2 location = VectorUtils.toGridPoint(deceased.getLocationComponent().getWorldOrParentPosition());
+		if (location == null) {
+			return;
+		}
+		for (Job job : jobStore.getJobsAtLocation(location)) {
+			if (job.getType().equals(haulingJobType) && job.getHaulingAllocation() != null
+					&& Long.valueOf(deceased.getId()).equals(job.getHaulingAllocation().getHauledEntityId()) && job.getJobPriority() != priority) {
+				job.setJobPriority(priority);
+			}
+		}
+	}
+
+	private boolean isSettlerRace(Entity deceased) {
+		return deceased.getPhysicalEntityComponent().getAttributes() instanceof CreatureEntityAttributes attributes
+				&& attributes.getRace().equals(gameContext.getSettlementState().getSettlerRace());
+	}
+
+	/**
+	 * A settler's body with no grave to go to lies where it fell, and every settler passing within sight of it is upset
+	 * for a day: a body on a main corridor can tip a whole settlement into tantrums. Said once a day while it lasts.
+	 */
+	private void warnIfNotEnoughGraves(Entity unburiedSettler) {
+		if (unburiedSettler == null) {
+			return;
+		}
+		double now = gameContext.getGameClock().getCurrentGameTime();
+		if (now - lastNotEnoughGravesWarning < HOURS_BETWEEN_NOT_ENOUGH_GRAVES_WARNINGS) {
+			return;
+		}
+		lastNotEnoughGravesWarning = now;
+		messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, new Notification(NotificationType.NOT_ENOUGH_GRAVES,
+				unburiedSettler.getLocationComponent().getWorldOrParentPosition().cpy(), new Selectable(unburiedSettler, 0)));
 	}
 
 	private boolean isUnallocated(Entity deceased) {
@@ -146,7 +223,7 @@ public class GraveManager implements Updatable {
 		return null;
 	}
 
-	private void assignAndCreateHaulingJob(Entity deceased, Entity deceasedContainer) {
+	private void assignAndCreateHaulingJob(Entity deceased, Entity deceasedContainer, JobPriority priority) {
 		DeceasedContainerTag deceasedContainerTag = deceasedContainer.getTag(DeceasedContainerTag.class);
 		if (deceasedContainerTag.getMaxCapacity() == 1) {
 			FurnitureEntityAttributes furnitureAttributes = (FurnitureEntityAttributes) deceasedContainer.getPhysicalEntityComponent().getAttributes();
@@ -158,7 +235,7 @@ public class GraveManager implements Updatable {
 
 
 		Job haulingJob = new Job(haulingJobType);
-		haulingJob.setJobPriority(JobPriority.HIGHER);// Might prefer to set priority based on grave room priority
+		haulingJob.setJobPriority(priority);
 		haulingJob.setTargetId(allocation.getHauledEntityId());
 		haulingJob.setHaulingAllocation(allocation);
 		haulingJob.setJobLocation(allocation.getSourcePosition());
@@ -180,5 +257,6 @@ public class GraveManager implements Updatable {
 	public void clearContextRelatedState() {
 		gameContext = null;
 		timeSinceLastUpdate = 0f;
+		lastNotEnoughGravesWarning = Double.NEGATIVE_INFINITY;
 	}
 }

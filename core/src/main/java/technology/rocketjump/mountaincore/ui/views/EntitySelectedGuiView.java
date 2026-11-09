@@ -287,6 +287,10 @@ public class EntitySelectedGuiView implements GuiView, GameContextAware {
 					if (GlobalSettings.DEV_MODE) {
 						middleRow.add(debugTextSummary.getActor()).left().row();
 					}
+					if (entity.getBehaviourComponent() instanceof CorpseBehaviour corpseBehaviour) {
+						// How soon this body is carried to a grave, or out of sight to a stockpile while there is none
+						outerTable.add(new PriorityWidget(corpseBehaviour, mainGameSkin, tooltipFactory, messageDispatcher, soundAssetDictionary)).center().padTop(20).row();
+					}
 					if (entity.getComponent(InventoryComponent.class) != null) {
 						Updatable<Table> inventory = inventory(entity);
 						updatables.add(inventory);
