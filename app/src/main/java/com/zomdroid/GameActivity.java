@@ -2,7 +2,6 @@ package com.zomdroid;
 
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.system.ErrnoException;
@@ -34,9 +33,6 @@ import com.zomdroid.game.GameInstanceManager;
 import com.zomdroid.input.InputControlsView;
 import com.zomdroid.input.KeyboardManager;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import android.Manifest;
 
 /**
  * Main game activity. Handles UI, surface, and input.
@@ -122,13 +118,8 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.RECORD_AUDIO},
-                    0);
-        }
+        // No microphone permission: Zomdroid asked for it on every start for Project Zomboid's voice
+        // chat, and players of Deephall, which has none, rightly asked why a game wants the microphone
 
         binding = ActivityGameBinding.inflate(getLayoutInflater());
         // Give focus to game surface to ensure it receives input events
@@ -195,9 +186,8 @@ public class GameActivity extends AppCompatActivity implements GamepadManager.Ga
 
         // Orientation is fixed in the manifest (screenOrientation + configChanges) rather than here.
         // Calling setRequestedOrientation() from onCreate() on a phone held in portrait recreated the
-        // activity immediately, so onCreate() ran twice and fired the RECORD_AUDIO request twice —
-        // Android drops the second one ("Can request only one set of permissions at a time", present
-        // in every bug report we have). The manifest form starts the activity in landscape to begin
+        // activity immediately, so onCreate() ran twice (it used to fire a permission request twice, and
+        // Android dropped the second one). The manifest form starts the activity in landscape to begin
         // with, and configChanges keeps a rotation from tearing down the GL surface underneath us.
 
         //String gameInstanceName = getIntent().getStringExtra(EXTRA_GAME_INSTANCE_NAME);
