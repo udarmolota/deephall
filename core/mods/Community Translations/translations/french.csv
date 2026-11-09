@@ -264,6 +264,9 @@ FURNITURE.COKE_OVEN,,Coke oven,Four à charbons
 FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} into {{ORE.COKE.NOUN}} so that it can be used as {{FUEL.SACK}}.,Un four à coke convertit {{ORE.BITUMINOUS_COAL.NOUN}} en {{ORE.COKE.NOUN}} afin qu'il puisse être utilisé comme {{FUEL.SACK}}.
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}},{{furnitureType.noun}} {{materialType.adjective}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%,Finalisé dans: {{progress}}%
+FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room,Rien à fabriquer : choisissez un produit sur une palette d'exportation dans cette pièce
+FURNITURE.DESCRIPTION.WORKSPACE_UNREACHABLE,,Nobody can get to where this is worked from: clear the way to it,Personne ne peut atteindre le poste de travail : dégagez le passage
+FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}},En attente de {{inputs}} pour fabriquer {{targetDescription}}
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%,Fin de l'inoculation dans: {{progress}}%
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%,Récolte des champignons dans: {{progress}}%
 FURNITURE.DESCRIPTION.WAITING_FOR_ITEM,,Waiting for {{itemType.noun}},En attente de {{itemType.noun}}
@@ -282,7 +285,7 @@ FURNITURE.FISH_BARREL.TOOLTIP,,Neatly store away your caught fish for future coo
 FURNITURE.FLETCHERS_WORKBENCH,,Fletcher's workbench,Etabli d'archerie
 FURNITURE.FLETCHERS_WORKBENCH.TOOLTIP,,This is a crafting station for ranged weapons and ammunition.,C'est un établi utilisé pour les armes à distances et les munitions.
 FURNITURE.FLOUR_MILL,This is a table with a hand-operated flour mill stone on top,Gristmill,Moulin à grains
-FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}.,Le moulin à grains broie {{Vegetable.WHEAT}} en {{RESOURCE.FLOUR.SACK.NOUN}} afin qu'il puisse être utilisé par un {{PROFESSION.CHEF}}.
+FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}. Works twice as fast when shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} turn it.,Le moulin à grains moud {{VEGETABLE.WHEAT}} en {{RESOURCE.FLOUR.SACK.NOUN}} afin qu'un {{PROFESSION.CHEF}} puisse l'utiliser. Il travaille deux fois plus vite quand des arbres de transmission reliés à un {{FURNITURE.WINDMILL}} ou à une {{FURNITURE.WATERWHEEL}} le font tourner.
 FURNITURE.FORGE,,Forge,Forge
 FURNITURE.FORGE.TOOLTIP,,This is where a {{PROFESSION.BLACKSMITH}} works with {{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.METAL.INGOT.PLURAL}} and {{FUEL.SACK}} to craft items and weapons.,C'est là que {{PROFESSION.BLACKSMITH}} travaille le {{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.META.INGOT.PLURAL}} et {{FUEL.SACK}} pour fabriquer des objets et des armes.
 FURNITURE.GRAVE,,Grave,Tombe
@@ -296,6 +299,8 @@ FURNITURE.KITCHEN_WORKTOP,Simple piece of furniture in a kitchen used to hold in
 FURNITURE.KITCHEN_WORKTOP.TOOLTIP,,An area to store ingredients for a {{PROFESSION.CHEF}} to cook soup.,Un espace pour stocker les ingrédients pour un {{PROFESSION.CHEF}} pour cuisiner la soupe.
 FURNITURE.LANTERN,,Lantern,Lanterne
 FURNITURE.LANTERN.TOOLTIP,,A lantern provides light. This does not currently have an in-game effect.,"Une lanterne fournit de la lumière, ce qui n'a pas d'effet dans le jeu actuellement."
+FURNITURE.BEDSIDE_TABLE,,Bedside table,Table de chevet
+FURNITURE.BEDSIDE_TABLE.TOOLTIP,,A small table next to the bed. A settler who sleeps in a bedroom with one wakes up in a better mood.,Une petite table près du lit. Un colon qui dort dans une chambre équipée d'une table de chevet se réveille de meilleure humeur.
 FURNITURE.LEATHERWORKING_STATION,,Leatherworking station,Atelier de tannage
 FURNITURE.LEATHERWORKING_STATION.TOOLTIP,,A workbench to produce leather goods like armour and waterskins.,Un atelier qui produit des biens en cuirs tel que les armures et les gourdes.
 FURNITURE.LEDGER_TABLE,,Ledger table,Table de registre
@@ -446,9 +451,11 @@ GOAL.EAT.DESCRIPTION,,Eating {{targetDescription}},Mange {{targetDescription}}
 GOAL.EXTINGUISH_FIRE.DESCRIPTION,,Putting out a fire,Eteind le feu
 GOAL.FLEE_FROM_AGGRESSOR.DESCRIPTION,,Fleeing from {{targetDescription}},Fuit {{targetDescription}}
 GOAL.HAULING.DESCRIPTION,E.g. “Hauling granite stone”,Hauling {{targetDescription}},Transporte {{itemDescription}}
+GOAL.HUNTER.HUNT.DESCRIPTION,,Hunting,Chasse
 GOAL.IDLE.DESCRIPTION,When not doing anything,Idle,Temps libre
 GOAL.INVADER.CREATE_CAMP.DESCRIPTION,,Setting up camp,Etabli le camp
 GOAL.INVADER.RETREAT.DESCRIPTION,,Retreating from map,Se retire de la map
+GOAL.SETTLER.LEAVING.DESCRIPTION,,Leaving the settlement,Quitte la colonie
 GOAL.INVADER.STEAL_RESOURCES.DESCRIPTION,,Raiding stockpiles,Pille la réserve
 GOAL.MILITARY.ATTACK_TARGET.DESCRIPTION,,Moving into combat,Part au combat
 GOAL.MILITARY.STAND_IN_FORMATION.DESCRIPTION,,Guarding a position,Garde la position
@@ -456,6 +463,7 @@ GOAL.MILITARY.TRAINING.DESCRIPTION,,Weapon training,S'entraine aux armes
 GOAL.ON_FIRE.DESCRIPTION,,On fire!,En feu!
 GOAL.REFILL_WATERSKIN.DESCRIPTION,,Refilling waterskin,Rempli la gourde
 GOAL.SLEEP.DESCRIPTION,,Going to sleep,Va dormir
+GOAL.COLLAPSE_FROM_EXHAUSTION.DESCRIPTION,,Collapsed from exhaustion,Effondré d'épuisement
 GOAL.TRANSFER_LIQUID.DESCRIPTION,Becomes “Transferring water”,Transferring {{targetZoneMaterial}},Transfère {{targetZoneMaterial}}
 
 GUI.ADD_REMOVE_TILES,Heading to describe adding or removing an area of a zone/room,Add/remove tiles,Ajouter/retirer des cases
@@ -468,7 +476,8 @@ GUI.BUILD.DOORS,Take from FURNITURE.SINGLE_DOOR,Doors,Portes
 GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring,Sol
 GUI.BUILD.PILLARS,,Pillars,Pilliers
 GUI.BUILD.PIPING,,Pipes,Tuyaux
-GUI.BUILD.POWER,,Power,Puissance
+GUI.BUILD.POWER,,Shafts,Arbres de transmission
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump, ore crusher or gristmill. Straight runs are planks, turns need stone gears from the artisan.","Arbres de transmission : d'un moulin à vent ou d'une roue à eau vers une pompe à eau, un concasseur de minerai ou un moulin à grains. Les sections droites sont en planches, les virages exigent des engrenages en pierre de l'artisan."
 GUI.BUILD.ROOFING,,Roofing,Toits
 GUI.BUILD.WALLS,,Walls,Murs
 GUI.BUILD_FURNITURE,,Furniture,Meubles
@@ -580,6 +589,13 @@ GUI.KEY_BINDING.GAME_SPEED_FAST,,Game speed fast,Vitesse de jeu rapide
 GUI.KEY_BINDING.GAME_SPEED_FASTER,,Game speed faster,Vitesse de jeu très rapide
 GUI.KEY_BINDING.GAME_SPEED_FASTEST,,Game speed fastest,Vitesse de jeu la plus rapide
 GUI.KEY_BINDING.GAME_SPEED_NORMAL,,Game speed normal,Vitesse de jeu normale
+GUI.KEY_BINDING.OPEN_CONSTRUCTION,,Open construction menu,Ouvrir le menu de construction
+GUI.KEY_BINDING.OPEN_ORDERS,,Open orders menu,Ouvrir le menu des ordres
+GUI.KEY_BINDING.OPEN_PRIORITY,,Open priority menu,Ouvrir le menu des priorités
+GUI.KEY_BINDING.OPEN_ROOMS,,Open rooms menu,Ouvrir le menu des pièces
+GUI.KEY_BINDING.ORDER_CANCEL,,Cancel orders,Annuler les ordres
+GUI.KEY_BINDING.ORDER_MINE,,Mine,Miner
+GUI.TRADING_IMPORT.NOT_ENOUGH_MONEY,,Not enough money in the trading depot,Pas assez d'argent dans la zone de commerce
 GUI.KEY_BINDING.PAN_CAMERA_DOWN,,Pan camera down,Déplacer caméra vers le bas
 GUI.KEY_BINDING.PAN_CAMERA_LEFT,,Pan camera left,Déplacer caméra vers la gauche
 GUI.KEY_BINDING.PAN_CAMERA_RIGHT,,Pan camera right,Déplacer caméra vers la droite
@@ -620,7 +636,7 @@ GUI.MILITARY.SET_FORMATION,,Set Formation,Etablir Formation
 GUI.MILITARY.SET_ORDERS,,Set Orders,Donner un ordre
 GUI.MILITARY.TAB.DWARVES,,Military Dwarves,Nains militaires
 GUI.MILITARY.TAB.SQUADS,,Military Squads,Escouades militaires
-GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Trained Civilians,Civils entrainés
+GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Civilians,Civils
 GUI.MINIMAP.LABEL,,Minimap,Minimap
 GUI.MUSIC_VOLUME,,Music,Musique
 GUI.NEXT_LABEL,,Next,Suivant
@@ -673,7 +689,7 @@ GUI.ORDERS.MINE,,Mine,Miner
 GUI.ORDERS_LABEL,,Orders,"Ordres "
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size,Un pont doit couvrir les deux côtés de la rivière et avoir au moins 3x3 tuiles de taille
 GUI.POWER_LABEL,,Power & Water,Energie & Eau
-GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},Les moulins à vent et les roues à aubes fournissent de la force aux mécanismes : pompes à eau et concasseurs de minerai.{{\n}}Les {{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} et les {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} sont connectés à des arbres de transmissions {{drawable|tooltip_icon_power}}{{\n}}Les arbres de transmissions {{drawable|tooltip_icon_power}} alimente les {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} et les mobiliers nécessitant de la puissance.{{\n}} Les{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} et les canaux d'irrigation {{drawable|tooltip_icon_irrigation}} sont connectés aux {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}
+GUI.POWER_WATER_INFO,,"Windmills and water wheels produce power for mechanisms: water pumps, ore crushers and gristmills.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} turn underground shafts {{drawable|tooltip_icon_power}}{{\n}}Shafts {{drawable|tooltip_icon_power}} drive {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, ore crushers and gristmills{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}","Les moulins à vent et les roues à eau fournissent de la force aux mécanismes : pompes à eau, concasseurs de minerai et moulins à grains.{{\n}}Les {{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} et les {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} font tourner des arbres de transmission souterrains {{drawable|tooltip_icon_power}}{{\n}}Les arbres de transmission {{drawable|tooltip_icon_power}} entraînent les {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, les concasseurs de minerai et les moulins à grains{{\n}}Les {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} et l'irrigation {{drawable|tooltip_icon_irrigation}} sont reliées aux {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}"
 GUI.PRIORITY_LABEL,,Priority,Priorité
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export,Choisir l'objet à produire
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}},
@@ -753,7 +769,8 @@ HAPPINESS_MODIFIER.DRANK_ALCOHOL,,Under the effects of alcohol,Sous l'effet de l
 HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water,A bu de l'eau de rivière
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving,Affamé
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated,Déshydraté de façon critique
-HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Had a tantrum,A un accès de colère
+HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam,S'est défoulé
+HAPPINESS_MODIFIER.COZY_BEDROOM,,Cozy bedroom,Chambre douillette
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement,Optimiste quant à la nouvelle colonisation
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned,A été gravement brulé
 HAPPINESS_MODIFIER.POISONED,,Poisoned,Empoisonné
@@ -762,6 +779,7 @@ HAPPINESS_MODIFIER.SLEEPING_IN_RAIN,,Slept in the rain,A dormi sous la pluie
 HAPPINESS_MODIFIER.SLEEPING_IN_SNOW,,Slept in the snow,A dormi dans la neige
 HAPPINESS_MODIFIER.SLEPT_IN_BED,,Slept in a comfortable bed,A dormi dans un lit confortable
 HAPPINESS_MODIFIER.SLEPT_ON_GROUND,,Slept on rough ground,A dormi sur sol rugueux
+HAPPINESS_MODIFIER.SLEPT_ON_SLEEPING_SPOT,,Slept on a sleeping spot,A dormi sur un lieu de couchage
 HAPPINESS_MODIFIER.SLEPT_OUTSIDE,,Slept under the stars,A dormi sous les étoiles
 HAPPINESS_MODIFIER.TITLE,,Happiness:,Bonheur:
 HAPPINESS_MODIFIER.VERY_HUNGRY,,Very hungry,Très faim
@@ -899,13 +917,15 @@ MEAT.PIKE_MEAT.PLURAL,,Pike,Brochets
 
 MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power,Fonctionne - consome {{power}} d'énergie.
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power,Fonctionne très lentement - pas assez d'énergie
-MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,Cet équipement requiert une connexion à de la puissance mécanique produite par un {{FURNITURE.WINDMILL}} ou une {{FURNITURE.WATERWHEEL}}.
+MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Nécessite des arbres de transmission souterrains reliés à un {{FURNITURE.WINDMILL}} ou à une {{FURNITURE.WATERWHEEL}} pour fonctionner à pleine vitesse. Les arbres se construisent via l'option {{GUI.BUILD.POWER}} du menu {{GUI.BUILD_LABEL}}.
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power,Fonctionne - produit {{power}} d'énergie
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,"Turns underground shafts. The shafts carry its power to an ore crusher, a gristmill or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.","Fait tourner des arbres de transmission souterrains, qui transmettent sa force à un concasseur de minerai, un moulin à grains ou une pompe à eau. Les arbres se construisent via l'option {{GUI.BUILD.POWER}} du menu {{GUI.BUILD_LABEL}}."
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,"Not connected - lay shafts from here to an ore crusher, gristmill or water pump","Non connecté - posez des arbres de transmission d'ici vers un concasseur de minerai, un moulin à grains ou une pompe à eau"
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly,Doit être à l'extérieur pour fonctionner correctement
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power,Désactivé - pas assez d'énergie
-MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,Cet équipement requiert une connexion à de la puissance mécanique produite par un {{FURNITURE.WINDMILL}} ou une {{FURNITURE.WATERWHEEL}}.
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - connect to an underground power connection,Désactivé - connectez à source de puissance souterraine.
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,This furniture requires an underground power connection - see the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Ce équipement requiert une connection à de la puissance mécanique en souterrain - voir l'option {{GUI.BUILD.POWER}} dans le menu {{GUI.BUILD_LABEL}}.
+MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.,Ses arbres de transmission ne fournissent pas assez de force : ajoutez un autre {{FURNITURE.WINDMILL}} ou une autre {{FURNITURE.WATERWHEEL}} sur les mêmes arbres.
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - lay shafts here from a windmill or a water wheel,Désactivé - posez des arbres de transmission jusqu'ici depuis un moulin à vent ou une roue à eau
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}}. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Nécessite des arbres de transmission souterrains reliés à un {{FURNITURE.WINDMILL}} ou à une {{FURNITURE.WATERWHEEL}}. Les arbres se construisent via l'option {{GUI.BUILD.POWER}} du menu {{GUI.BUILD_LABEL}}.
 MECHANISM.STONE.GEAR.NOUN,,Gear assembly,Engrenage assemblé
 MECHANISM.STONE.GEAR.TOOLTIP,,This contraption links up mechanical power in all 4 directions.,Cette pièce permet de relier les mécanismes dans les 4 directions.
 MECHANISM.WOODEN.SHAFT.NOUN,,Shaft,Arbre de transmission
@@ -1005,6 +1025,24 @@ NEEDS.SLEEP,,Sleep,Fatigue
 
 NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!,Vos mineurs ont découvert une nouvelle zone!
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration,Exploration
+NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off.","Une caravane marchande attend au bord de la carte, mais aucun chemin ne mène jusqu'à vous. Ouvrez un passage dans les trois jours, sinon la caravane repartira. Allez à l'emplacement pour voir où le chemin est coupé."
+NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through,La caravane ne peut pas passer
+NOTIFICATION.HUNTER_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no civilian has the Hunter profession.","Des animaux sont marqués pour la chasse, mais aucun civil n'a la profession Chasseur."
+NOTIFICATION.HUNTER_MISSING.TITLE,,Nobody to hunt,Personne pour chasser
+NOTIFICATION.HUNTING_AMMO_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but the hunters have no arrows or bolts. Make some or buy them from a caravan.","Des animaux sont marqués pour la chasse, mais les chasseurs n'ont ni flèches ni carreaux. Fabriquez-en ou achetez-en à une caravane."
+NOTIFICATION.HUNTING_AMMO_MISSING.TITLE,,Hunters are out of ammunition,Les chasseurs n'ont plus de munitions
+NOTIFICATION.HUNTING_WEAPON_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no hunter has a bow or crossbow. Assign one in the settlers screen.","Des animaux sont marqués pour la chasse, mais aucun chasseur n'a d'arc ni d'arbalète. Attribuez-en un dans l'écran des colons."
+NOTIFICATION.HUNTING_WEAPON_MISSING.TITLE,,Hunters have no weapon,Les chasseurs n'ont pas d'arme
+NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool}}, and there is none. Craft one or buy one from a caravan.",Le travail est arrêté : il faut un outil libre ({{tool}}) et il n'y en a aucun. Fabriquez-en un ou achetez-en un à une caravane.
+NOTIFICATION.TOOL_MISSING.TITLE,,No free tool,Aucun outil libre
+NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else.","Le travail est arrêté : seuls des soldats ont la profession {{profession}}, et les soldats ne travaillent pas. Retirez-en un de l'escouade ou donnez la profession à quelqu'un d'autre."
+NOTIFICATION.WORKER_IN_SQUAD.TITLE,,The worker is in a squad,Le travailleur est dans une escouade
+NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: no civilian has the {{profession}} profession.,Le travail est arrêté : aucun civil n'a la profession {{profession}}.
+NOTIFICATION.WORKER_MISSING.TITLE,,No civilian for this work,Aucun civil pour ce travail
+WORKER_SHORTAGE.NO_TOOL,,No free tool: {{tool}},Aucun outil libre : {{tool}}
+WORKER_SHORTAGE.NO_WORKER,,No civilian has the {{profession}} profession,Aucun civil n'a la profession {{profession}}
+NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.,Les marchands ont renoncé à attendre un passage et sont repartis.
+NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left,La caravane est repartie
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}.","{{character}}, est mort de {{reason}}."
 NOTIFICATION.DEATH.KILLED_BY_DESCRIPTION,,Killed by {{killer}},Tué par {{killer}}
 NOTIFICATION.DEATH.SHORT_DESCRIPTION,,Died due to {{reason}},Mort de {{reason}}
@@ -1015,19 +1053,39 @@ NOTIFICATION.FISH_EXHAUSTED.DESCRIPTION,,You have over-fished the river to such 
 NOTIFICATION.FISH_EXHAUSTED.TITLE,,Fish Depopulated,Plus de poissons.
 NOTIFICATION.GAME_OVER.DESCRIPTION,,All things must come to an end. Your settlement lies abandoned.,Toutes les bonnes choses doivent prendre fin. Votre colonie est abandonnée.
 NOTIFICATION.GAME_OVER.TITLE,,Game Over,Fin de la partie
-NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,The prosperity of your settlement has attracted a number of new immigrants to boost your population.,La prospérité de votre colonie a attiré un certain nombre de nouveaux immigrants pour augmenter votre population.
-NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,Immigration,Immigration
+NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,"A new settler has arrived, drawn by the prosperity of your settlement.","Un nouveau colon est arrivé, attiré par la prospérité de votre colonie."
+NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,New arrival,Nouvel arrivant
+NOTIFICATION.IMMIGRANT_BLOCKED.DESCRIPTION,,A newcomer cannot reach your settlement: there is no open path from the edge of the map. They will try again tomorrow. Go to the location to see where the way is cut off.,Un nouvel arrivant ne peut pas atteindre votre colonie : aucun chemin ouvert ne part du bord de la carte. Il réessaiera demain. Allez à l'emplacement pour voir où le chemin est coupé.
+NOTIFICATION.IMMIGRANT_BLOCKED.TITLE,,No way in,Aucun accès
 NOTIFICATION.INVASION.DESCRIPTION,,A raiding party of orcs has arrived. Prepare yourselves! They will attack after preparing for a while.,Un groupe de pilleurs orcs est arrivé. Préparez vous! Ils attequeront après s'être préparé pendant un moment.
 NOTIFICATION.INVASION.TITLE,,You are being invaded!,Vous êtes envahis !
 NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of pillars and supports.,Une zone s'est effondrée en raison d'un manque de piliers et de supports.
 NOTIFICATION.MINING_COLLAPSE.TITLE,,Mining Collapse,Effondrement de l'exploitation minière
 NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture has been destroyed due to prolonged exposure to rain.\nSome materials such as iron and steel should not be left outside for a long period.,Un objet ou une pièces d'équipement a été détruite dûe à une exposition prolongée à la pluie.\nCertains matériaux comme le fer ou l'acier ne doivent pas être laissé à l'extérieur durant une longue période.
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away,Rouillé
+NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust.","Du fer ou de l'acier laissé sous la pluie a rouillé. Avec le temps, la rouille le détruira : construisez un toit au-dessus, ou reconstruisez-le en bronze ou en étain, qui ne rouillent pas."
+NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting,Rouille
+NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot.","De la nourriture a pourri. La viande, le poisson, les légumes, le pain et la pâte se gâtent en quelques jours, plus vite en été ; sous un toit, ils se conservent moitié plus longtemps. Les rations, le grain, la farine et les graines ne pourrissent jamais."
+NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted,Nourriture pourrie
+NOTIFICATION.COLONY_UNHAPPY.DESCRIPTION,,"Your settlers are unhappy. Check what upsets them: food, drink, sleep, rooms, the dead lying about.","Vos colons sont malheureux. Vérifiez ce qui les contrarie : nourriture, boisson, sommeil, pièces, morts laissés à l'abandon."
+NOTIFICATION.COLONY_UNHAPPY.TITLE,,Settlers unhappy,Colons malheureux
+NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,{{character}} is close to a tantrum. Worst of all: {{reason}}.,{{character}} est au bord de la crise. Le pire : {{reason}}.
+NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum,Au bord de la crise
+NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot.","L'hiver commence dans dix jours et la nourriture ne suffira pas : rien ne pousse en hiver. Stockez des rations, du pain, du grain et de la farine, qui se conservent ; la viande et les légumes pourrissent."
+NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming,L'hiver arrive
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but there is no cauldron in the feasting hall to serve it from. Place one there: until then the kitchen cannot cook again and its vegetables rot.","La soupe est prête, mais il n'y a pas de chaudron dans la salle de festin pour la servir. Placez-en un : d'ici là, la cuisine ne peut plus cuisiner et ses légumes pourrissent."
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go,Pas de place pour la soupe
+NOTIFICATION.NOT_ENOUGH_GRAVES.DESCRIPTION,,"Settlers lie unburied: there is no free grave for them. Everyone who passes within sight of a body is upset for a day. Dig graves in a graveyard, or have the bodies carried to a stockpile out of the way until then. Tap a body to raise its priority.","Des colons gisent sans sépulture : il n'y a pas de tombe libre pour eux. Quiconque aperçoit un corps est contrarié pendant un jour. Creusez des tombes dans un cimetière, ou faites porter les corps dans une réserve à l'écart en attendant. Touchez un corps pour augmenter sa priorité."
+NOTIFICATION.NOT_ENOUGH_GRAVES.TITLE,,Not enough graves,Pas assez de tombes
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.,"Dans sa rage, {{character}} a détruit : {{furniture}}. Il faudra le reconstruire."
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed,Meuble détruit
+NOTIFICATION.SETTLER_COLLAPSED.DESCRIPTION,,{{character}} collapsed from exhaustion and is asleep on the floor. Settlers who sleep on the floor or on sleeping spots never fully rest: build beds.,{{character}} s'est effondré d'épuisement et dort par terre. Les colons qui dorment par terre ou sur des lieux de couchage ne se reposent jamais complètement : construisez des lits.
+NOTIFICATION.SETTLER_COLLAPSED.TITLE,,Collapsed from exhaustion,Effondré d'épuisement
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,Un plafond s'est effondré dû à un manque de pilliers et de supports
 NOTIFICATION.ROOFING_COLLAPSE.TITLE,,Roof Collapsed,Plafond effondré
-NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,The gruelling hardship has proven to be too much to handle for {{character}}.,La difficulté éprouvante s'est révélée trop difficile à gérer pour {{character}}.
+NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,"The gruelling hardship has proven to be too much to handle for {{character}}, who is leaving the settlement.",{{character}} ne supporte plus ces dures épreuves et quitte la colonie.
 NOTIFICATION.SETTLER_MENTAL_BREAK.TITLE,,Mental Break,BURN OUT !
 NOTIFICATION.SETTLER_STUCK.DESCRIPTION,,"A settler has become stuck, unable to find a drink. Act quickly!",
 NOTIFICATION.SETTLER_STUCK.TITLE,,Trapped!,
@@ -1213,6 +1271,7 @@ PROFESSION.HUNTER.FEMALE_NOUN,This could be “huntsman” and “huntress”,Hu
 PROFESSION.HUNTER.MALE_NOUN,,Hunter,Chasseur
 PROFESSION.HUNTER.TOOLTIP,,Tracks and kills wild animals for their meat and pelts.,Traque et tue les animaux sauvages pour leur viande et leur peau.
 PROFESSION.HUNTER.VERB,,Hunting,Chasse
+PROFESSION.HUNTER.PLURAL,,Hunters,Chasseurs
 PROFESSION.LEATHERWORKER.FEMALE_NOUN,,Leatherworker,Tanneuse
 PROFESSION.LEATHERWORKER.MALE_NOUN,,Leatherworker,Tanneur
 PROFESSION.LEATHERWORKER.PLURAL,,Leatherworkers,Tanneurs
@@ -1523,7 +1582,7 @@ STOCKPILE.GROUP.RAW_MATERIALS,,Raw materials,Matériaux bruts
 STOCKPILE.GROUP.SEEDS,,Seeds,Graines
 STOCKPILE.GROUP.TOOLS,,Tools,Outils
 STOCKPILE.GROUP.TOOLS.TOOLTIP,,Stores tools required for working on jobs.,Stocke les outils nécessaires pour travailler.
-STOCKPILE.GROUP.TREASURE,,Treasure,Trésors
+STOCKPILE.GROUP.TREASURE,,Valuables,Objets de valeur
 STOCKPILE.GROUP.WEAPONS,,Weapons,Armes
 STOCKPILE.GROUP.WEAPONS.TOOLTIP,,Stores harvested fruit and vegetables which can expire.,Stocke les fruits et légumes récoltés qui peuvent périmer.
 

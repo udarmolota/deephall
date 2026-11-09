@@ -264,6 +264,9 @@ FURNITURE.COKE_OVEN,,Coke oven,炼焦炉
 FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} into {{ORE.COKE.NOUN}} so that it can be used as {{FUEL.SACK}}.,炼焦炉能将{{ORE.BITUMINOUS_COAL.NOUN}}转化成{{ORE.COKE.NOUN}}，从而可以当做{{FUEL.SACK}}使用。
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}},{{materialType.adjective}} {{furnitureType.noun}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%,完成进度：{{progress}}%
+FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room,无可制作：请在此房间的出口托板上选择产品
+FURNITURE.DESCRIPTION.WORKSPACE_UNREACHABLE,,Nobody can get to where this is worked from: clear the way to it,无人能到达工作位置：请清出一条通路
+FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}},等待{{inputs}}以制作{{targetDescription}}
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%,距离完全接种：{{progress}}%
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%,进度：{{progress}}%
 FURNITURE.DESCRIPTION.WAITING_FOR_ITEM,,Waiting for {{itemType.noun}},等待{{itemType.noun}}
@@ -282,7 +285,7 @@ FURNITURE.FISH_BARREL.TOOLTIP,,Neatly store away your caught fish for future coo
 FURNITURE.FLETCHERS_WORKBENCH,,Fletcher's workbench,制箭台
 FURNITURE.FLETCHERS_WORKBENCH.TOOLTIP,,This is a crafting station for ranged weapons and ammunition.,用来制作远程武器和弹药的工作台。
 FURNITURE.FLOUR_MILL,This is a table with a hand-operated flour mill stone on top,Gristmill,磨坊
-FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}.,磨坊能将{{VEGETABLE.WHEAT}}磨碎成{{PROFESSION.CHEF}}使用的{{RESOURCE.FLOUR.SACK.NOUN}}。
+FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}. Works twice as fast when shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} turn it.,磨坊将{{VEGETABLE.WHEAT}}磨成{{RESOURCE.FLOUR.SACK.NOUN}}，供{{PROFESSION.CHEF}}使用。由{{FURNITURE.WINDMILL}}或{{FURNITURE.WATERWHEEL}}的连接杆带动时，速度翻倍。
 FURNITURE.FORGE,,Forge,锻造间
 FURNITURE.FORGE.TOOLTIP,,This is where a {{PROFESSION.BLACKSMITH}} works with {{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.METAL.INGOT.PLURAL}} and {{FUEL.SACK}} to craft items and weapons.,{{PROFESSION.BLACKSMITH}}将{{RESOURCE.METAL.INGOT.PLURAL}}和{{FUEL.SACK}}制作武器和其他物品的地方。
 FURNITURE.GRAVE,,Grave,坟墓
@@ -296,6 +299,8 @@ FURNITURE.KITCHEN_WORKTOP,Simple piece of furniture in a kitchen used to hold in
 FURNITURE.KITCHEN_WORKTOP.TOOLTIP,,An area to store ingredients for a {{PROFESSION.CHEF}} to cook soup.,{{PROFESSION.CHEF}}摆放做汤用的食材的地方。
 FURNITURE.LANTERN,,Lantern,提灯
 FURNITURE.LANTERN.TOOLTIP,,A lantern provides light. This does not currently have an in-game effect.,便携式的灯具，游戏内尚未实装效果。
+FURNITURE.BEDSIDE_TABLE,,Bedside table,床头柜
+FURNITURE.BEDSIDE_TABLE.TOOLTIP,,A small table next to the bed. A settler who sleeps in a bedroom with one wakes up in a better mood.,放在床边的小桌子。睡在有床头柜的卧室里的殖民者醒来时心情更好。
 FURNITURE.LEATHERWORKING_STATION,,Leatherworking station,制皮台
 FURNITURE.LEATHERWORKING_STATION.TOOLTIP,,A workbench to produce leather goods like armour and waterskins.,用来生产皮制品的工作台，比如防具和水袋。
 FURNITURE.LEDGER_TABLE,,Ledger table,账簿桌
@@ -446,9 +451,11 @@ GOAL.EAT.DESCRIPTION,,Eating {{targetDescription}},正在吃{{targetDescription}
 GOAL.EXTINGUISH_FIRE.DESCRIPTION,,Putting out a fire,正在灭火
 GOAL.FLEE_FROM_AGGRESSOR.DESCRIPTION,,Fleeing from {{targetDescription}},正在逃离{{targetDescription}}
 GOAL.HAULING.DESCRIPTION,E.g. “Hauling granite stone”,Hauling {{targetDescription}},正在搬运{{targetDescription}}
+GOAL.HUNTER.HUNT.DESCRIPTION,,Hunting,打猎
 GOAL.IDLE.DESCRIPTION,When not doing anything,Idle,闲置
 GOAL.INVADER.CREATE_CAMP.DESCRIPTION,,Setting up camp,正在搭建营地
 GOAL.INVADER.RETREAT.DESCRIPTION,,Retreating from map,正在撤离地图
+GOAL.SETTLER.LEAVING.DESCRIPTION,,Leaving the settlement,正在离开殖民地
 GOAL.INVADER.STEAL_RESOURCES.DESCRIPTION,,Raiding stockpiles,正在劫掠仓库
 GOAL.MILITARY.ATTACK_TARGET.DESCRIPTION,,Moving into combat,正在奔赴战斗
 GOAL.MILITARY.STAND_IN_FORMATION.DESCRIPTION,,Guarding a position,正在防守
@@ -456,6 +463,7 @@ GOAL.MILITARY.TRAINING.DESCRIPTION,,Weapon training,正在训练武器
 GOAL.ON_FIRE.DESCRIPTION,,On fire!,着火了！
 GOAL.REFILL_WATERSKIN.DESCRIPTION,,Refilling waterskin,正在装水
 GOAL.SLEEP.DESCRIPTION,,Going to sleep,去睡觉
+GOAL.COLLAPSE_FROM_EXHAUSTION.DESCRIPTION,,Collapsed from exhaustion,累倒了
 GOAL.TRANSFER_LIQUID.DESCRIPTION,Becomes “Transferring water”,Transferring {{targetZoneMaterial}},正在转移{{targetZoneMaterial}}
 
 GUI.ADD_REMOVE_TILES,Heading to describe adding or removing an area of a zone/room,Add/remove tiles,添加/移除区格
@@ -468,7 +476,8 @@ GUI.BUILD.DOORS,Take from FURNITURE.SINGLE_DOOR,Doors,门
 GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring,地板
 GUI.BUILD.PILLARS,,Pillars,柱子
 GUI.BUILD.PIPING,,Pipes,管道
-GUI.BUILD.POWER,,Power,动力
+GUI.BUILD.POWER,,Shafts,连接杆
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump, ore crusher or gristmill. Straight runs are planks, turns need stone gears from the artisan.",连接杆：从风车或水车通往水泵、碎矿机或磨坊。直线段用木板，转弯处需要工匠制作的石齿轮。
 GUI.BUILD.ROOFING,,Roofing,屋顶
 GUI.BUILD.WALLS,,Walls,墙壁
 GUI.BUILD_FURNITURE,,Furniture,家具
@@ -580,6 +589,13 @@ GUI.KEY_BINDING.GAME_SPEED_FAST,,Game speed fast,快游戏速度
 GUI.KEY_BINDING.GAME_SPEED_FASTER,,Game speed faster,更快游戏速度
 GUI.KEY_BINDING.GAME_SPEED_FASTEST,,Game speed fastest,最快游戏速度
 GUI.KEY_BINDING.GAME_SPEED_NORMAL,,Game speed normal,普通游戏速度
+GUI.KEY_BINDING.OPEN_CONSTRUCTION,,Open construction menu,打开建筑菜单
+GUI.KEY_BINDING.OPEN_ORDERS,,Open orders menu,打开指令菜单
+GUI.KEY_BINDING.OPEN_PRIORITY,,Open priority menu,打开优先级菜单
+GUI.KEY_BINDING.OPEN_ROOMS,,Open rooms menu,打开房间菜单
+GUI.KEY_BINDING.ORDER_CANCEL,,Cancel orders,取消指令
+GUI.KEY_BINDING.ORDER_MINE,,Mine,挖矿
+GUI.TRADING_IMPORT.NOT_ENOUGH_MONEY,,Not enough money in the trading depot,贸易站资金不足
 GUI.KEY_BINDING.PAN_CAMERA_DOWN,,Pan camera down,向下平移
 GUI.KEY_BINDING.PAN_CAMERA_LEFT,,Pan camera left,向左平移
 GUI.KEY_BINDING.PAN_CAMERA_RIGHT,,Pan camera right,向右平移
@@ -620,7 +636,7 @@ GUI.MILITARY.SET_FORMATION,,Set Formation,设置阵型
 GUI.MILITARY.SET_ORDERS,,Set Orders,下达命令
 GUI.MILITARY.TAB.DWARVES,,Military Dwarves,矮人军队
 GUI.MILITARY.TAB.SQUADS,,Military Squads,军事小队
-GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Trained Civilians,训练有素的平民
+GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Civilians,平民
 GUI.MINIMAP.LABEL,,Minimap,小地图
 GUI.MUSIC_VOLUME,,Music,音乐
 GUI.NEXT_LABEL,,Next,下一个
@@ -673,7 +689,7 @@ GUI.ORDERS.MINE,,Mine,挖矿
 GUI.ORDERS_LABEL,,Orders,指令
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size,桥必须覆盖河流的两岸且规格不低于3x3
 GUI.POWER_LABEL,,Power & Water,动力&水
-GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},风车和水车为机械提供动力：抽水泵和碎矿机。{{\n}}
+GUI.POWER_WATER_INFO,,"Windmills and water wheels produce power for mechanisms: water pumps, ore crushers and gristmills.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} turn underground shafts {{drawable|tooltip_icon_power}}{{\n}}Shafts {{drawable|tooltip_icon_power}} drive {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, ore crushers and gristmills{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}",风车和水车为机械提供动力：水泵、碎矿机和磨坊。{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}}和{{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}}带动地下连接杆 {{drawable|tooltip_icon_power}}{{\n}}连接杆 {{drawable|tooltip_icon_power}}驱动{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}、碎矿机和磨坊{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}和灌溉 {{drawable|tooltip_icon_irrigation}}通过{{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}相连
 GUI.PRIORITY_LABEL,,Priority,优先级
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export,选择运出的物品
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}},
@@ -753,7 +769,8 @@ HAPPINESS_MODIFIER.DRANK_ALCOHOL,,Under the effects of alcohol,喝醉了
 HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water,饮用河水
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving,肚子饿了
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated,严重脱水
-HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Had a tantrum,在乱发脾气
+HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam,发泄了一通
+HAPPINESS_MODIFIER.COZY_BEDROOM,,Cozy bedroom,舒适的卧室
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement,对新的殖民地很乐观
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned,严重烧伤
 HAPPINESS_MODIFIER.POISONED,,Poisoned,中毒
@@ -762,6 +779,7 @@ HAPPINESS_MODIFIER.SLEEPING_IN_RAIN,,Slept in the rain,在雨中睡觉
 HAPPINESS_MODIFIER.SLEEPING_IN_SNOW,,Slept in the snow,在雪中睡觉
 HAPPINESS_MODIFIER.SLEPT_IN_BED,,Slept in a comfortable bed,在舒适的床上睡觉
 HAPPINESS_MODIFIER.SLEPT_ON_GROUND,,Slept on rough ground,在地上睡觉
+HAPPINESS_MODIFIER.SLEPT_ON_SLEEPING_SPOT,,Slept on a sleeping spot,在睡觉地点睡觉
 HAPPINESS_MODIFIER.SLEPT_OUTSIDE,,Slept under the stars,以天为被
 HAPPINESS_MODIFIER.TITLE,,Happiness:,幸福度：
 HAPPINESS_MODIFIER.VERY_HUNGRY,,Very hungry,饥饿
@@ -899,13 +917,15 @@ MEAT.PIKE_MEAT.PLURAL,,Pike,梭子鱼
 
 MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power,正在运转 - 消耗{{power}}动能
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power,缓慢运转 - 动能不足
-MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,此家具需要与动力源相连，比如{{FURNITURE.WINDMILL}}或{{FURNITURE.WATERWHEEL}}。
+MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,需要来自{{FURNITURE.WINDMILL}}或{{FURNITURE.WATERWHEEL}}的地下连接杆才能全速运转。连接杆在{{GUI.BUILD_LABEL}}菜单的{{GUI.BUILD.POWER}}选项中建造。
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power,正在运行 - 生产{{power}}动能
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,"Turns underground shafts. The shafts carry its power to an ore crusher, a gristmill or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.",带动地下连接杆。连接杆将动力传送到碎矿机、磨坊或水泵。连接杆在{{GUI.BUILD_LABEL}}菜单的{{GUI.BUILD.POWER}}选项中建造。
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,"Not connected - lay shafts from here to an ore crusher, gristmill or water pump",未连接 - 从这里铺设连接杆到碎矿机、磨坊或水泵
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly,必须在室外才能正常运转
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power,停用 - 动力不足
-MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,此家具需要与动力源相连，比如{{FURNITURE.WINDMILL}}或{{FURNITURE.WATERWHEEL}}。
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - connect to an underground power connection,停用 - 与地下动能网络连接
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,This furniture requires an underground power connection - see the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,此家具需要地下动能连接 - 在{{GUI.BUILD_LABEL}}菜单中查看{{GUI.BUILD.POWER}}设置。
+MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.,连接杆输送的动力不足：在同一组连接杆上再添加一个{{FURNITURE.WINDMILL}}或{{FURNITURE.WATERWHEEL}}。
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - lay shafts here from a windmill or a water wheel,停用 - 从风车或水车铺设连接杆到这里
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}}. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,需要来自{{FURNITURE.WINDMILL}}或{{FURNITURE.WATERWHEEL}}的地下连接杆。连接杆在{{GUI.BUILD_LABEL}}菜单的{{GUI.BUILD.POWER}}选项中建造。
 MECHANISM.STONE.GEAR.NOUN,,Gear assembly,齿轮组件
 MECHANISM.STONE.GEAR.TOOLTIP,,This contraption links up mechanical power in all 4 directions.,此装置能连接4个方向的机械动力。
 MECHANISM.WOODEN.SHAFT.NOUN,,Shaft,连接杆
@@ -1005,6 +1025,24 @@ NEEDS.SLEEP,,Sleep,睡觉
 
 NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!,你的矿工发现了新区域！
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration,探索
+NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off.",一支贸易商队在地图边缘等候，但没有通往你这里的道路。三天内打通道路，否则商队将会离开。前往该位置查看道路在哪里被阻断。
+NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through,商队无法通过
+NOTIFICATION.HUNTER_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no civilian has the Hunter profession.",已有动物被标记为猎物，但没有平民拥有猎人职业。
+NOTIFICATION.HUNTER_MISSING.TITLE,,Nobody to hunt,无人打猎
+NOTIFICATION.HUNTING_AMMO_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but the hunters have no arrows or bolts. Make some or buy them from a caravan.",已有动物被标记为猎物，但猎人没有箭矢或弩箭。制作一些，或从商队购买。
+NOTIFICATION.HUNTING_AMMO_MISSING.TITLE,,Hunters are out of ammunition,猎人弹药耗尽
+NOTIFICATION.HUNTING_WEAPON_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no hunter has a bow or crossbow. Assign one in the settlers screen.",已有动物被标记为猎物，但没有猎人持有弓或弩。请在殖民者界面中分配武器。
+NOTIFICATION.HUNTING_WEAPON_MISSING.TITLE,,Hunters have no weapon,猎人没有武器
+NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool}}, and there is none. Craft one or buy one from a caravan.",工作已停止：需要一件空闲的{{tool}}，但一件也没有。制作一件，或从商队购买。
+NOTIFICATION.TOOL_MISSING.TITLE,,No free tool,没有空闲工具
+NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else.",工作已停止：只有士兵拥有{{profession}}职业，而士兵不工作。将其中一人移出分队，或把这个职业交给其他人。
+NOTIFICATION.WORKER_IN_SQUAD.TITLE,,The worker is in a squad,工人在分队中
+NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: no civilian has the {{profession}} profession.,工作已停止：没有平民拥有{{profession}}职业。
+NOTIFICATION.WORKER_MISSING.TITLE,,No civilian for this work,没有平民做这项工作
+WORKER_SHORTAGE.NO_TOOL,,No free tool: {{tool}},没有空闲工具：{{tool}}
+WORKER_SHORTAGE.NO_WORKER,,No civilian has the {{profession}} profession,没有平民拥有{{profession}}职业
+NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.,商人们等不到通路，已经离开了。
+NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left,商队已离开
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}.",{{character}}死于{{reason}}。
 NOTIFICATION.DEATH.KILLED_BY_DESCRIPTION,,Killed by {{killer}},被{{killer}}杀死
 NOTIFICATION.DEATH.SHORT_DESCRIPTION,,Died due to {{reason}},死因：{{reason}}
@@ -1015,19 +1053,39 @@ NOTIFICATION.FISH_EXHAUSTED.DESCRIPTION,,You have over-fished the river to such 
 NOTIFICATION.FISH_EXHAUSTED.TITLE,,Fish Depopulated,捕捞过度
 NOTIFICATION.GAME_OVER.DESCRIPTION,,All things must come to an end. Your settlement lies abandoned.,万事万物都将迎来终结。你的殖民地已经荒废。
 NOTIFICATION.GAME_OVER.TITLE,,Game Over,游戏结束
-NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,The prosperity of your settlement has attracted a number of new immigrants to boost your population.,殖民地的繁荣引来了许多新的外来移民，人口因此增长。
-NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,Immigration,移民
+NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,"A new settler has arrived, drawn by the prosperity of your settlement.",殖民地的繁荣吸引来了一位新的殖民者。
+NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,New arrival,新成员到来
+NOTIFICATION.IMMIGRANT_BLOCKED.DESCRIPTION,,A newcomer cannot reach your settlement: there is no open path from the edge of the map. They will try again tomorrow. Go to the location to see where the way is cut off.,一位新来者无法到达你的殖民地：从地图边缘没有畅通的道路。他们明天会再试一次。前往该位置查看道路在哪里被阻断。
+NOTIFICATION.IMMIGRANT_BLOCKED.TITLE,,No way in,无路可入
 NOTIFICATION.INVASION.DESCRIPTION,,A raiding party of orcs has arrived. Prepare yourselves! They will attack after preparing for a while.,一支兽人小队已经到达。做好迎战的准备！他们会在做好准备后发起攻势。
 NOTIFICATION.INVASION.TITLE,,You are being invaded!,你遭到了入侵！
 NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of pillars and supports.,由于缺少支柱或支撑，区域已坍塌。
 NOTIFICATION.MINING_COLLAPSE.TITLE,,Mining Collapse,矿井坍塌
 NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture has been destroyed due to prolonged exposure to rain.\nSome materials such as iron and steel should not be left outside for a long period.,由于长期暴露在雨中，物品或家具已经损坏。\n诸如铁和钢的材料不应该长时间放在室外。
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away,锈蚀
+NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust.",露天淋雨的铁或钢已经生锈。锈蚀终将毁掉它：在上方盖屋顶，或改用不会生锈的青铜或锡重建。
+NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting,正在生锈
+NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot.",食物腐烂了。肉、鱼、蔬菜、面包和面团几天内就会变质，夏天最快；放在屋顶下可多保存一半时间。干粮、谷物、面粉和种子永不腐烂。
+NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted,食物腐烂
+NOTIFICATION.COLONY_UNHAPPY.DESCRIPTION,,"Your settlers are unhappy. Check what upsets them: food, drink, sleep, rooms, the dead lying about.",你的殖民者不开心。看看是什么让他们烦恼：食物、饮品、睡眠、房间、随处躺着的尸体。
+NOTIFICATION.COLONY_UNHAPPY.TITLE,,Settlers unhappy,殖民者不开心
+NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,{{character}} is close to a tantrum. Worst of all: {{reason}}.,{{character}}快要发脾气了。最糟糕的是：{{reason}}。
+NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum,快要发脾气
+NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot.",十天后入冬，而食物撑不过冬天：冬天什么都不长。储存耐放的干粮、面包、谷物和面粉；肉和蔬菜会腐烂。
+NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming,冬天要来了
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but there is no cauldron in the feasting hall to serve it from. Place one there: until then the kitchen cannot cook again and its vegetables rot.",汤已煮好，但宴会厅里没有盛汤的坩埚。在那里放一个：在此之前厨房无法继续烹饪，蔬菜也会腐烂。
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go,汤无处可放
+NOTIFICATION.NOT_ENOUGH_GRAVES.DESCRIPTION,,"Settlers lie unburied: there is no free grave for them. Everyone who passes within sight of a body is upset for a day. Dig graves in a graveyard, or have the bodies carried to a stockpile out of the way until then. Tap a body to raise its priority.",殖民者的尸体无人安葬：没有空闲的坟墓。每个路过看到尸体的人都会难过一天。在墓地挖坟墓，或者在此之前让人把尸体搬到偏僻的贮存处。点击尸体可提高其优先级。
+NOTIFICATION.NOT_ENOUGH_GRAVES.TITLE,,Not enough graves,坟墓不足
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.,{{character}}在暴怒中砸毁了{{furniture}}。它已经没了，需要重新建造。
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed,家具被砸毁
+NOTIFICATION.SETTLER_COLLAPSED.DESCRIPTION,,{{character}} collapsed from exhaustion and is asleep on the floor. Settlers who sleep on the floor or on sleeping spots never fully rest: build beds.,{{character}}累倒了，正睡在地板上。睡在地板或睡觉地点的殖民者永远无法完全休息：请建造床。
+NOTIFICATION.SETTLER_COLLAPSED.TITLE,,Collapsed from exhaustion,累倒了
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,由于缺少支柱或支撑，屋顶已坍塌。
 NOTIFICATION.ROOFING_COLLAPSE.TITLE,,Roof Collapsed,屋顶坍塌
-NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,The gruelling hardship has proven to be too much to handle for {{character}}.,折磨的艰难生活让{{character}}不堪重负。
+NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,"The gruelling hardship has proven to be too much to handle for {{character}}, who is leaving the settlement.",折磨人的艰苦生活让{{character}}不堪重负，决定离开殖民地。
 NOTIFICATION.SETTLER_MENTAL_BREAK.TITLE,,Mental Break,精神崩溃
 NOTIFICATION.SETTLER_STUCK.DESCRIPTION,,"A settler has become stuck, unable to find a drink. Act quickly!",
 NOTIFICATION.SETTLER_STUCK.TITLE,,Trapped!,
@@ -1213,6 +1271,7 @@ PROFESSION.HUNTER.FEMALE_NOUN,This could be “huntsman” and “huntress”,Hu
 PROFESSION.HUNTER.MALE_NOUN,,Hunter,猎人
 PROFESSION.HUNTER.TOOLTIP,,Tracks and kills wild animals for their meat and pelts.,追踪和捕杀野生动物获取肉和毛皮。
 PROFESSION.HUNTER.VERB,,Hunting,狩猎
+PROFESSION.HUNTER.PLURAL,,Hunters,猎人
 PROFESSION.LEATHERWORKER.FEMALE_NOUN,,Leatherworker,皮革匠
 PROFESSION.LEATHERWORKER.MALE_NOUN,,Leatherworker,皮革匠
 PROFESSION.LEATHERWORKER.PLURAL,,Leatherworkers,皮革匠
@@ -1523,7 +1582,7 @@ STOCKPILE.GROUP.RAW_MATERIALS,,Raw materials,原材料
 STOCKPILE.GROUP.SEEDS,,Seeds,种子
 STOCKPILE.GROUP.TOOLS,,Tools,工具
 STOCKPILE.GROUP.TOOLS.TOOLTIP,,Stores tools required for working on jobs.,存放工作所需的器具。
-STOCKPILE.GROUP.TREASURE,,Treasure,宝藏
+STOCKPILE.GROUP.TREASURE,,Valuables,贵重物品
 STOCKPILE.GROUP.WEAPONS,,Weapons,武器
 STOCKPILE.GROUP.WEAPONS.TOOLTIP,,Stores harvested fruit and vegetables which can expire.,存放会变质的水果和蔬菜。
 

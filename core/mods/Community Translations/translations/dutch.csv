@@ -264,6 +264,9 @@ FURNITURE.COKE_OVEN,,Coke oven,
 FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} into {{ORE.COKE.NOUN}} so that it can be used as {{FUEL.SACK}}.,
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}},{{materialType.adjective}} {{furnitureType.noun}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%,
+FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room,Niets te maken: kies een product op een exportpallet in deze ruimte
+FURNITURE.DESCRIPTION.WORKSPACE_UNREACHABLE,,Nobody can get to where this is worked from: clear the way to it,Niemand kan bij de werkplek komen: maak de weg ernaartoe vrij
+FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}},Wacht op {{inputs}} om {{targetDescription}} te maken
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%,
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%,
 FURNITURE.DESCRIPTION.WAITING_FOR_ITEM,,Waiting for {{itemType.noun}},
@@ -282,7 +285,7 @@ FURNITURE.FISH_BARREL.TOOLTIP,,Neatly store away your caught fish for future coo
 FURNITURE.FLETCHERS_WORKBENCH,,Fletcher's workbench,
 FURNITURE.FLETCHERS_WORKBENCH.TOOLTIP,,This is a crafting station for ranged weapons and ammunition.,
 FURNITURE.FLOUR_MILL,This is a table with a hand-operated flour mill stone on top,Gristmill,
-FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}.,
+FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}. Works twice as fast when shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} turn it.,"De graanmolen maalt {{VEGETABLE.WHEAT}} tot {{RESOURCE.FLOUR.SACK.NOUN}}, zodat een {{PROFESSION.CHEF}} het kan gebruiken. Werkt twee keer zo snel als assen van een {{FURNITURE.WINDMILL}} of een {{FURNITURE.WATERWHEEL}} hem aandrijven."
 FURNITURE.FORGE,,Forge,
 FURNITURE.FORGE.TOOLTIP,,This is where a {{PROFESSION.BLACKSMITH}} works with {{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.METAL.INGOT.PLURAL}} and {{FUEL.SACK}} to craft items and weapons.,
 FURNITURE.GRAVE,,Grave,
@@ -296,6 +299,8 @@ FURNITURE.KITCHEN_WORKTOP,Simple piece of furniture in a kitchen used to hold in
 FURNITURE.KITCHEN_WORKTOP.TOOLTIP,,An area to store ingredients for a {{PROFESSION.CHEF}} to cook soup.,
 FURNITURE.LANTERN,,Lantern,Lantaarn
 FURNITURE.LANTERN.TOOLTIP,,A lantern provides light. This does not currently have an in-game effect.,
+FURNITURE.BEDSIDE_TABLE,,Bedside table,Nachtkastje
+FURNITURE.BEDSIDE_TABLE.TOOLTIP,,A small table next to the bed. A settler who sleeps in a bedroom with one wakes up in a better mood.,"Een klein tafeltje naast het bed. Een kolonist die in een slaapkamer met een nachtkastje slaapt, wordt in een betere stemming wakker."
 FURNITURE.LEATHERWORKING_STATION,,Leatherworking station,
 FURNITURE.LEATHERWORKING_STATION.TOOLTIP,,A workbench to produce leather goods like armour and waterskins.,
 FURNITURE.LEDGER_TABLE,,Ledger table,
@@ -446,9 +451,11 @@ GOAL.EAT.DESCRIPTION,,Eating {{targetDescription}},
 GOAL.EXTINGUISH_FIRE.DESCRIPTION,,Putting out a fire,
 GOAL.FLEE_FROM_AGGRESSOR.DESCRIPTION,,Fleeing from {{targetDescription}},
 GOAL.HAULING.DESCRIPTION,E.g. “Hauling granite stone”,Hauling {{targetDescription}},{{itemDescription}} sjouwen
+GOAL.HUNTER.HUNT.DESCRIPTION,,Hunting,Jagen
 GOAL.IDLE.DESCRIPTION,When not doing anything,Idle,Nietsdoend
 GOAL.INVADER.CREATE_CAMP.DESCRIPTION,,Setting up camp,
 GOAL.INVADER.RETREAT.DESCRIPTION,,Retreating from map,
+GOAL.SETTLER.LEAVING.DESCRIPTION,,Leaving the settlement,Verlaat de nederzetting
 GOAL.INVADER.STEAL_RESOURCES.DESCRIPTION,,Raiding stockpiles,
 GOAL.MILITARY.ATTACK_TARGET.DESCRIPTION,,Moving into combat,
 GOAL.MILITARY.STAND_IN_FORMATION.DESCRIPTION,,Guarding a position,
@@ -456,6 +463,7 @@ GOAL.MILITARY.TRAINING.DESCRIPTION,,Weapon training,
 GOAL.ON_FIRE.DESCRIPTION,,On fire!,
 GOAL.REFILL_WATERSKIN.DESCRIPTION,,Refilling waterskin,
 GOAL.SLEEP.DESCRIPTION,,Going to sleep,
+GOAL.COLLAPSE_FROM_EXHAUSTION.DESCRIPTION,,Collapsed from exhaustion,Ingestort van uitputting
 GOAL.TRANSFER_LIQUID.DESCRIPTION,Becomes “Transferring water”,Transferring {{targetZoneMaterial}},
 
 GUI.ADD_REMOVE_TILES,Heading to describe adding or removing an area of a zone/room,Add/remove tiles,
@@ -468,7 +476,8 @@ GUI.BUILD.DOORS,Take from FURNITURE.SINGLE_DOOR,Doors,
 GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring,
 GUI.BUILD.PILLARS,,Pillars,
 GUI.BUILD.PIPING,,Pipes,
-GUI.BUILD.POWER,,Power,
+GUI.BUILD.POWER,,Shafts,Assen
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump, ore crusher or gristmill. Straight runs are planks, turns need stone gears from the artisan.","Assen: van een windmolen of waterrad naar een waterpomp, ertsbreker of graanmolen. Rechte stukken zijn planken, bochten hebben stenen tandwielen van de ambachtsman nodig."
 GUI.BUILD.ROOFING,,Roofing,
 GUI.BUILD.WALLS,,Walls,
 GUI.BUILD_FURNITURE,,Furniture,Meubels
@@ -580,6 +589,13 @@ GUI.KEY_BINDING.GAME_SPEED_FAST,,Game speed fast,
 GUI.KEY_BINDING.GAME_SPEED_FASTER,,Game speed faster,
 GUI.KEY_BINDING.GAME_SPEED_FASTEST,,Game speed fastest,
 GUI.KEY_BINDING.GAME_SPEED_NORMAL,,Game speed normal,
+GUI.KEY_BINDING.OPEN_CONSTRUCTION,,Open construction menu,Bouwmenu openen
+GUI.KEY_BINDING.OPEN_ORDERS,,Open orders menu,Ordersmenu openen
+GUI.KEY_BINDING.OPEN_PRIORITY,,Open priority menu,Prioriteitenmenu openen
+GUI.KEY_BINDING.OPEN_ROOMS,,Open rooms menu,Ruimtemenu openen
+GUI.KEY_BINDING.ORDER_CANCEL,,Cancel orders,Orders annuleren
+GUI.KEY_BINDING.ORDER_MINE,,Mine,Delven
+GUI.TRADING_IMPORT.NOT_ENOUGH_MONEY,,Not enough money in the trading depot,Niet genoeg geld in het handelsdepot
 GUI.KEY_BINDING.PAN_CAMERA_DOWN,,Pan camera down,
 GUI.KEY_BINDING.PAN_CAMERA_LEFT,,Pan camera left,
 GUI.KEY_BINDING.PAN_CAMERA_RIGHT,,Pan camera right,
@@ -620,7 +636,7 @@ GUI.MILITARY.SET_FORMATION,,Set Formation,
 GUI.MILITARY.SET_ORDERS,,Set Orders,
 GUI.MILITARY.TAB.DWARVES,,Military Dwarves,
 GUI.MILITARY.TAB.SQUADS,,Military Squads,
-GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Trained Civilians,
+GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Civilians,Burgers
 GUI.MINIMAP.LABEL,,Minimap,
 GUI.MUSIC_VOLUME,,Music,
 GUI.NEXT_LABEL,,Next,Volgende
@@ -673,7 +689,7 @@ GUI.ORDERS.MINE,,Mine,Delven
 GUI.ORDERS_LABEL,,Orders,"Orders "
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size,
 GUI.POWER_LABEL,,Power & Water,
-GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},Windmolens en waterraderen leveren kracht voor mechanismen: waterpompen en ertsbrekers.{{\n}}
+GUI.POWER_WATER_INFO,,"Windmills and water wheels produce power for mechanisms: water pumps, ore crushers and gristmills.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} turn underground shafts {{drawable|tooltip_icon_power}}{{\n}}Shafts {{drawable|tooltip_icon_power}} drive {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, ore crushers and gristmills{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}","Windmolens en waterraderen leveren kracht voor mechanismen: waterpompen, ertsbrekers en graanmolens.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} en {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} drijven ondergrondse assen aan {{drawable|tooltip_icon_power}}{{\n}}Assen {{drawable|tooltip_icon_power}} drijven {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, ertsbrekers en graanmolens aan{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} en irrigatie {{drawable|tooltip_icon_irrigation}} zijn verbonden via {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}"
 GUI.PRIORITY_LABEL,,Priority,
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export,
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}},
@@ -753,7 +769,8 @@ HAPPINESS_MODIFIER.DRANK_ALCOHOL,,Under the effects of alcohol,
 HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water,
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving,
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated,
-HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Had a tantrum,
+HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam,Stoom afgeblazen
+HAPPINESS_MODIFIER.COZY_BEDROOM,,Cozy bedroom,Gezellige slaapkamer
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement,
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned,
 HAPPINESS_MODIFIER.POISONED,,Poisoned,
@@ -762,6 +779,7 @@ HAPPINESS_MODIFIER.SLEEPING_IN_RAIN,,Slept in the rain,
 HAPPINESS_MODIFIER.SLEEPING_IN_SNOW,,Slept in the snow,
 HAPPINESS_MODIFIER.SLEPT_IN_BED,,Slept in a comfortable bed,
 HAPPINESS_MODIFIER.SLEPT_ON_GROUND,,Slept on rough ground,
+HAPPINESS_MODIFIER.SLEPT_ON_SLEEPING_SPOT,,Slept on a sleeping spot,Op een slaapplek geslapen
 HAPPINESS_MODIFIER.SLEPT_OUTSIDE,,Slept under the stars,
 HAPPINESS_MODIFIER.TITLE,,Happiness:,
 HAPPINESS_MODIFIER.VERY_HUNGRY,,Very hungry,
@@ -899,13 +917,15 @@ MEAT.PIKE_MEAT.PLURAL,,Pike,
 
 MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power,
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power,
-MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,
+MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Heeft ondergrondse assen van een {{FURNITURE.WINDMILL}} of een {{FURNITURE.WATERWHEEL}} nodig om op volle snelheid te werken. Assen bouw je via de optie {{GUI.BUILD.POWER}} in het menu {{GUI.BUILD_LABEL}}.
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power,
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,"Turns underground shafts. The shafts carry its power to an ore crusher, a gristmill or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.","Drijft ondergrondse assen aan. De assen brengen de kracht naar een ertsbreker, een graanmolen of een waterpomp. Assen bouw je via de optie {{GUI.BUILD.POWER}} in het menu {{GUI.BUILD_LABEL}}."
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,"Not connected - lay shafts from here to an ore crusher, gristmill or water pump","Niet verbonden - leg assen van hier naar een ertsbreker, graanmolen of waterpomp"
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly,
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power,
-MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - connect to an underground power connection,
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,This furniture requires an underground power connection - see the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,
+MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.,De assen leveren niet genoeg kracht: zet nog een {{FURNITURE.WINDMILL}} of {{FURNITURE.WATERWHEEL}} op dezelfde assen.
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - lay shafts here from a windmill or a water wheel,Uitgeschakeld - leg hier assen naartoe vanaf een windmolen of waterrad
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}}. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Heeft ondergrondse assen van een {{FURNITURE.WINDMILL}} of een {{FURNITURE.WATERWHEEL}} nodig. Assen bouw je via de optie {{GUI.BUILD.POWER}} in het menu {{GUI.BUILD_LABEL}}.
 MECHANISM.STONE.GEAR.NOUN,,Gear assembly,
 MECHANISM.STONE.GEAR.TOOLTIP,,This contraption links up mechanical power in all 4 directions.,
 MECHANISM.WOODEN.SHAFT.NOUN,,Shaft,
@@ -1005,6 +1025,24 @@ NEEDS.SLEEP,,Sleep,
 
 NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!,
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration,
+NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off.","Een handelskaravaan wacht aan de rand van de kaart, maar kan je niet bereiken. Maak binnen drie dagen een doorgang vrij, anders vertrekt de karavaan. Ga naar de locatie om te zien waar de weg is afgesloten."
+NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through,De karavaan kan er niet door
+NOTIFICATION.HUNTER_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no civilian has the Hunter profession.","Er zijn dieren gemarkeerd voor de jacht, maar geen enkele burger heeft het beroep Jager."
+NOTIFICATION.HUNTER_MISSING.TITLE,,Nobody to hunt,Niemand om te jagen
+NOTIFICATION.HUNTING_AMMO_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but the hunters have no arrows or bolts. Make some or buy them from a caravan.","Er zijn dieren gemarkeerd voor de jacht, maar de jagers hebben geen pijlen of bouten. Maak ze of koop ze van een karavaan."
+NOTIFICATION.HUNTING_AMMO_MISSING.TITLE,,Hunters are out of ammunition,Jagers hebben geen munitie
+NOTIFICATION.HUNTING_WEAPON_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no hunter has a bow or crossbow. Assign one in the settlers screen.","Er zijn dieren gemarkeerd voor de jacht, maar geen enkele jager heeft een boog of kruisboog. Wijs er een toe in het kolonistenscherm."
+NOTIFICATION.HUNTING_WEAPON_MISSING.TITLE,,Hunters have no weapon,Jagers hebben geen wapen
+NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool}}, and there is none. Craft one or buy one from a caravan.","Het werk ligt stil: er is een vrij exemplaar van {{tool}} nodig, en er is er geen. Maak er een of koop er een van een karavaan."
+NOTIFICATION.TOOL_MISSING.TITLE,,No free tool,Geen vrij gereedschap
+NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else.","Het werk ligt stil: alleen soldaten hebben het beroep {{profession}}, en soldaten werken niet. Haal er een uit de ploeg of geef het beroep aan iemand anders."
+NOTIFICATION.WORKER_IN_SQUAD.TITLE,,The worker is in a squad,De werker zit in een ploeg
+NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: no civilian has the {{profession}} profession.,Het werk ligt stil: geen enkele burger heeft het beroep {{profession}}.
+NOTIFICATION.WORKER_MISSING.TITLE,,No civilian for this work,Geen burger voor dit werk
+WORKER_SHORTAGE.NO_TOOL,,No free tool: {{tool}},Geen vrij gereedschap: {{tool}}
+WORKER_SHORTAGE.NO_WORKER,,No civilian has the {{profession}} profession,Geen burger heeft het beroep {{profession}}
+NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.,De handelaars wachtten tevergeefs op een doorgang en zijn vertrokken.
+NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left,De karavaan is vertrokken
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}.",
 NOTIFICATION.DEATH.KILLED_BY_DESCRIPTION,,Killed by {{killer}},
 NOTIFICATION.DEATH.SHORT_DESCRIPTION,,Died due to {{reason}},
@@ -1015,19 +1053,39 @@ NOTIFICATION.FISH_EXHAUSTED.DESCRIPTION,,You have over-fished the river to such 
 NOTIFICATION.FISH_EXHAUSTED.TITLE,,Fish Depopulated,
 NOTIFICATION.GAME_OVER.DESCRIPTION,,All things must come to an end. Your settlement lies abandoned.,
 NOTIFICATION.GAME_OVER.TITLE,,Game Over,
-NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,The prosperity of your settlement has attracted a number of new immigrants to boost your population.,
-NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,Immigration,
+NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,"A new settler has arrived, drawn by the prosperity of your settlement.","Een nieuwe kolonist is aangekomen, aangetrokken door de welvaart van je nederzetting."
+NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,New arrival,Nieuwkomer
+NOTIFICATION.IMMIGRANT_BLOCKED.DESCRIPTION,,A newcomer cannot reach your settlement: there is no open path from the edge of the map. They will try again tomorrow. Go to the location to see where the way is cut off.,Een nieuwkomer kan je nederzetting niet bereiken: er is geen open pad vanaf de rand van de kaart. Morgen wordt het opnieuw geprobeerd. Ga naar de locatie om te zien waar de weg is afgesloten.
+NOTIFICATION.IMMIGRANT_BLOCKED.TITLE,,No way in,Geen doorgang
 NOTIFICATION.INVASION.DESCRIPTION,,A raiding party of orcs has arrived. Prepare yourselves! They will attack after preparing for a while.,
 NOTIFICATION.INVASION.TITLE,,You are being invaded!,
 NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of pillars and supports.,
 NOTIFICATION.MINING_COLLAPSE.TITLE,,Mining Collapse,
 NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture has been destroyed due to prolonged exposure to rain.\nSome materials such as iron and steel should not be left outside for a long period.,
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away,
+NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust.","IJzer of staal dat in de regen staat, is gaan roesten. Roest vernietigt het op den duur: bouw er een dak boven, of bouw het opnieuw van brons of tin, die niet roesten."
+NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting,Roest
+NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot.","Er is voedsel weggerot. Vlees, vis, groenten, brood en deeg bederven binnen enkele dagen, het snelst in de zomer; onder een dak blijven ze anderhalf keer zo lang goed. Rantsoenen, graan, meel en zaden bederven nooit."
+NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted,Voedsel weggerot
+NOTIFICATION.COLONY_UNHAPPY.DESCRIPTION,,"Your settlers are unhappy. Check what upsets them: food, drink, sleep, rooms, the dead lying about.","Je kolonisten zijn ongelukkig. Kijk wat hen dwarszit: eten, drinken, slaap, kamers, rondslingerende doden."
+NOTIFICATION.COLONY_UNHAPPY.TITLE,,Settlers unhappy,Kolonisten ongelukkig
+NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,{{character}} is close to a tantrum. Worst of all: {{reason}}.,{{character}} staat op het punt een woedeaanval te krijgen. Het ergst: {{reason}}.
+NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum,Bijna een woedeaanval
+NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot.","Over tien dagen begint de winter en het voedsel is niet genoeg: in de winter groeit er niets. Sla rantsoenen, brood, graan en meel op, die blijven goed; vlees en groenten rotten."
+NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming,De winter komt eraan
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but there is no cauldron in the feasting hall to serve it from. Place one there: until then the kitchen cannot cook again and its vegetables rot.","Er is soep gekookt, maar er staat geen ketel in de feestzaal om die uit te serveren. Zet er een neer: tot dan kan de keuken niet opnieuw koken en rotten de groenten."
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go,De soep kan nergens heen
+NOTIFICATION.NOT_ENOUGH_GRAVES.DESCRIPTION,,"Settlers lie unburied: there is no free grave for them. Everyone who passes within sight of a body is upset for a day. Dig graves in a graveyard, or have the bodies carried to a stockpile out of the way until then. Tap a body to raise its priority.","Er liggen kolonisten onbegraven: er is geen vrij graf voor hen. Iedereen die een lichaam ziet, is een dag van slag. Graaf graven op een begraafplaats, of laat de lichamen tot dan naar een afgelegen opslag brengen. Tik op een lichaam om de prioriteit te verhogen."
+NOTIFICATION.NOT_ENOUGH_GRAVES.TITLE,,Not enough graves,Te weinig graven
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.,{{character}} heeft in woede {{furniture}} kapotgeslagen. Het is weg en moet opnieuw worden gebouwd.
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed,Meubel vernield
+NOTIFICATION.SETTLER_COLLAPSED.DESCRIPTION,,{{character}} collapsed from exhaustion and is asleep on the floor. Settlers who sleep on the floor or on sleeping spots never fully rest: build beds.,"{{character}} is ingestort van uitputting en slaapt op de vloer. Kolonisten die op de vloer of op slaapplekken slapen, rusten nooit helemaal uit: bouw bedden."
+NOTIFICATION.SETTLER_COLLAPSED.TITLE,,Collapsed from exhaustion,Ingestort van uitputting
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,
 NOTIFICATION.ROOFING_COLLAPSE.TITLE,,Roof Collapsed,
-NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,The gruelling hardship has proven to be too much to handle for {{character}}.,
+NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,"The gruelling hardship has proven to be too much to handle for {{character}}, who is leaving the settlement.",{{character}} kan de zware ontberingen niet langer aan en verlaat de nederzetting.
 NOTIFICATION.SETTLER_MENTAL_BREAK.TITLE,,Mental Break,
 NOTIFICATION.SETTLER_STUCK.DESCRIPTION,,"A settler has become stuck, unable to find a drink. Act quickly!",
 NOTIFICATION.SETTLER_STUCK.TITLE,,Trapped!,
@@ -1213,6 +1271,7 @@ PROFESSION.HUNTER.FEMALE_NOUN,This could be “huntsman” and “huntress”,Hu
 PROFESSION.HUNTER.MALE_NOUN,,Hunter,Jager
 PROFESSION.HUNTER.TOOLTIP,,Tracks and kills wild animals for their meat and pelts.,
 PROFESSION.HUNTER.VERB,,Hunting,Jagen
+PROFESSION.HUNTER.PLURAL,,Hunters,Jagers
 PROFESSION.LEATHERWORKER.FEMALE_NOUN,,Leatherworker,
 PROFESSION.LEATHERWORKER.MALE_NOUN,,Leatherworker,
 PROFESSION.LEATHERWORKER.PLURAL,,Leatherworkers,
@@ -1523,7 +1582,7 @@ STOCKPILE.GROUP.RAW_MATERIALS,,Raw materials,
 STOCKPILE.GROUP.SEEDS,,Seeds,
 STOCKPILE.GROUP.TOOLS,,Tools,
 STOCKPILE.GROUP.TOOLS.TOOLTIP,,Stores tools required for working on jobs.,
-STOCKPILE.GROUP.TREASURE,,Treasure,
+STOCKPILE.GROUP.TREASURE,,Valuables,Kostbaarheden
 STOCKPILE.GROUP.WEAPONS,,Weapons,
 STOCKPILE.GROUP.WEAPONS.TOOLTIP,,Stores harvested fruit and vegetables which can expire.,
 

@@ -264,6 +264,9 @@ FURNITURE.COKE_OVEN,,Coke oven,コークス窯
 FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} into {{ORE.COKE.NOUN}} so that it can be used as {{FUEL.SACK}}.,コークス窯は{{ORE.BITUMINOUS_COAL.NOUN}}を{{ORE.COKE.NOUN}}にすることができ、{{FUEL.SACK}}として使用できます。
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}},{{materialType.adjective}} {{furnitureType.noun}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%,進捗中:{{progress}}%
+FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room,作るものがありません：この部屋の搬出パレットで製品を選んでください
+FURNITURE.DESCRIPTION.WORKSPACE_UNREACHABLE,,Nobody can get to where this is worked from: clear the way to it,作業場所に誰もたどり着けません：通り道を確保してください
+FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}},{{targetDescription}}を作るための{{inputs}}を待っています
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%,キノコを播種中:{{progress}}%
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%,進捗中:{{progress}}%
 FURNITURE.DESCRIPTION.WAITING_FOR_ITEM,,Waiting for {{itemType.noun}},{{itemType.noun}}の到着を待っている
@@ -282,7 +285,7 @@ FURNITURE.FISH_BARREL.TOOLTIP,,Neatly store away your caught fish for future coo
 FURNITURE.FLETCHERS_WORKBENCH,,Fletcher's workbench,弓矢製造台
 FURNITURE.FLETCHERS_WORKBENCH.TOOLTIP,,This is a crafting station for ranged weapons and ammunition.,
 FURNITURE.FLOUR_MILL,This is a table with a hand-operated flour mill stone on top,Gristmill,粉挽き台
-FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}.,{{VEGETABLE.WHEAT}}を{{RESOURCE.FLOUR.SACK.NOUN}}にし、{{PROFESSION.CHEF}}の使用する食材にすることができる場所です。
+FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}. Works twice as fast when shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} turn it.,粉挽き台は{{VEGETABLE.WHEAT}}を挽いて{{RESOURCE.FLOUR.SACK.NOUN}}にし、{{PROFESSION.CHEF}}が使えるようにします。{{FURNITURE.WINDMILL}}や{{FURNITURE.WATERWHEEL}}からのシャフトで回すと、2倍の速さで動きます。
 FURNITURE.FORGE,,Forge,鍛冶台
 FURNITURE.FORGE.TOOLTIP,,This is where a {{PROFESSION.BLACKSMITH}} works with {{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.METAL.INGOT.PLURAL}} and {{FUEL.SACK}} to craft items and weapons.,{{PROFESSION.BLACKSMITH}}が{{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.METAL.INGOT.PLURAL}}と{{FUEL.SACK}}を使って武器や道具を作るための場所です。
 FURNITURE.GRAVE,,Grave,墓
@@ -296,6 +299,8 @@ FURNITURE.KITCHEN_WORKTOP,Simple piece of furniture in a kitchen used to hold in
 FURNITURE.KITCHEN_WORKTOP.TOOLTIP,,An area to store ingredients for a {{PROFESSION.CHEF}} to cook soup.,スープを作るために{{PROFESSION.CHEF}}が作業を行う場所です。
 FURNITURE.LANTERN,,Lantern,ランタン
 FURNITURE.LANTERN.TOOLTIP,,A lantern provides light. This does not currently have an in-game effect.,ランタンは光を提供します。今の所、ゲーム内での効果はありません。
+FURNITURE.BEDSIDE_TABLE,,Bedside table,ナイトテーブル
+FURNITURE.BEDSIDE_TABLE.TOOLTIP,,A small table next to the bed. A settler who sleeps in a bedroom with one wakes up in a better mood.,ベッドの横に置く小さなテーブル。これのある寝室で眠った入植者は、良い気分で目覚めます。
 FURNITURE.LEATHERWORKING_STATION,,Leatherworking station,
 FURNITURE.LEATHERWORKING_STATION.TOOLTIP,,A workbench to produce leather goods like armour and waterskins.,
 FURNITURE.LEDGER_TABLE,,Ledger table,
@@ -446,9 +451,11 @@ GOAL.EAT.DESCRIPTION,,Eating {{targetDescription}},{{targetDescription}} を食�
 GOAL.EXTINGUISH_FIRE.DESCRIPTION,,Putting out a fire,着火している
 GOAL.FLEE_FROM_AGGRESSOR.DESCRIPTION,,Fleeing from {{targetDescription}},{{targetDescription}}から逃げている
 GOAL.HAULING.DESCRIPTION,E.g. “Hauling granite stone”,Hauling {{targetDescription}},{{targetDescription}}を運んでいる
+GOAL.HUNTER.HUNT.DESCRIPTION,,Hunting,狩りをしている
 GOAL.IDLE.DESCRIPTION,When not doing anything,Idle,何もしていない
 GOAL.INVADER.CREATE_CAMP.DESCRIPTION,,Setting up camp,
 GOAL.INVADER.RETREAT.DESCRIPTION,,Retreating from map,
+GOAL.SETTLER.LEAVING.DESCRIPTION,,Leaving the settlement,入植地を去ろうとしている
 GOAL.INVADER.STEAL_RESOURCES.DESCRIPTION,,Raiding stockpiles,
 GOAL.MILITARY.ATTACK_TARGET.DESCRIPTION,,Moving into combat,
 GOAL.MILITARY.STAND_IN_FORMATION.DESCRIPTION,,Guarding a position,
@@ -456,6 +463,7 @@ GOAL.MILITARY.TRAINING.DESCRIPTION,,Weapon training,
 GOAL.ON_FIRE.DESCRIPTION,,On fire!,炎上している！
 GOAL.REFILL_WATERSKIN.DESCRIPTION,,Refilling waterskin,
 GOAL.SLEEP.DESCRIPTION,,Going to sleep,眠ろうとしている
+GOAL.COLLAPSE_FROM_EXHAUSTION.DESCRIPTION,,Collapsed from exhaustion,疲労で倒れた
 GOAL.TRANSFER_LIQUID.DESCRIPTION,Becomes “Transferring water”,Transferring {{targetZoneMaterial}},{{targetZoneMaterial}}を運んでいる
 
 GUI.ADD_REMOVE_TILES,Heading to describe adding or removing an area of a zone/room,Add/remove tiles,タイルの追加/削除
@@ -468,7 +476,8 @@ GUI.BUILD.DOORS,Take from FURNITURE.SINGLE_DOOR,Doors,ドア
 GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring,床
 GUI.BUILD.PILLARS,,Pillars,
 GUI.BUILD.PIPING,,Pipes,配管
-GUI.BUILD.POWER,,Power,動力
+GUI.BUILD.POWER,,Shafts,シャフト
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump, ore crusher or gristmill. Straight runs are planks, turns need stone gears from the artisan.",シャフト：風車や水車から汲み上げポンプ、鉱石破砕機、粉挽き台へ動力を伝えます。直線部分は板で、曲がり角には職人が作る石のギアが必要です。
 GUI.BUILD.ROOFING,,Roofing,屋根
 GUI.BUILD.WALLS,,Walls,壁
 GUI.BUILD_FURNITURE,,Furniture,建造物
@@ -580,6 +589,13 @@ GUI.KEY_BINDING.GAME_SPEED_FAST,,Game speed fast,
 GUI.KEY_BINDING.GAME_SPEED_FASTER,,Game speed faster,
 GUI.KEY_BINDING.GAME_SPEED_FASTEST,,Game speed fastest,
 GUI.KEY_BINDING.GAME_SPEED_NORMAL,,Game speed normal,
+GUI.KEY_BINDING.OPEN_CONSTRUCTION,,Open construction menu,建設メニューを開く
+GUI.KEY_BINDING.OPEN_ORDERS,,Open orders menu,命令メニューを開く
+GUI.KEY_BINDING.OPEN_PRIORITY,,Open priority menu,優先度メニューを開く
+GUI.KEY_BINDING.OPEN_ROOMS,,Open rooms menu,部屋メニューを開く
+GUI.KEY_BINDING.ORDER_CANCEL,,Cancel orders,命令を取り消す
+GUI.KEY_BINDING.ORDER_MINE,,Mine,採掘
+GUI.TRADING_IMPORT.NOT_ENOUGH_MONEY,,Not enough money in the trading depot,交易所の資金が足りません
 GUI.KEY_BINDING.PAN_CAMERA_DOWN,,Pan camera down,
 GUI.KEY_BINDING.PAN_CAMERA_LEFT,,Pan camera left,
 GUI.KEY_BINDING.PAN_CAMERA_RIGHT,,Pan camera right,
@@ -620,7 +636,7 @@ GUI.MILITARY.SET_FORMATION,,Set Formation,
 GUI.MILITARY.SET_ORDERS,,Set Orders,
 GUI.MILITARY.TAB.DWARVES,,Military Dwarves,
 GUI.MILITARY.TAB.SQUADS,,Military Squads,
-GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Trained Civilians,
+GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Civilians,民間人
 GUI.MINIMAP.LABEL,,Minimap,ミニマップ
 GUI.MUSIC_VOLUME,,Music,
 GUI.NEXT_LABEL,,Next,次
@@ -673,7 +689,7 @@ GUI.ORDERS.MINE,,Mine,採掘
 GUI.ORDERS_LABEL,,Orders,命令
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size,橋は川の両側を覆い、少なくとも3x3タイルのサイズでなければなりません
 GUI.POWER_LABEL,,Power & Water,
-GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},風車と水車は、揚水ポンプや鉱石破砕機などの機械に動力を供給します。{{\n}}
+GUI.POWER_WATER_INFO,,"Windmills and water wheels produce power for mechanisms: water pumps, ore crushers and gristmills.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} turn underground shafts {{drawable|tooltip_icon_power}}{{\n}}Shafts {{drawable|tooltip_icon_power}} drive {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, ore crushers and gristmills{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}",風車と水車は、汲み上げポンプ、鉱石破砕機、粉挽き台などの機械に動力を供給します。{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}}と{{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}}は地下のシャフト {{drawable|tooltip_icon_power}}を回します{{\n}}シャフト {{drawable|tooltip_icon_power}}は{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}、鉱石破砕機、粉挽き台を動かします{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}と灌漑 {{drawable|tooltip_icon_irrigation}}は{{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}でつながります
 GUI.PRIORITY_LABEL,,Priority,優先度
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export,
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}},
@@ -753,7 +769,8 @@ HAPPINESS_MODIFIER.DRANK_ALCOHOL,,Under the effects of alcohol,気持ちよく�
 HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water,川の水を飲んだ
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving,飢えている
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated,脱水症状に陥った
-HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Had a tantrum,かんしゃくを起こした
+HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam,鬱憤を晴らした
+HAPPINESS_MODIFIER.COZY_BEDROOM,,Cozy bedroom,居心地の良い寝室
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement,新しい入植地に希望を抱いている
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned,熱傷を負った
 HAPPINESS_MODIFIER.POISONED,,Poisoned,毒を受けた
@@ -762,6 +779,7 @@ HAPPINESS_MODIFIER.SLEEPING_IN_RAIN,,Slept in the rain,雨の中で眠った
 HAPPINESS_MODIFIER.SLEEPING_IN_SNOW,,Slept in the snow,雪の中で眠った
 HAPPINESS_MODIFIER.SLEPT_IN_BED,,Slept in a comfortable bed,
 HAPPINESS_MODIFIER.SLEPT_ON_GROUND,,Slept on rough ground,荒れた地面の上で眠った
+HAPPINESS_MODIFIER.SLEPT_ON_SLEEPING_SPOT,,Slept on a sleeping spot,寝床で眠った
 HAPPINESS_MODIFIER.SLEPT_OUTSIDE,,Slept under the stars,星の下で眠った
 HAPPINESS_MODIFIER.TITLE,,Happiness:,幸福度:
 HAPPINESS_MODIFIER.VERY_HUNGRY,,Very hungry,とても空腹
@@ -899,13 +917,15 @@ MEAT.PIKE_MEAT.PLURAL,,Pike,マス
 
 MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power,動作中 - 動力を{{power}}消費
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power,低速で動作中 - 動力が十分ではありません
-MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,この建築物は{{FURNITURE.WINDMILL}}や{{FURNITURE.WATERWHEEL}}などの動力源と地下で接続する必要があります。
+MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,全速で動かすには、{{FURNITURE.WINDMILL}}か{{FURNITURE.WATERWHEEL}}からの地下シャフトが必要です。シャフトは{{GUI.BUILD_LABEL}}メニューの{{GUI.BUILD.POWER}}から建設できます。
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power,動作中 - 動力を{{power}}生産
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,"Turns underground shafts. The shafts carry its power to an ore crusher, a gristmill or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.",地下のシャフトを回します。シャフトが動力を鉱石破砕機、粉挽き台、汲み上げポンプへ伝えます。シャフトは{{GUI.BUILD_LABEL}}メニューの{{GUI.BUILD.POWER}}から建設できます。
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,"Not connected - lay shafts from here to an ore crusher, gristmill or water pump",未接続 - ここから鉱石破砕機、粉挽き台、汲み上げポンプへシャフトを敷いてください
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly,屋外に置かれなければ機能しません
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power,動作停止中 - 動力が不足しています
-MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,この建築物は{{FURNITURE.WINDMILL}}や{{FURNITURE.WATERWHEEL}}などの動力源と地下で接続する必要があります。
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - connect to an underground power connection,動作停止中 - 接続されていません
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,This furniture requires an underground power connection - see the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,この建築物は動力源と地下で接続される必要があります。{{GUI.BUILD_LABEL}}メニューの{{GUI.BUILD.POWER}}オプションを参照してください。
+MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.,シャフトの動力が足りません：同じシャフトに{{FURNITURE.WINDMILL}}か{{FURNITURE.WATERWHEEL}}をもう1つ追加してください。
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - lay shafts here from a windmill or a water wheel,動作停止中 - 風車か水車からここへシャフトを敷いてください
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}}. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,{{FURNITURE.WINDMILL}}か{{FURNITURE.WATERWHEEL}}からの地下シャフトが必要です。シャフトは{{GUI.BUILD_LABEL}}メニューの{{GUI.BUILD.POWER}}から建設できます。
 MECHANISM.STONE.GEAR.NOUN,,Gear assembly,ギア
 MECHANISM.STONE.GEAR.TOOLTIP,,This contraption links up mechanical power in all 4 directions.,この仕掛けは動力を四方向に伝えることができます。
 MECHANISM.WOODEN.SHAFT.NOUN,,Shaft,シャフト
@@ -1005,6 +1025,24 @@ NEEDS.SLEEP,,Sleep,睡眠
 
 NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!,鉱夫が新しいエリアを発見しました！
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration,新発見
+NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off.",交易キャラバンがマップの端で待っていますが、あなたの所へ通じる道がありません。3日以内に道を開かないと、キャラバンは去ってしまいます。現地へ移動して、道が塞がれている場所を確認してください。
+NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through,キャラバンが通れません
+NOTIFICATION.HUNTER_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no civilian has the Hunter profession.",狩りの対象に指定された動物がいますが、民間人に狩人の職業を持つ者がいません。
+NOTIFICATION.HUNTER_MISSING.TITLE,,Nobody to hunt,狩りをする者がいません
+NOTIFICATION.HUNTING_AMMO_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but the hunters have no arrows or bolts. Make some or buy them from a caravan.",狩りの対象に指定された動物がいますが、狩人に矢もボルトもありません。作るか、キャラバンから買ってください。
+NOTIFICATION.HUNTING_AMMO_MISSING.TITLE,,Hunters are out of ammunition,狩人の矢弾が尽きました
+NOTIFICATION.HUNTING_WEAPON_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no hunter has a bow or crossbow. Assign one in the settlers screen.",狩りの対象に指定された動物がいますが、弓やクロスボウを持つ狩人がいません。入植者画面で武器を割り当ててください。
+NOTIFICATION.HUNTING_WEAPON_MISSING.TITLE,,Hunters have no weapon,狩人に武器がありません
+NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool}}, and there is none. Craft one or buy one from a caravan.",作業が止まっています：空いている{{tool}}が必要ですが、ありません。作るか、キャラバンから買ってください。
+NOTIFICATION.TOOL_MISSING.TITLE,,No free tool,空いている道具がありません
+NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else.",作業が止まっています：{{profession}}の職業を持つのは兵士だけで、兵士は作業をしません。分隊から1人外すか、他の誰かにその職業を与えてください。
+NOTIFICATION.WORKER_IN_SQUAD.TITLE,,The worker is in a squad,作業者が分隊にいます
+NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: no civilian has the {{profession}} profession.,作業が止まっています：{{profession}}の職業を持つ民間人がいません。
+NOTIFICATION.WORKER_MISSING.TITLE,,No civilian for this work,この作業をする民間人がいません
+WORKER_SHORTAGE.NO_TOOL,,No free tool: {{tool}},空いている道具がありません：{{tool}}
+WORKER_SHORTAGE.NO_WORKER,,No civilian has the {{profession}} profession,{{profession}}の職業を持つ民間人がいません
+NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.,商人たちは道が開くのを待ちきれず、去っていきました。
+NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left,キャラバンが去りました
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}.",{{character}}は{{reason}}により死亡しました。
 NOTIFICATION.DEATH.KILLED_BY_DESCRIPTION,,Killed by {{killer}},
 NOTIFICATION.DEATH.SHORT_DESCRIPTION,,Died due to {{reason}},{{reason}}のため死亡
@@ -1015,19 +1053,39 @@ NOTIFICATION.FISH_EXHAUSTED.DESCRIPTION,,You have over-fished the river to such 
 NOTIFICATION.FISH_EXHAUSTED.TITLE,,Fish Depopulated,漁業資源の枯渇
 NOTIFICATION.GAME_OVER.DESCRIPTION,,All things must come to an end. Your settlement lies abandoned.,すべてが終わりました。あなたの入植地はもはや放棄されています。
 NOTIFICATION.GAME_OVER.TITLE,,Game Over,ゲームオーバー
-NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,The prosperity of your settlement has attracted a number of new immigrants to boost your population.,あなたの入植地が繁栄していると聞いて、移民が到着しました。入植地の人口が増加します。
-NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,Immigration,新しい移民
+NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,"A new settler has arrived, drawn by the prosperity of your settlement.",入植地の繁栄に惹かれて、新しい入植者がやって来ました。
+NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,New arrival,新たな入植者
+NOTIFICATION.IMMIGRANT_BLOCKED.DESCRIPTION,,A newcomer cannot reach your settlement: there is no open path from the edge of the map. They will try again tomorrow. Go to the location to see where the way is cut off.,新しい入植者があなたの入植地にたどり着けません：マップの端から通じる道がありません。明日もう一度試みます。現地へ移動して、道が塞がれている場所を確認してください。
+NOTIFICATION.IMMIGRANT_BLOCKED.TITLE,,No way in,入る道がありません
 NOTIFICATION.INVASION.DESCRIPTION,,A raiding party of orcs has arrived. Prepare yourselves! They will attack after preparing for a while.,
 NOTIFICATION.INVASION.TITLE,,You are being invaded!,
 NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of pillars and supports.,柱や支柱がないために、洞窟の一部で落盤が発生しました。
 NOTIFICATION.MINING_COLLAPSE.TITLE,,Mining Collapse,落盤
 NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture has been destroyed due to prolonged exposure to rain.\nSome materials such as iron and steel should not be left outside for a long period.,長期に渡って雨に晒された結果、建築物が壊れてしまいました。\n鉄や鋼のようないくつかの素材は、長期間屋外に放置すべきではありません。
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away,錆の発生
+NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust.",雨ざらしの鉄や鋼が錆びました。錆はやがてそれを壊してしまいます：上に屋根をかけるか、錆びない青銅や錫で建て直してください。
+NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting,錆びています
+NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot.",食料が腐りました。肉、魚、野菜、パン、パン生地は数日で傷み、夏が最も早く傷みます。屋根の下なら1.5倍長く持ちます。携帯食、穀物、穀粉、種は腐りません。
+NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted,食料が腐りました
+NOTIFICATION.COLONY_UNHAPPY.DESCRIPTION,,"Your settlers are unhappy. Check what upsets them: food, drink, sleep, rooms, the dead lying about.",入植者たちが不満を抱えています。何が原因か確認してください：食事、飲み物、睡眠、部屋、放置された遺体など。
+NOTIFICATION.COLONY_UNHAPPY.TITLE,,Settlers unhappy,入植者たちが不満です
+NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,{{character}} is close to a tantrum. Worst of all: {{reason}}.,{{character}}はかんしゃく寸前です。一番の原因：{{reason}}。
+NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum,かんしゃく寸前
+NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot.",あと10日で冬が来ますが、食料が冬を越すには足りません：冬は何も育ちません。日持ちする携帯食、パン、穀物、穀粉を蓄えてください。肉や野菜は腐ります。
+NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming,冬が近づいています
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but there is no cauldron in the feasting hall to serve it from. Place one there: until then the kitchen cannot cook again and its vegetables rot.",スープができましたが、宴会場に配膳用の大釜がありません。宴会場に大釜を置いてください：それまで調理場は次の調理ができず、野菜は腐ってしまいます。
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go,スープの置き場がありません
+NOTIFICATION.NOT_ENOUGH_GRAVES.DESCRIPTION,,"Settlers lie unburied: there is no free grave for them. Everyone who passes within sight of a body is upset for a day. Dig graves in a graveyard, or have the bodies carried to a stockpile out of the way until then. Tap a body to raise its priority.",入植者の遺体が埋葬されずに放置されています：空いている墓がありません。遺体を目にした者は1日の間気分が沈みます。墓地に墓を掘るか、それまで遺体を人目につかない保管場へ運ばせてください。遺体をタップすると優先度を上げられます。
+NOTIFICATION.NOT_ENOUGH_GRAVES.TITLE,,Not enough graves,墓が足りません
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.,{{character}}が怒りにまかせて{{furniture}}を壊しました。もう残っていないので、建て直す必要があります。
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed,家具が壊されました
+NOTIFICATION.SETTLER_COLLAPSED.DESCRIPTION,,{{character}} collapsed from exhaustion and is asleep on the floor. Settlers who sleep on the floor or on sleeping spots never fully rest: build beds.,{{character}}は疲労で倒れ、床で眠っています。床や寝床で眠る入植者は疲れが取りきれません：ベッドを作ってください。
+NOTIFICATION.SETTLER_COLLAPSED.TITLE,,Collapsed from exhaustion,疲労で倒れました
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,柱や支柱がないために、屋根が崩れてしまいました。
 NOTIFICATION.ROOFING_COLLAPSE.TITLE,,Roof Collapsed,屋根の崩壊
-NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,The gruelling hardship has proven to be too much to handle for {{character}}.,次々と襲いかかる苦難が{{character}}の心を押しつぶしてしまいました。
+NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,"The gruelling hardship has proven to be too much to handle for {{character}}, who is leaving the settlement.",過酷な苦難に耐えきれなくなった{{character}}は、入植地を去ろうとしています。
 NOTIFICATION.SETTLER_MENTAL_BREAK.TITLE,,Mental Break,精神崩壊
 NOTIFICATION.SETTLER_STUCK.DESCRIPTION,,"A settler has become stuck, unable to find a drink. Act quickly!",
 NOTIFICATION.SETTLER_STUCK.TITLE,,Trapped!,
@@ -1213,6 +1271,7 @@ PROFESSION.HUNTER.FEMALE_NOUN,This could be “huntsman” and “huntress”,Hu
 PROFESSION.HUNTER.MALE_NOUN,,Hunter,狩人
 PROFESSION.HUNTER.TOOLTIP,,Tracks and kills wild animals for their meat and pelts.,肉や皮を得るために野生動物を追い、殺します。
 PROFESSION.HUNTER.VERB,,Hunting,狩りをしている
+PROFESSION.HUNTER.PLURAL,,Hunters,狩人
 PROFESSION.LEATHERWORKER.FEMALE_NOUN,,Leatherworker,
 PROFESSION.LEATHERWORKER.MALE_NOUN,,Leatherworker,
 PROFESSION.LEATHERWORKER.PLURAL,,Leatherworkers,
@@ -1523,7 +1582,7 @@ STOCKPILE.GROUP.RAW_MATERIALS,,Raw materials,素材
 STOCKPILE.GROUP.SEEDS,,Seeds,種
 STOCKPILE.GROUP.TOOLS,,Tools,道具
 STOCKPILE.GROUP.TOOLS.TOOLTIP,,Stores tools required for working on jobs.,作業に必要な道具を保管します。
-STOCKPILE.GROUP.TREASURE,,Treasure,
+STOCKPILE.GROUP.TREASURE,,Valuables,貴重品
 STOCKPILE.GROUP.WEAPONS,,Weapons,武器
 STOCKPILE.GROUP.WEAPONS.TOOLTIP,,Stores harvested fruit and vegetables which can expire.,武器を保管します。
 

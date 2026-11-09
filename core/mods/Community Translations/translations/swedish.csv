@@ -264,6 +264,9 @@ FURNITURE.COKE_OVEN,,Coke oven,Koksugn
 FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} into {{ORE.COKE.NOUN}} so that it can be used as {{FUEL.SACK}}.,En koksugn omvandlar {{ORE.BITUMINOUS_COAL.NOUN}} till {{ORE.COKE.NOUN}} så att den kan användas som {{FUEL.SACK}}.
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}},{{materialType.adjective}} {{FurnitureType.substantiv}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%,Framsteg till slutförande: {{framsteg}}%
+FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room,Inget att tillverka: välj en produkt på en exportpall i det här rummet
+FURNITURE.DESCRIPTION.WORKSPACE_UNREACHABLE,,Nobody can get to where this is worked from: clear the way to it,Ingen kan ta sig till arbetsplatsen: röj vägen dit
+FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}},Väntar på {{inputs}} för att tillverka {{targetDescription}}
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%,Framsteg till fullständig oskulation: {{framsteg}}%
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%,Framsteg till chock svamp logg: {{progress}}%
 FURNITURE.DESCRIPTION.WAITING_FOR_ITEM,,Waiting for {{itemType.noun}},Väntar på {{itemType.noun}
@@ -282,7 +285,7 @@ FURNITURE.FISH_BARREL.TOOLTIP,,Neatly store away your caught fish for future coo
 FURNITURE.FLETCHERS_WORKBENCH,,Fletcher's workbench,
 FURNITURE.FLETCHERS_WORKBENCH.TOOLTIP,,This is a crafting station for ranged weapons and ammunition.,
 FURNITURE.FLOUR_MILL,This is a table with a hand-operated flour mill stone on top,Gristmill,Gristmill
-FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}.,Gristmill malar {{VEETABL.VETE}} i {{RESOURCE.FLOUR.SACK.NOUN}} så att den kan användas av en {{PROCESTI.CHEF}}.
+FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}. Works twice as fast when shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} turn it.,Kvarnen maler {{VEGETABLE.WHEAT}} till {{RESOURCE.FLOUR.SACK.NOUN}} så att en {{PROFESSION.CHEF}} kan använda det. Arbetar dubbelt så snabbt när axlar från en {{FURNITURE.WINDMILL}} eller ett {{FURNITURE.WATERWHEEL}} driver den.
 FURNITURE.FORGE,,Forge,Smida
 FURNITURE.FORGE.TOOLTIP,,This is where a {{PROFESSION.BLACKSMITH}} works with {{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.METAL.INGOT.PLURAL}} and {{FUEL.SACK}} to craft items and weapons.,Här arbetar en {{PROCESS.BLAKSMITH}} med {{MATERIAL_TYPE.METAL.ADJECTIVE} {RESOURCE.METAL.INGOT.PLURAL}} och {FUEL.SACK}} för att tillverka föremål och vapen.
 FURNITURE.GRAVE,,Grave,Grav
@@ -296,6 +299,8 @@ FURNITURE.KITCHEN_WORKTOP,Simple piece of furniture in a kitchen used to hold in
 FURNITURE.KITCHEN_WORKTOP.TOOLTIP,,An area to store ingredients for a {{PROFESSION.CHEF}} to cook soup.,Ett område för att lagra ingredienser för en {{PROCUS.CHEF}} för att laga soppa.
 FURNITURE.LANTERN,,Lantern,Lykta
 FURNITURE.LANTERN.TOOLTIP,,A lantern provides light. This does not currently have an in-game effect.,En lykta ger ljus — detta har för närvarande ingen effekt i spelet.
+FURNITURE.BEDSIDE_TABLE,,Bedside table,Nattduksbord
+FURNITURE.BEDSIDE_TABLE.TOOLTIP,,A small table next to the bed. A settler who sleeps in a bedroom with one wakes up in a better mood.,Ett litet bord bredvid sängen. En nybyggare som sover i ett sovrum med nattduksbord vaknar på bättre humör.
 FURNITURE.LEATHERWORKING_STATION,,Leatherworking station,
 FURNITURE.LEATHERWORKING_STATION.TOOLTIP,,A workbench to produce leather goods like armour and waterskins.,
 FURNITURE.LEDGER_TABLE,,Ledger table,
@@ -446,9 +451,11 @@ GOAL.EAT.DESCRIPTION,,Eating {{targetDescription}},Äta {{targetDescription}}
 GOAL.EXTINGUISH_FIRE.DESCRIPTION,,Putting out a fire,
 GOAL.FLEE_FROM_AGGRESSOR.DESCRIPTION,,Fleeing from {{targetDescription}},
 GOAL.HAULING.DESCRIPTION,E.g. “Hauling granite stone”,Hauling {{targetDescription}},Släpa {{itemDescription}}
+GOAL.HUNTER.HUNT.DESCRIPTION,,Hunting,Jagar
 GOAL.IDLE.DESCRIPTION,When not doing anything,Idle,Inaktiv
 GOAL.INVADER.CREATE_CAMP.DESCRIPTION,,Setting up camp,
 GOAL.INVADER.RETREAT.DESCRIPTION,,Retreating from map,
+GOAL.SETTLER.LEAVING.DESCRIPTION,,Leaving the settlement,Lämnar bosättningen
 GOAL.INVADER.STEAL_RESOURCES.DESCRIPTION,,Raiding stockpiles,
 GOAL.MILITARY.ATTACK_TARGET.DESCRIPTION,,Moving into combat,
 GOAL.MILITARY.STAND_IN_FORMATION.DESCRIPTION,,Guarding a position,
@@ -456,6 +463,7 @@ GOAL.MILITARY.TRAINING.DESCRIPTION,,Weapon training,
 GOAL.ON_FIRE.DESCRIPTION,,On fire!,
 GOAL.REFILL_WATERSKIN.DESCRIPTION,,Refilling waterskin,
 GOAL.SLEEP.DESCRIPTION,,Going to sleep,Gå till sängs
+GOAL.COLLAPSE_FROM_EXHAUSTION.DESCRIPTION,,Collapsed from exhaustion,Kollapsade av utmattning
 GOAL.TRANSFER_LIQUID.DESCRIPTION,Becomes “Transferring water”,Transferring {{targetZoneMaterial}},Överföra {{targetZoneMaterial}}
 
 GUI.ADD_REMOVE_TILES,Heading to describe adding or removing an area of a zone/room,Add/remove tiles,Lägg till/ta bort brickor
@@ -468,7 +476,8 @@ GUI.BUILD.DOORS,Take from FURNITURE.SINGLE_DOOR,Doors,Dörrar
 GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring,
 GUI.BUILD.PILLARS,,Pillars,
 GUI.BUILD.PIPING,,Pipes,
-GUI.BUILD.POWER,,Power,
+GUI.BUILD.POWER,,Shafts,Axlar
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump, ore crusher or gristmill. Straight runs are planks, turns need stone gears from the artisan.","Axlar: från en väderkvarn eller ett vattenhjul till en vattenpump, malmkross eller kvarn. Raka sträckor görs av plankor, svängar kräver kugghjul av sten från hantverkaren."
 GUI.BUILD.ROOFING,,Roofing,
 GUI.BUILD.WALLS,,Walls,Väggar
 GUI.BUILD_FURNITURE,,Furniture,Möbler
@@ -580,6 +589,13 @@ GUI.KEY_BINDING.GAME_SPEED_FAST,,Game speed fast,
 GUI.KEY_BINDING.GAME_SPEED_FASTER,,Game speed faster,
 GUI.KEY_BINDING.GAME_SPEED_FASTEST,,Game speed fastest,
 GUI.KEY_BINDING.GAME_SPEED_NORMAL,,Game speed normal,
+GUI.KEY_BINDING.OPEN_CONSTRUCTION,,Open construction menu,Öppna byggmenyn
+GUI.KEY_BINDING.OPEN_ORDERS,,Open orders menu,Öppna ordermenyn
+GUI.KEY_BINDING.OPEN_PRIORITY,,Open priority menu,Öppna prioritetsmenyn
+GUI.KEY_BINDING.OPEN_ROOMS,,Open rooms menu,Öppna rumsmenyn
+GUI.KEY_BINDING.ORDER_CANCEL,,Cancel orders,Avbryt order
+GUI.KEY_BINDING.ORDER_MINE,,Mine,Gräva
+GUI.TRADING_IMPORT.NOT_ENOUGH_MONEY,,Not enough money in the trading depot,Inte tillräckligt med pengar i handelsdepån
 GUI.KEY_BINDING.PAN_CAMERA_DOWN,,Pan camera down,
 GUI.KEY_BINDING.PAN_CAMERA_LEFT,,Pan camera left,
 GUI.KEY_BINDING.PAN_CAMERA_RIGHT,,Pan camera right,
@@ -620,7 +636,7 @@ GUI.MILITARY.SET_FORMATION,,Set Formation,
 GUI.MILITARY.SET_ORDERS,,Set Orders,
 GUI.MILITARY.TAB.DWARVES,,Military Dwarves,
 GUI.MILITARY.TAB.SQUADS,,Military Squads,
-GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Trained Civilians,
+GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Civilians,Civila
 GUI.MINIMAP.LABEL,,Minimap,Minimap
 GUI.MUSIC_VOLUME,,Music,
 GUI.NEXT_LABEL,,Next,Nästa
@@ -673,7 +689,7 @@ GUI.ORDERS.MINE,,Mine,Gräva
 GUI.ORDERS_LABEL,,Orders,Order
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size,En bro måste täcka båda sidor av floden och vara minst 3x3 plattor i storlek
 GUI.POWER_LABEL,,Power & Water,
-GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},Väderkvarnar och vattenhjul ger kraft åt mekanismer: vattenpumpar och malmkrossar.{{\n}}
+GUI.POWER_WATER_INFO,,"Windmills and water wheels produce power for mechanisms: water pumps, ore crushers and gristmills.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} turn underground shafts {{drawable|tooltip_icon_power}}{{\n}}Shafts {{drawable|tooltip_icon_power}} drive {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, ore crushers and gristmills{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}","Väderkvarnar och vattenhjul ger kraft åt mekanismer: vattenpumpar, malmkrossar och kvarnar.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} och {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} driver underjordiska axlar {{drawable|tooltip_icon_power}}{{\n}}Axlar {{drawable|tooltip_icon_power}} driver {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, malmkrossar och kvarnar{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} och bevattning {{drawable|tooltip_icon_irrigation}} kopplas ihop med {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}"
 GUI.PRIORITY_LABEL,,Priority,
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export,
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}},
@@ -753,7 +769,8 @@ HAPPINESS_MODIFIER.DRANK_ALCOHOL,,Under the effects of alcohol,
 HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water,Drack flod vatten
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving,Svältande
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated,Kritiskt uttorkad
-HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Had a tantrum,
+HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam,Fick utlopp för ilskan
+HAPPINESS_MODIFIER.COZY_BEDROOM,,Cozy bedroom,Mysigt sovrum
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement,Optimistiska om ny bosättning
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned,
 HAPPINESS_MODIFIER.POISONED,,Poisoned,Förgiftad
@@ -762,6 +779,7 @@ HAPPINESS_MODIFIER.SLEEPING_IN_RAIN,,Slept in the rain,
 HAPPINESS_MODIFIER.SLEEPING_IN_SNOW,,Slept in the snow,
 HAPPINESS_MODIFIER.SLEPT_IN_BED,,Slept in a comfortable bed,
 HAPPINESS_MODIFIER.SLEPT_ON_GROUND,,Slept on rough ground,Sov på grov mark
+HAPPINESS_MODIFIER.SLEPT_ON_SLEEPING_SPOT,,Slept on a sleeping spot,Sov på en sovplats
 HAPPINESS_MODIFIER.SLEPT_OUTSIDE,,Slept under the stars,Sov under stjärnorna
 HAPPINESS_MODIFIER.TITLE,,Happiness:,Lycka:
 HAPPINESS_MODIFIER.VERY_HUNGRY,,Very hungry,Mycket hungrig
@@ -899,13 +917,15 @@ MEAT.PIKE_MEAT.PLURAL,,Pike,
 
 MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power,
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power,
-MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,
+MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Behöver underjordiska axlar från en {{FURNITURE.WINDMILL}} eller ett {{FURNITURE.WATERWHEEL}} för att arbeta i full fart. Axlar byggs via valet {{GUI.BUILD.POWER}} i menyn {{GUI.BUILD_LABEL}}.
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power,
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,"Turns underground shafts. The shafts carry its power to an ore crusher, a gristmill or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.","Driver underjordiska axlar. Axlarna leder kraften vidare till en malmkross, en kvarn eller en vattenpump. Axlar byggs via valet {{GUI.BUILD.POWER}} i menyn {{GUI.BUILD_LABEL}}."
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,"Not connected - lay shafts from here to an ore crusher, gristmill or water pump","Inte ansluten - dra axlar härifrån till en malmkross, kvarn eller vattenpump"
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly,
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power,
-MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - connect to an underground power connection,
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,This furniture requires an underground power connection - see the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,
+MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.,Axlarna ger inte tillräckligt med kraft: lägg till ännu en {{FURNITURE.WINDMILL}} eller ett {{FURNITURE.WATERWHEEL}} på samma axlar.
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - lay shafts here from a windmill or a water wheel,Avstängd - dra axlar hit från en väderkvarn eller ett vattenhjul
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}}. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Behöver underjordiska axlar från en {{FURNITURE.WINDMILL}} eller ett {{FURNITURE.WATERWHEEL}}. Axlar byggs via valet {{GUI.BUILD.POWER}} i menyn {{GUI.BUILD_LABEL}}.
 MECHANISM.STONE.GEAR.NOUN,,Gear assembly,
 MECHANISM.STONE.GEAR.TOOLTIP,,This contraption links up mechanical power in all 4 directions.,
 MECHANISM.WOODEN.SHAFT.NOUN,,Shaft,
@@ -1005,6 +1025,24 @@ NEEDS.SLEEP,,Sleep,Sova
 
 NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!,Dina gruvarbetare har upptäckt ett nytt område!
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration,Utforskning
+NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off.","En handelskaravan väntar vid kartans kant, men kan inte ta sig fram till dig. Öppna en väg inom tre dagar, annars ger sig karavanen av. Gå till platsen för att se var vägen är avskuren."
+NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through,Karavanen kommer inte fram
+NOTIFICATION.HUNTER_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no civilian has the Hunter profession.","Djur är markerade för jakt, men ingen civil har yrket Jägare."
+NOTIFICATION.HUNTER_MISSING.TITLE,,Nobody to hunt,Ingen som kan jaga
+NOTIFICATION.HUNTING_AMMO_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but the hunters have no arrows or bolts. Make some or buy them from a caravan.","Djur är markerade för jakt, men jägarna har inga pilar eller armborstbultar. Tillverka några eller köp dem från en karavan."
+NOTIFICATION.HUNTING_AMMO_MISSING.TITLE,,Hunters are out of ammunition,Jägarna har slut på ammunition
+NOTIFICATION.HUNTING_WEAPON_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no hunter has a bow or crossbow. Assign one in the settlers screen.","Djur är markerade för jakt, men ingen jägare har pilbåge eller armborst. Tilldela ett vapen i nybyggarskärmen."
+NOTIFICATION.HUNTING_WEAPON_MISSING.TITLE,,Hunters have no weapon,Jägarna har inget vapen
+NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool}}, and there is none. Craft one or buy one from a caravan.","Arbetet har stannat: det behövs ett ledigt verktyg ({{tool}}), och det finns inget. Tillverka ett eller köp ett från en karavan."
+NOTIFICATION.TOOL_MISSING.TITLE,,No free tool,Inget ledigt verktyg
+NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else.","Arbetet har stannat: bara soldater har yrket {{profession}}, och soldater arbetar inte. Ta bort någon ur truppen eller ge yrket till någon annan."
+NOTIFICATION.WORKER_IN_SQUAD.TITLE,,The worker is in a squad,Arbetaren är i en trupp
+NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: no civilian has the {{profession}} profession.,Arbetet har stannat: ingen civil har yrket {{profession}}.
+NOTIFICATION.WORKER_MISSING.TITLE,,No civilian for this work,Ingen civil för detta arbete
+WORKER_SHORTAGE.NO_TOOL,,No free tool: {{tool}},Inget ledigt verktyg: {{tool}}
+WORKER_SHORTAGE.NO_WORKER,,No civilian has the {{profession}} profession,Ingen civil har yrket {{profession}}
+NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.,Handelsmännen tröttnade på att vänta på en väg fram och gav sig av.
+NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left,Karavanen har gett sig av
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}.","{{character}}, har dött på grund av {{reason}}."
 NOTIFICATION.DEATH.KILLED_BY_DESCRIPTION,,Killed by {{killer}},
 NOTIFICATION.DEATH.SHORT_DESCRIPTION,,Died due to {{reason}},Död på grund av {{reason}}
@@ -1015,19 +1053,39 @@ NOTIFICATION.FISH_EXHAUSTED.DESCRIPTION,,You have over-fished the river to such 
 NOTIFICATION.FISH_EXHAUSTED.TITLE,,Fish Depopulated,
 NOTIFICATION.GAME_OVER.DESCRIPTION,,All things must come to an end. Your settlement lies abandoned.,Allt måste komma till ett slut. Din bosättning ligger övergiven.
 NOTIFICATION.GAME_OVER.TITLE,,Game Over,Game Over
-NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,The prosperity of your settlement has attracted a number of new immigrants to boost your population.,Välståndet i er bosättning har lockat ett antal nya invandrare för att öka er befolkning.
-NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,Immigration,Invandring
+NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,"A new settler has arrived, drawn by the prosperity of your settlement.","En ny nybyggare har anlänt, lockad av välståndet i din bosättning."
+NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,New arrival,Nyanländ
+NOTIFICATION.IMMIGRANT_BLOCKED.DESCRIPTION,,A newcomer cannot reach your settlement: there is no open path from the edge of the map. They will try again tomorrow. Go to the location to see where the way is cut off.,En nykomling kan inte nå din bosättning: det finns ingen öppen väg från kartans kant. Nykomlingen försöker igen i morgon. Gå till platsen för att se var vägen är avskuren.
+NOTIFICATION.IMMIGRANT_BLOCKED.TITLE,,No way in,Ingen väg in
 NOTIFICATION.INVASION.DESCRIPTION,,A raiding party of orcs has arrived. Prepare yourselves! They will attack after preparing for a while.,
 NOTIFICATION.INVASION.TITLE,,You are being invaded!,
 NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of pillars and supports.,Ett område har rasat in på grund av brist på pelare och stöd.
 NOTIFICATION.MINING_COLLAPSE.TITLE,,Mining Collapse,Gruvkollaps
 NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture has been destroyed due to prolonged exposure to rain.\nSome materials such as iron and steel should not be left outside for a long period.,
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away,
+NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust.","Järn eller stål som står ute i regnet har rostat. Rosten förstör det med tiden: bygg ett tak över det, eller bygg om det av brons eller tenn, som inte rostar."
+NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting,Rostar
+NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot.","Mat har ruttnat. Kött, fisk, grönsaker, bröd och deg förstörs inom några dagar, snabbast på sommaren; under tak håller de sig hälften så länge till. Ransoner, säd, mjöl och frön ruttnar aldrig."
+NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted,Mat har ruttnat
+NOTIFICATION.COLONY_UNHAPPY.DESCRIPTION,,"Your settlers are unhappy. Check what upsets them: food, drink, sleep, rooms, the dead lying about.","Dina nybyggare är olyckliga. Se efter vad som stör dem: mat, dryck, sömn, rum, döda som ligger kvar."
+NOTIFICATION.COLONY_UNHAPPY.TITLE,,Settlers unhappy,Nybyggarna är olyckliga
+NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,{{character}} is close to a tantrum. Worst of all: {{reason}}.,{{character}} är nära ett vredesutbrott. Värst av allt: {{reason}}.
+NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum,Nära ett vredesutbrott
+NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot.","Vintern börjar om tio dagar och maten räcker inte: ingenting växer på vintern. Lagra ransoner, bröd, säd och mjöl, som håller sig; kött och grönsaker ruttnar."
+NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming,Vintern närmar sig
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but there is no cauldron in the feasting hall to serve it from. Place one there: until then the kitchen cannot cook again and its vegetables rot.","Soppan är kokt, men det finns ingen kittel i festsalen att servera den ur. Ställ en där: tills dess kan köket inte laga mer, och grönsakerna ruttnar."
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go,Soppan har ingenstans att ta vägen
+NOTIFICATION.NOT_ENOUGH_GRAVES.DESCRIPTION,,"Settlers lie unburied: there is no free grave for them. Everyone who passes within sight of a body is upset for a day. Dig graves in a graveyard, or have the bodies carried to a stockpile out of the way until then. Tap a body to raise its priority.","Nybyggare ligger obegravda: det finns ingen ledig grav för dem. Alla som ser en död kropp blir upprörda i ett dygn. Gräv gravar på en kyrkogård, eller låt bära kropparna till ett undanskymt lager så länge. Tryck på en kropp för att höja dess prioritet."
+NOTIFICATION.NOT_ENOUGH_GRAVES.TITLE,,Not enough graves,Inte tillräckligt med gravar
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.,{{character}} slog sönder {{furniture}} i raseri. Det är borta och måste byggas igen.
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed,Möbel sönderslagen
+NOTIFICATION.SETTLER_COLLAPSED.DESCRIPTION,,{{character}} collapsed from exhaustion and is asleep on the floor. Settlers who sleep on the floor or on sleeping spots never fully rest: build beds.,{{character}} kollapsade av utmattning och sover på golvet. Nybyggare som sover på golvet eller på sovplatser blir aldrig helt utvilade: bygg sängar.
+NOTIFICATION.SETTLER_COLLAPSED.TITLE,,Collapsed from exhaustion,Kollapsade av utmattning
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,
 NOTIFICATION.ROOFING_COLLAPSE.TITLE,,Roof Collapsed,
-NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,The gruelling hardship has proven to be too much to handle for {{character}}.,De hårda svårigheterna har visat sig vara för mycket att hantera för {{character}}.
+NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,"The gruelling hardship has proven to be too much to handle for {{character}}, who is leaving the settlement.","De hårda umbärandena blev för mycket för {{character}}, som lämnar bosättningen."
 NOTIFICATION.SETTLER_MENTAL_BREAK.TITLE,,Mental Break,Mental paus
 NOTIFICATION.SETTLER_STUCK.DESCRIPTION,,"A settler has become stuck, unable to find a drink. Act quickly!",
 NOTIFICATION.SETTLER_STUCK.TITLE,,Trapped!,
@@ -1213,6 +1271,7 @@ PROFESSION.HUNTER.FEMALE_NOUN,This could be “huntsman” and “huntress”,Hu
 PROFESSION.HUNTER.MALE_NOUN,,Hunter,Jägare
 PROFESSION.HUNTER.TOOLTIP,,Tracks and kills wild animals for their meat and pelts.,Spår och dödar vilda djur för deras kött och skinn.
 PROFESSION.HUNTER.VERB,,Hunting,Jaga
+PROFESSION.HUNTER.PLURAL,,Hunters,Jägare
 PROFESSION.LEATHERWORKER.FEMALE_NOUN,,Leatherworker,
 PROFESSION.LEATHERWORKER.MALE_NOUN,,Leatherworker,
 PROFESSION.LEATHERWORKER.PLURAL,,Leatherworkers,
@@ -1523,7 +1582,7 @@ STOCKPILE.GROUP.RAW_MATERIALS,,Raw materials,
 STOCKPILE.GROUP.SEEDS,,Seeds,
 STOCKPILE.GROUP.TOOLS,,Tools,
 STOCKPILE.GROUP.TOOLS.TOOLTIP,,Stores tools required for working on jobs.,
-STOCKPILE.GROUP.TREASURE,,Treasure,
+STOCKPILE.GROUP.TREASURE,,Valuables,Värdesaker
 STOCKPILE.GROUP.WEAPONS,,Weapons,
 STOCKPILE.GROUP.WEAPONS.TOOLTIP,,Stores harvested fruit and vegetables which can expire.,
 

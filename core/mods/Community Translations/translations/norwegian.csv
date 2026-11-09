@@ -264,6 +264,9 @@ FURNITURE.COKE_OVEN,,Coke oven,
 FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} into {{ORE.COKE.NOUN}} so that it can be used as {{FUEL.SACK}}.,
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}},{{furnitureType.noun}} i {{materialType.adjective}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%,
+FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room,Ingenting å lage: velg et produkt på en eksportpall i dette rommet
+FURNITURE.DESCRIPTION.WORKSPACE_UNREACHABLE,,Nobody can get to where this is worked from: clear the way to it,Ingen kommer seg til arbeidsplassen: rydd veien dit
+FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}},Venter på {{inputs}} for å lage {{targetDescription}}
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%,
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%,
 FURNITURE.DESCRIPTION.WAITING_FOR_ITEM,,Waiting for {{itemType.noun}},
@@ -282,7 +285,7 @@ FURNITURE.FISH_BARREL.TOOLTIP,,Neatly store away your caught fish for future coo
 FURNITURE.FLETCHERS_WORKBENCH,,Fletcher's workbench,
 FURNITURE.FLETCHERS_WORKBENCH.TOOLTIP,,This is a crafting station for ranged weapons and ammunition.,
 FURNITURE.FLOUR_MILL,This is a table with a hand-operated flour mill stone on top,Gristmill,
-FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}.,
+FURNITURE.FLOUR_MILL.TOOLTIP,,The gristmill grinds {{VEGETABLE.WHEAT}} into {{RESOURCE.FLOUR.SACK.NOUN}} so that it can be used by a {{PROFESSION.CHEF}}. Works twice as fast when shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} turn it.,"Kornmøllen maler {{VEGETABLE.WHEAT}} til {{RESOURCE.FLOUR.SACK.NOUN}}, slik at en {{PROFESSION.CHEF}} kan bruke det. Arbeider dobbelt så raskt når aksler fra en {{FURNITURE.WINDMILL}} eller et {{FURNITURE.WATERWHEEL}} driver den."
 FURNITURE.FORGE,,Forge,
 FURNITURE.FORGE.TOOLTIP,,This is where a {{PROFESSION.BLACKSMITH}} works with {{MATERIAL_TYPE.METAL.ADJECTIVE}} {{RESOURCE.METAL.INGOT.PLURAL}} and {{FUEL.SACK}} to craft items and weapons.,
 FURNITURE.GRAVE,,Grave,
@@ -296,6 +299,8 @@ FURNITURE.KITCHEN_WORKTOP,Simple piece of furniture in a kitchen used to hold in
 FURNITURE.KITCHEN_WORKTOP.TOOLTIP,,An area to store ingredients for a {{PROFESSION.CHEF}} to cook soup.,
 FURNITURE.LANTERN,,Lantern,Lykt
 FURNITURE.LANTERN.TOOLTIP,,A lantern provides light. This does not currently have an in-game effect.,
+FURNITURE.BEDSIDE_TABLE,,Bedside table,Nattbord
+FURNITURE.BEDSIDE_TABLE.TOOLTIP,,A small table next to the bed. A settler who sleeps in a bedroom with one wakes up in a better mood.,"Et lite bord ved siden av sengen. En nybygger som sover på et soverom med nattbord, våkner i bedre humør."
 FURNITURE.LEATHERWORKING_STATION,,Leatherworking station,
 FURNITURE.LEATHERWORKING_STATION.TOOLTIP,,A workbench to produce leather goods like armour and waterskins.,
 FURNITURE.LEDGER_TABLE,,Ledger table,
@@ -446,9 +451,11 @@ GOAL.EAT.DESCRIPTION,,Eating {{targetDescription}},
 GOAL.EXTINGUISH_FIRE.DESCRIPTION,,Putting out a fire,
 GOAL.FLEE_FROM_AGGRESSOR.DESCRIPTION,,Fleeing from {{targetDescription}},
 GOAL.HAULING.DESCRIPTION,E.g. “Hauling granite stone”,Hauling {{targetDescription}},Frakter {{itemDescription}}
+GOAL.HUNTER.HUNT.DESCRIPTION,,Hunting,Jakter
 GOAL.IDLE.DESCRIPTION,When not doing anything,Idle,Ledig
 GOAL.INVADER.CREATE_CAMP.DESCRIPTION,,Setting up camp,
 GOAL.INVADER.RETREAT.DESCRIPTION,,Retreating from map,
+GOAL.SETTLER.LEAVING.DESCRIPTION,,Leaving the settlement,Forlater bosetningen
 GOAL.INVADER.STEAL_RESOURCES.DESCRIPTION,,Raiding stockpiles,
 GOAL.MILITARY.ATTACK_TARGET.DESCRIPTION,,Moving into combat,
 GOAL.MILITARY.STAND_IN_FORMATION.DESCRIPTION,,Guarding a position,
@@ -456,6 +463,7 @@ GOAL.MILITARY.TRAINING.DESCRIPTION,,Weapon training,
 GOAL.ON_FIRE.DESCRIPTION,,On fire!,
 GOAL.REFILL_WATERSKIN.DESCRIPTION,,Refilling waterskin,
 GOAL.SLEEP.DESCRIPTION,,Going to sleep,
+GOAL.COLLAPSE_FROM_EXHAUSTION.DESCRIPTION,,Collapsed from exhaustion,Kollapset av utmattelse
 GOAL.TRANSFER_LIQUID.DESCRIPTION,Becomes “Transferring water”,Transferring {{targetZoneMaterial}},
 
 GUI.ADD_REMOVE_TILES,Heading to describe adding or removing an area of a zone/room,Add/remove tiles,
@@ -468,7 +476,8 @@ GUI.BUILD.DOORS,Take from FURNITURE.SINGLE_DOOR,Doors,
 GUI.BUILD.FLOOR,For building floorboards/stone slabs across the ground,Flooring,
 GUI.BUILD.PILLARS,,Pillars,
 GUI.BUILD.PIPING,,Pipes,
-GUI.BUILD.POWER,,Power,
+GUI.BUILD.POWER,,Shafts,Aksler
+GUI.BUILD.POWER.TOOLTIP,,"Shafts: from a windmill or water wheel to a water pump, ore crusher or gristmill. Straight runs are planks, turns need stone gears from the artisan.","Aksler: fra en vindmølle eller et vannhjul til en vannpumpe, malmknuser eller kornmølle. Rette strekk lages av planker, svinger krever steintannhjul fra håndverkeren."
 GUI.BUILD.ROOFING,,Roofing,
 GUI.BUILD.WALLS,,Walls,
 GUI.BUILD_FURNITURE,,Furniture,Møbler
@@ -580,6 +589,13 @@ GUI.KEY_BINDING.GAME_SPEED_FAST,,Game speed fast,
 GUI.KEY_BINDING.GAME_SPEED_FASTER,,Game speed faster,
 GUI.KEY_BINDING.GAME_SPEED_FASTEST,,Game speed fastest,
 GUI.KEY_BINDING.GAME_SPEED_NORMAL,,Game speed normal,
+GUI.KEY_BINDING.OPEN_CONSTRUCTION,,Open construction menu,Åpne byggemenyen
+GUI.KEY_BINDING.OPEN_ORDERS,,Open orders menu,Åpne ordremenyen
+GUI.KEY_BINDING.OPEN_PRIORITY,,Open priority menu,Åpne prioritetsmenyen
+GUI.KEY_BINDING.OPEN_ROOMS,,Open rooms menu,Åpne rommenyen
+GUI.KEY_BINDING.ORDER_CANCEL,,Cancel orders,Avbryt ordrer
+GUI.KEY_BINDING.ORDER_MINE,,Mine,Utvinn
+GUI.TRADING_IMPORT.NOT_ENOUGH_MONEY,,Not enough money in the trading depot,Ikke nok penger i handelsdepotet
 GUI.KEY_BINDING.PAN_CAMERA_DOWN,,Pan camera down,
 GUI.KEY_BINDING.PAN_CAMERA_LEFT,,Pan camera left,
 GUI.KEY_BINDING.PAN_CAMERA_RIGHT,,Pan camera right,
@@ -620,7 +636,7 @@ GUI.MILITARY.SET_FORMATION,,Set Formation,
 GUI.MILITARY.SET_ORDERS,,Set Orders,
 GUI.MILITARY.TAB.DWARVES,,Military Dwarves,
 GUI.MILITARY.TAB.SQUADS,,Military Squads,
-GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Trained Civilians,
+GUI.MILITARY.TAB.TRAINED_CIVILIANS,,Civilians,Sivile
 GUI.MINIMAP.LABEL,,Minimap,
 GUI.MUSIC_VOLUME,,Music,
 GUI.NEXT_LABEL,,Next,Neste
@@ -673,7 +689,7 @@ GUI.ORDERS.MINE,,Mine,Utvinn
 GUI.ORDERS_LABEL,,Orders,Bestillinger
 GUI.PLACE_BRIDGE.HINT,This is a longer label as a hint to the player,A bridge must cover both sides of the river and be at least 3x3 tiles in size,
 GUI.POWER_LABEL,,Power & Water,
-GUI.POWER_WATER_INFO,,Windmills and water wheels produce power for mechanisms: water pumps and ore crushers.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} connect to powerlines {{drawable|tooltip_icon_power}}{{\n}}Powerlines {{drawable|tooltip_icon_power}} power {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and other powered furniture{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}},Vindmøller og vannhjul gir kraft til mekanismer: vannpumper og malmknusere.{{\n}}
+GUI.POWER_WATER_INFO,,"Windmills and water wheels produce power for mechanisms: water pumps, ore crushers and gristmills.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} and {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} turn underground shafts {{drawable|tooltip_icon_power}}{{\n}}Shafts {{drawable|tooltip_icon_power}} drive {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, ore crushers and gristmills{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} and Irrigation {{drawable|tooltip_icon_irrigation}} are connected to {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}","Vindmøller og vannhjul lager kraft til mekanismer: vannpumper, malmknusere og kornmøller.{{\n}}{{FURNITURE.WINDMILL.PLURAL}} {{drawable|tooltip_icon_windmill}} og {{FURNITURE.WATERWHEEL.PLURAL}} {{drawable|tooltip_icon_waterwheel}} driver underjordiske aksler {{drawable|tooltip_icon_power}}{{\n}}Aksler {{drawable|tooltip_icon_power}} driver {{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}}, malmknusere og kornmøller{{\n}}{{FURNITURE.WATER_PUMP.PLURAL}} {{drawable|tooltip_icon_pump}} og vanning {{drawable|tooltip_icon_irrigation}} kobles sammen med {{PRODUCT.STONE.PIPE.PLURAL}} {{drawable|tooltip_icon_pipes}}"
 GUI.PRIORITY_LABEL,,Priority,
 GUI.PRODUCTION_EXPORT.CHOOSE_ITEM_TYPE,,Choose Item to Export,
 GUI.PRODUCTION_EXPORT.LIMIT.REACHED,,Production halted - limit is set to {{quantity}},
@@ -753,7 +769,8 @@ HAPPINESS_MODIFIER.DRANK_ALCOHOL,,Under the effects of alcohol,
 HAPPINESS_MODIFIER.DRANK_FROM_RIVER,,Drank river water,
 HAPPINESS_MODIFIER.DYING_OF_HUNGER,,Starving,
 HAPPINESS_MODIFIER.DYING_OF_THIRST,,Critically dehydrated,
-HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Had a tantrum,
+HAPPINESS_MODIFIER.HAD_A_TANTRUM,,Let off steam,Fikk ut frustrasjonen
+HAPPINESS_MODIFIER.COZY_BEDROOM,,Cozy bedroom,Koselig soverom
 HAPPINESS_MODIFIER.NEW_SETTLEMENT_OPTIMISM,,Optimistic about new settlement,
 HAPPINESS_MODIFIER.ON_FIRE,,Was badly burned,
 HAPPINESS_MODIFIER.POISONED,,Poisoned,
@@ -762,6 +779,7 @@ HAPPINESS_MODIFIER.SLEEPING_IN_RAIN,,Slept in the rain,
 HAPPINESS_MODIFIER.SLEEPING_IN_SNOW,,Slept in the snow,
 HAPPINESS_MODIFIER.SLEPT_IN_BED,,Slept in a comfortable bed,
 HAPPINESS_MODIFIER.SLEPT_ON_GROUND,,Slept on rough ground,
+HAPPINESS_MODIFIER.SLEPT_ON_SLEEPING_SPOT,,Slept on a sleeping spot,Sov på en soveplass
 HAPPINESS_MODIFIER.SLEPT_OUTSIDE,,Slept under the stars,
 HAPPINESS_MODIFIER.TITLE,,Happiness:,
 HAPPINESS_MODIFIER.VERY_HUNGRY,,Very hungry,
@@ -899,13 +917,15 @@ MEAT.PIKE_MEAT.PLURAL,,Pike,
 
 MECHANISM.FURNITURE.CONSUMING_POWER,,Working - consuming {{power}} power,
 MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER,,Working very slowly - not enough power,
-MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,
+MECHANISM.FURNITURE.CRAFTING_STATION_REQUIRES_POWER.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}} to work at full speed. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Trenger underjordiske aksler fra en {{FURNITURE.WINDMILL}} eller et {{FURNITURE.WATERWHEEL}} for å arbeide i full fart. Aksler bygges fra valget {{GUI.BUILD.POWER}} i menyen {{GUI.BUILD_LABEL}}.
 MECHANISM.FURNITURE.PRODUCING_POWER,,Working - producing {{power}} power,
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED.TOOLTIP,,"Turns underground shafts. The shafts carry its power to an ore crusher, a gristmill or a water pump. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.","Driver underjordiske aksler. Akslene fører kraften videre til en malmknuser, en kornmølle eller en vannpumpe. Aksler bygges fra valget {{GUI.BUILD.POWER}} i menyen {{GUI.BUILD_LABEL}}."
+MECHANISM.FURNITURE.PRODUCER_NOT_CONNECTED,,"Not connected - lay shafts from here to an ore crusher, gristmill or water pump","Ikke tilkoblet - legg aksler herfra til en malmknuser, kornmølle eller vannpumpe"
 MECHANISM.FURNITURE.REQUIRES_OUTSIDE_PLACEMENT,,This must be outside to function correctly,
 MECHANISM.FURNITURE.REQUIRES_POWER,,Disabled - not enough power,
-MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,This furniture requires an underground power connection to a power-producer such as a {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}}.,
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - connect to an underground power connection,
-MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,This furniture requires an underground power connection - see the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,
+MECHANISM.FURNITURE.REQUIRES_POWER.TOOLTIP,,Its shafts do not carry enough power: add another {{FURNITURE.WINDMILL}} or {{FURNITURE.WATERWHEEL}} to the same shafts.,Akslene gir ikke nok kraft: sett enda en {{FURNITURE.WINDMILL}} eller et {{FURNITURE.WATERWHEEL}} på de samme akslene.
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID,,Disabled - lay shafts here from a windmill or a water wheel,Deaktivert - legg aksler hit fra en vindmølle eller et vannhjul
+MECHANISM.FURNITURE.REQUIRES_POWER_GRID.TOOLTIP,,Needs underground shafts from a {{FURNITURE.WINDMILL}} or a {{FURNITURE.WATERWHEEL}}. Shafts are built from the {{GUI.BUILD.POWER}} option in the {{GUI.BUILD_LABEL}} menu.,Trenger underjordiske aksler fra en {{FURNITURE.WINDMILL}} eller et {{FURNITURE.WATERWHEEL}}. Aksler bygges fra valget {{GUI.BUILD.POWER}} i menyen {{GUI.BUILD_LABEL}}.
 MECHANISM.STONE.GEAR.NOUN,,Gear assembly,
 MECHANISM.STONE.GEAR.TOOLTIP,,This contraption links up mechanical power in all 4 directions.,
 MECHANISM.WOODEN.SHAFT.NOUN,,Shaft,
@@ -1005,6 +1025,24 @@ NEEDS.SLEEP,,Sleep,
 
 NOTIFICATION.AREA_REVEALED.DESCRIPTION,,Your miners have discovered a new area!,
 NOTIFICATION.AREA_REVEALED.TITLE,,Exploration,
+NOTIFICATION.CARAVAN_BLOCKED.DESCRIPTION,,"A trade caravan is waiting at the edge of the map, but there is no way through to you. Open a path within three days or the caravan will leave. Go to the location to see where the way is cut off.","En handelskaravane venter ved kanten av kartet, men kommer seg ikke fram til dere. Åpne en vei innen tre dager, ellers drar karavanen. Gå til stedet for å se hvor veien er stengt."
+NOTIFICATION.CARAVAN_BLOCKED.TITLE,,The caravan cannot get through,Karavanen kommer seg ikke fram
+NOTIFICATION.HUNTER_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no civilian has the Hunter profession.","Dyr er merket for jakt, men ingen sivile har yrket Jeger."
+NOTIFICATION.HUNTER_MISSING.TITLE,,Nobody to hunt,Ingen som kan jakte
+NOTIFICATION.HUNTING_AMMO_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but the hunters have no arrows or bolts. Make some or buy them from a caravan.","Dyr er merket for jakt, men jegerne har ingen piler eller armbrøstbolter. Lag noen eller kjøp dem fra en karavane."
+NOTIFICATION.HUNTING_AMMO_MISSING.TITLE,,Hunters are out of ammunition,Jegerne er tomme for ammunisjon
+NOTIFICATION.HUNTING_WEAPON_MISSING.DESCRIPTION,,"Animals are marked for the hunt, but no hunter has a bow or crossbow. Assign one in the settlers screen.","Dyr er merket for jakt, men ingen jeger har bue eller armbrøst. Tildel et våpen i nybyggerskjermen."
+NOTIFICATION.HUNTING_WEAPON_MISSING.TITLE,,Hunters have no weapon,Jegerne har ikke våpen
+NOTIFICATION.TOOL_MISSING.DESCRIPTION,,"Work has stopped: it needs a free {{tool}}, and there is none. Craft one or buy one from a caravan.","Arbeidet har stoppet: det trengs et ledig verktøy ({{tool}}), og det finnes ingen. Lag et eller kjøp et fra en karavane."
+NOTIFICATION.TOOL_MISSING.TITLE,,No free tool,Ingen ledig verktøy
+NOTIFICATION.WORKER_IN_SQUAD.DESCRIPTION,,"Work has stopped: only soldiers have the {{profession}} profession, and soldiers do not work. Remove one from the squad or give the profession to someone else.","Arbeidet har stoppet: bare soldater har yrket {{profession}}, og soldater arbeider ikke. Fjern en fra troppen eller gi yrket til noen andre."
+NOTIFICATION.WORKER_IN_SQUAD.TITLE,,The worker is in a squad,Arbeideren er i en tropp
+NOTIFICATION.WORKER_MISSING.DESCRIPTION,,Work has stopped: no civilian has the {{profession}} profession.,Arbeidet har stoppet: ingen sivile har yrket {{profession}}.
+NOTIFICATION.WORKER_MISSING.TITLE,,No civilian for this work,Ingen sivile til dette arbeidet
+WORKER_SHORTAGE.NO_TOOL,,No free tool: {{tool}},Ingen ledig verktøy: {{tool}}
+WORKER_SHORTAGE.NO_WORKER,,No civilian has the {{profession}} profession,Ingen sivile har yrket {{profession}}
+NOTIFICATION.CARAVAN_LEFT.DESCRIPTION,,The traders gave up waiting for a way through and left.,Handelsfolkene ga opp å vente på en vei fram og dro.
+NOTIFICATION.CARAVAN_LEFT.TITLE,,The caravan has left,Karavanen har dratt
 NOTIFICATION.DEATH.DESCRIPTION,,"{{character}}, has died due to {{reason}}.",
 NOTIFICATION.DEATH.KILLED_BY_DESCRIPTION,,Killed by {{killer}},
 NOTIFICATION.DEATH.SHORT_DESCRIPTION,,Died due to {{reason}},
@@ -1015,19 +1053,39 @@ NOTIFICATION.FISH_EXHAUSTED.DESCRIPTION,,You have over-fished the river to such 
 NOTIFICATION.FISH_EXHAUSTED.TITLE,,Fish Depopulated,
 NOTIFICATION.GAME_OVER.DESCRIPTION,,All things must come to an end. Your settlement lies abandoned.,
 NOTIFICATION.GAME_OVER.TITLE,,Game Over,
-NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,The prosperity of your settlement has attracted a number of new immigrants to boost your population.,
-NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,Immigration,
+NOTIFICATION.IMMIGRANTS_ARRIVED.DESCRIPTION,,"A new settler has arrived, drawn by the prosperity of your settlement.","En ny nybygger har kommet, tiltrukket av velstanden i bosetningen deres."
+NOTIFICATION.IMMIGRANTS_ARRIVED.TITLE,,New arrival,Ny ankomst
+NOTIFICATION.IMMIGRANT_BLOCKED.DESCRIPTION,,A newcomer cannot reach your settlement: there is no open path from the edge of the map. They will try again tomorrow. Go to the location to see where the way is cut off.,En nykommer kan ikke nå bosetningen deres: det finnes ingen åpen vei fra kanten av kartet. Nykommeren prøver igjen i morgen. Gå til stedet for å se hvor veien er stengt.
+NOTIFICATION.IMMIGRANT_BLOCKED.TITLE,,No way in,Ingen vei inn
 NOTIFICATION.INVASION.DESCRIPTION,,A raiding party of orcs has arrived. Prepare yourselves! They will attack after preparing for a while.,
 NOTIFICATION.INVASION.TITLE,,You are being invaded!,
 NOTIFICATION.MINING_COLLAPSE.DESCRIPTION,,An area has caved in due to a lack of pillars and supports.,
 NOTIFICATION.MINING_COLLAPSE.TITLE,,Mining Collapse,
 NOTIFICATION.OXIDISATION_DESTRUCTION.DESCRIPTION,,An item or piece of furniture has been destroyed due to prolonged exposure to rain.\nSome materials such as iron and steel should not be left outside for a long period.,
 NOTIFICATION.OXIDISATION_DESTRUCTION.TITLE,,Rusted Away,
+NOTIFICATION.OXIDISATION_STARTED.DESCRIPTION,,"Iron or steel left out in the rain has rusted. Rust will destroy it in time: build a roof over it, or rebuild it from bronze or tin, which do not rust.","Jern eller stål som står ute i regnet, har rustet. Rusten vil til slutt ødelegge det: bygg et tak over, eller bygg det på nytt av bronse eller tinn, som ikke ruster."
+NOTIFICATION.OXIDISATION_STARTED.TITLE,,Rusting,Ruster
+NOTIFICATION.FOOD_ROTTED.DESCRIPTION,,"Food has rotted. Meat, fish, vegetables, bread and dough spoil within days, fastest in summer; under a roof they keep half as long again. Rations, grain, flour and seeds never rot.","Mat har råtnet. Kjøtt, fisk, grønnsaker, brød og deig blir dårlige i løpet av noen dager, raskest om sommeren; under tak holder de seg halvannen gang så lenge. Rasjoner, korn, mel og frø råtner aldri."
+NOTIFICATION.FOOD_ROTTED.TITLE,,Food rotted,Mat har råtnet
+NOTIFICATION.COLONY_UNHAPPY.DESCRIPTION,,"Your settlers are unhappy. Check what upsets them: food, drink, sleep, rooms, the dead lying about.","Nybyggerne deres er ulykkelige. Sjekk hva som plager dem: mat, drikke, søvn, rom, døde som ligger rundt."
+NOTIFICATION.COLONY_UNHAPPY.TITLE,,Settlers unhappy,Nybyggerne er ulykkelige
+NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,{{character}} is close to a tantrum. Worst of all: {{reason}}.,{{character}} er nær et raseriutbrudd. Verst av alt: {{reason}}.
+NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum,Nær et raseriutbrudd
+NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot.","Vinteren begynner om ti dager, og maten vil ikke vare den ut: ingenting vokser om vinteren. Lagre rasjoner, brød, korn og mel, som holder seg; kjøtt og grønnsaker råtner."
+NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming,Vinteren kommer
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but there is no cauldron in the feasting hall to serve it from. Place one there: until then the kitchen cannot cook again and its vegetables rot.","Suppen er kokt, men det finnes ingen gryte i festsalen å servere den fra. Sett en der: inntil da kan ikke kjøkkenet lage mer, og grønnsakene råtner."
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go,Suppen har ingen plass å gå
+NOTIFICATION.NOT_ENOUGH_GRAVES.DESCRIPTION,,"Settlers lie unburied: there is no free grave for them. Everyone who passes within sight of a body is upset for a day. Dig graves in a graveyard, or have the bodies carried to a stockpile out of the way until then. Tap a body to raise its priority.","Nybyggere ligger ubegravd: det finnes ingen ledig grav til dem. Alle som ser et lik, er lei seg i et døgn. Grav graver på en gravplass, eller la likene bli båret til et lager unna veien inntil videre. Trykk på et lik for å øke prioriteten."
+NOTIFICATION.NOT_ENOUGH_GRAVES.TITLE,,Not enough graves,Ikke nok graver
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.,{{character}} knuste {{furniture}} i raseri. Det er borte og må bygges på nytt.
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed,Møbel knust
+NOTIFICATION.SETTLER_COLLAPSED.DESCRIPTION,,{{character}} collapsed from exhaustion and is asleep on the floor. Settlers who sleep on the floor or on sleeping spots never fully rest: build beds.,"{{character}} kollapset av utmattelse og sover på gulvet. Nybyggere som sover på gulvet eller på soveplasser, blir aldri helt uthvilte: bygg senger."
+NOTIFICATION.SETTLER_COLLAPSED.TITLE,,Collapsed from exhaustion,Kollapset av utmattelse
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,
 NOTIFICATION.ROOFING_COLLAPSE.TITLE,,Roof Collapsed,
-NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,The gruelling hardship has proven to be too much to handle for {{character}}.,
+NOTIFICATION.SETTLER_MENTAL_BREAK.DESCRIPTION,,"The gruelling hardship has proven to be too much to handle for {{character}}, who is leaving the settlement.","De harde prøvelsene ble for mye for {{character}}, som forlater bosetningen."
 NOTIFICATION.SETTLER_MENTAL_BREAK.TITLE,,Mental Break,
 NOTIFICATION.SETTLER_STUCK.DESCRIPTION,,"A settler has become stuck, unable to find a drink. Act quickly!",
 NOTIFICATION.SETTLER_STUCK.TITLE,,Trapped!,
@@ -1213,6 +1271,7 @@ PROFESSION.HUNTER.FEMALE_NOUN,This could be “huntsman” and “huntress”,Hu
 PROFESSION.HUNTER.MALE_NOUN,,Hunter,Jeger
 PROFESSION.HUNTER.TOOLTIP,,Tracks and kills wild animals for their meat and pelts.,
 PROFESSION.HUNTER.VERB,,Hunting,Jakter på
+PROFESSION.HUNTER.PLURAL,,Hunters,Jegere
 PROFESSION.LEATHERWORKER.FEMALE_NOUN,,Leatherworker,
 PROFESSION.LEATHERWORKER.MALE_NOUN,,Leatherworker,
 PROFESSION.LEATHERWORKER.PLURAL,,Leatherworkers,
@@ -1523,7 +1582,7 @@ STOCKPILE.GROUP.RAW_MATERIALS,,Raw materials,
 STOCKPILE.GROUP.SEEDS,,Seeds,
 STOCKPILE.GROUP.TOOLS,,Tools,
 STOCKPILE.GROUP.TOOLS.TOOLTIP,,Stores tools required for working on jobs.,
-STOCKPILE.GROUP.TREASURE,,Treasure,
+STOCKPILE.GROUP.TREASURE,,Valuables,Verdisaker
 STOCKPILE.GROUP.WEAPONS,,Weapons,
 STOCKPILE.GROUP.WEAPONS.TOOLTIP,,Stores harvested fruit and vegetables which can expire.,
 
