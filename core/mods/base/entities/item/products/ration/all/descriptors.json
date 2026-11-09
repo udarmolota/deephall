@@ -7,7 +7,7 @@
     "DOWN" : {
       "filename" : "Product-Bread-Loaf.png",
       "coloringLayer" : "FOODSTUFF_COLOR",
-      "scale" : 0.3,
+      "scale" : 0.6,
       "parentEntityAssets" : [ {
         "type" : "CREATURE_RIGHT_HAND",
         "offsetPixels" : {
@@ -20,7 +20,7 @@
     "DOWN_RIGHT" : {
       "filename" : "Product-Bread-Loaf.png",
       "coloringLayer" : "FOODSTUFF_COLOR",
-      "scale" : 0.3,
+      "scale" : 0.6,
       "parentEntityAssets" : [ {
         "type" : "CREATURE_RIGHT_HAND",
         "offsetPixels" : {
@@ -33,7 +33,7 @@
     "DOWN_LEFT" : {
       "filename" : "Product-Bread-Loaf.png",
       "coloringLayer" : "FOODSTUFF_COLOR",
-      "scale" : 0.3,
+      "scale" : 0.6,
       "parentEntityAssets" : [ {
         "type" : "CREATURE_RIGHT_HAND",
         "offsetPixels" : {
@@ -46,17 +46,17 @@
     "UP" : {
       "filename" : "Product-Bread-Loaf.png",
       "coloringLayer" : "FOODSTUFF_COLOR",
-      "scale" : 0.3
+      "scale" : 0.6
     },
     "UP_LEFT" : {
       "filename" : "Product-Bread-Loaf.png",
       "coloringLayer" : "FOODSTUFF_COLOR",
-      "scale" : 0.3
+      "scale" : 0.6
     },
     "UP_RIGHT" : {
       "filename" : "Product-Bread-Loaf.png",
       "coloringLayer" : "FOODSTUFF_COLOR",
-      "scale" : 0.3
+      "scale" : 0.6
     }
   }
 } ]

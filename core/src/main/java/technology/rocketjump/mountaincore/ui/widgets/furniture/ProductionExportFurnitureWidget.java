@@ -80,6 +80,7 @@ public class ProductionExportFurnitureWidget extends Table implements DisplaysTe
 	private GameContext gameContext;
 
 	private Array<GameMaterial> availableMaterials;
+	private final ItemAvailabilityMarkers availabilityMarkers = new ItemAvailabilityMarkers();
 
 
 	@Inject
@@ -244,6 +245,7 @@ public class ProductionExportFurnitureWidget extends Table implements DisplaysTe
 		RoomType currentRoomType = tile.getRoomTile().getRoom().getRoomType();
 
 		List<ItemType> craftingOutputItems = getSelectableItemTypes(currentRoomType);
+		availabilityMarkers.count(gameContext);
 
 		List<SelectItemDialog.Option> options = new ArrayList<>();
 		craftingOutputItems.forEach(itemType -> options.add(new SelectItemTypeOption(itemType, () -> {
@@ -347,7 +349,7 @@ public class ProductionExportFurnitureWidget extends Table implements DisplaysTe
 		public void addSelectionComponents(Table innerTable) {
 			Image image = new Image(drawable);
 			innerTable.add(image).size(183, 183).pad(10).row();
-			innerTable.add(new Container<>()).height(30).row();
+			innerTable.add(availabilityMarkers.row(itemType, skin)).height(40).row();
 			craftingHintWidgetFactory.addComplexTooltip(innerTable, skin, itemType, null);
 		}
 

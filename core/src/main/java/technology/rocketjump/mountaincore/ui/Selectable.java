@@ -67,7 +67,25 @@ public class Selectable implements Comparable<Selectable> {
 
 	@Override
 	public int compareTo(Selectable other) {
+		if (this.type == SelectableType.ENTITY && other.type == SelectableType.ENTITY) {
+			// Between entities under one tap: carts and creatures before the items and furniture they stand on, then
+			// the nearest. By distance alone the nearest thing under a finger in a full trade depot was nearly always
+			// a pile of goods or a pallet, and the trader's cart came up one tap in twenty
+			int byKind = Integer.compare(tapRank(this.entity), tapRank(other.entity));
+			if (byKind != 0) {
+				return byKind;
+			}
+			return Float.compare(this.distanceFromCursor, other.distanceFromCursor);
+		}
 		return other.getSortValue() - this.getSortValue();
+	}
+
+	private static int tapRank(Entity entity) {
+		return switch (entity.getType()) {
+			case VEHICLE -> 0;
+			case CREATURE -> 1;
+			default -> 2;
+		};
 	}
 
 	public boolean equals(Selectable other) {

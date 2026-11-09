@@ -15,6 +15,7 @@ import technology.rocketjump.mountaincore.assets.model.WallType;
 import technology.rocketjump.mountaincore.entities.factories.FurnitureEntityAttributesFactory;
 import technology.rocketjump.mountaincore.entities.factories.FurnitureEntityFactory;
 import technology.rocketjump.mountaincore.entities.model.Entity;
+import technology.rocketjump.mountaincore.entities.model.EntityType;
 import technology.rocketjump.mountaincore.entities.model.physical.furniture.FurnitureEntityAttributes;
 import technology.rocketjump.mountaincore.entities.model.physical.furniture.FurnitureType;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemTypeWithMaterial;
@@ -51,6 +52,8 @@ import static technology.rocketjump.mountaincore.mapping.tile.TileExploration.EX
 public class GuiMessageHandler implements Telegraph, GameContextAware {
 
 	private static final float ENTITY_SELECTION_RADIUS = 0.25f; // Small distance as this is added to radius
+	// A cart is bigger than a tile and stands on one tile only, so a tap on any part of it has to reach its middle
+	private static final float VEHICLE_SELECTION_RADIUS = 1.0f;
 	private final MessageDispatcher messageDispatcher;
 	private final GameInteractionStateContainer interactionStateContainer;
 
@@ -407,6 +410,24 @@ public class GuiMessageHandler implements Telegraph, GameContextAware {
 					float distanceToEntity = entity.getLocationComponent().getWorldPosition().dst2(worldClickPosition);
 					if (distanceToEntity < ENTITY_SELECTION_RADIUS) {
 						selectables.add(new Selectable(entity, distanceToEntity));
+					}
+				}
+			}
+		}
+		// Carts: anywhere within a tile of the middle, looking a tile further out than the nearest tiles above
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dy = -1; dy <= 1; dy++) {
+				MapTile tile = gameContext.getAreaMap().getTile((int) Math.floor(worldClickPosition.x) + dx, (int) Math.floor(worldClickPosition.y) + dy);
+				if (tile == null || !tile.getExploration().equals(EXPLORED)) {
+					continue;
+				}
+				for (Entity entity : tile.getEntities()) {
+					if (entity.getType() == EntityType.VEHICLE) {
+						float distanceToEntity = entity.getLocationComponent().getWorldPosition().dst2(worldClickPosition);
+						Selectable selectableEntity = new Selectable(entity, distanceToEntity);
+						if (distanceToEntity < VEHICLE_SELECTION_RADIUS && !selectables.contains(selectableEntity)) {
+							selectables.add(selectableEntity);
+						}
 					}
 				}
 			}
