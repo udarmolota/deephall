@@ -273,7 +273,7 @@
 
     <!-- Settings groups -->
     <string name="settings_group_rendering">Renderização</string>
-    <string name="settings_group_texture">Compressão de texturas</string>
+    <string name="settings_group_texture">Texturas</string>
     <string name="settings_group_advanced">Avançado</string>
     <string name="settings_group_controls">Controles</string>
     <string name="settings_group_audio">Áudio</string>
@@ -406,4 +406,13 @@
     <string name="launcher_empty_title">Por onde começar</string>
     <string name="launcher_empty_body">Para começar a jogar, crie uma instância: uma cópia instalada de Project Zomboid. Adicione os arquivos do jogo com o + no topo ou baixe o jogo da Steam ou da GOG pelo menu lateral. Um download da Steam precisa ser compactado em .zip antes; da GOG, toque em “Criar uma instância” quando o download terminar.</string>
     <string name="launcher_empty_quick_start">Início rápido</string>
+    <string name="deephall_update_channel">Novas versões</string>
+    <string name="deephall_update_title">Deephall %1$s foi lançado</string>
+    <string name="deephall_update_text">Toque para ver as novidades e baixar.</string>
+    <string name="game_loading_update_available">Deephall %1$s foi lançado. Toque para ver as novidades.</string>
+    <string name="settings_game_textures_title">Compressão</string>
+    <string name="settings_game_textures_desc">Baixa usa um quarto da memória e carrega mais rápido, mas fica mais suave de perto. Ultra baixa reduz mais uma vez, para celulares em que o jogo ainda fica sem memória. Por padrão, celulares com menos de 6 GB de RAM usam Baixa. Vale a partir da próxima abertura.</string>
+    <string name="settings_game_textures_none">Nenhuma</string>
+    <string name="settings_game_textures_low">Baixa</string>
+    <string name="settings_game_textures_ultra">Ultra baixa</string>
 </resources>

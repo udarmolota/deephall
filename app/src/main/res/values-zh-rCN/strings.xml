@@ -273,7 +273,7 @@
 
     <!-- Settings groups -->
     <string name="settings_group_rendering">渲染</string>
-    <string name="settings_group_texture">纹理压缩</string>
+    <string name="settings_group_texture">纹理</string>
     <string name="settings_group_advanced">高级</string>
     <string name="settings_group_controls">控制</string>
     <string name="settings_group_audio">音频</string>
@@ -406,4 +406,13 @@
     <string name="launcher_empty_title">如何开始</string>
     <string name="launcher_empty_body">要开始游戏，请先创建一个实例——也就是已安装的一份 Project Zomboid。用顶部的 + 添加游戏文件，或在侧边菜单中从 Steam 或 GOG 下载游戏。Steam 的下载需要先打包成 .zip；GOG 的下载完成后，点击“创建实例”即可。</string>
     <string name="launcher_empty_quick_start">快速开始</string>
+    <string name="deephall_update_channel">新版本</string>
+    <string name="deephall_update_title">Deephall %1$s 已发布</string>
+    <string name="deephall_update_text">点按查看更新内容并下载。</string>
+    <string name="game_loading_update_available">Deephall %1$s 已发布。点按查看更新内容。</string>
+    <string name="settings_game_textures_title">压缩</string>
+    <string name="settings_game_textures_desc">“低”只占四分之一的内存，加载更快，但近看会更模糊。“超低”再压缩一半，适合仍然内存不足的手机。默认情况下，内存少于 6 GB 的手机使用“低”。下次启动时生效。</string>
+    <string name="settings_game_textures_none">无</string>
+    <string name="settings_game_textures_low">低</string>
+    <string name="settings_game_textures_ultra">超低</string>
 </resources>
