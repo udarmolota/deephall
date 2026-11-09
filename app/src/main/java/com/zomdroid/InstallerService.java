@@ -784,6 +784,22 @@ public class InstallerService extends Service implements TaskProgressListener {
             addFileToZip(zos, glTrace, "gl_trace.txt");
             addFileToZip(zos, launcherLog, "log.txt");
             addFileToZip(zos, lastLauncherLog, "lastlog.txt");
+
+            // How the last processes ended, as Android recorded it: the logs above are written by the
+            // game's process itself and just stop when it is killed (memory) or crashes natively
+            android.content.Context context = AppStorage.requireSingleton().getApplicationContext();
+            String exitReasons = ExitReasons.describe(context);
+            if (exitReasons != null) {
+                zos.putNextEntry(new ZipEntry("exit-reasons.txt"));
+                writeLogUtf8(zos, exitReasons);
+                zos.closeEntry();
+            }
+            byte[] nativeCrash = ExitReasons.newestNativeCrashTrace(context);
+            if (nativeCrash != null) {
+                zos.putNextEntry(new ZipEntry("native-crash-tombstone.pb"));
+                zos.write(nativeCrash);
+                zos.closeEntry();
+            }
         }
     }
 

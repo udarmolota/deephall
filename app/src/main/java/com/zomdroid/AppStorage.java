@@ -11,9 +11,11 @@ public class AppStorage {
     private final String HOME_DIR_PATH;
     private final String CACHE_DIR_PATH;
     private final String LIBRARY_DIR_PATH;
+    private final Context applicationContext;
     private static AppStorage singleton;
 
     private AppStorage(Context applicationContext) {
+        this.applicationContext = applicationContext.getApplicationContext();
         HOME_DIR_PATH = canonical(applicationContext.getFilesDir());
         CACHE_DIR_PATH = canonical(applicationContext.getCacheDir());
         LIBRARY_DIR_PATH = applicationContext.getApplicationInfo().nativeLibraryDir;
@@ -65,6 +67,11 @@ public class AppStorage {
             throw new RuntimeException("AppStorage is not initialized");
         }
         return singleton;
+    }
+
+    /** For the few static helpers that need a Context, such as the bug report asking why the game last died. */
+    public Context getApplicationContext() {
+        return applicationContext;
     }
 
     public String getHomePath() {
