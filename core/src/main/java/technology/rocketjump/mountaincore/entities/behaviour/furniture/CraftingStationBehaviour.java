@@ -2,6 +2,7 @@ package technology.rocketjump.mountaincore.entities.behaviour.furniture;
 
 import com.alibaba.fastjson.JSONObject;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
+import com.badlogic.gdx.math.GridPoint2;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.NotImplementedException;
 import org.pmw.tinylog.Logger;
@@ -18,6 +19,7 @@ import technology.rocketjump.mountaincore.entities.components.furniture.Furnitur
 import technology.rocketjump.mountaincore.entities.components.furniture.PoweredFurnitureComponent;
 import technology.rocketjump.mountaincore.entities.model.Entity;
 import technology.rocketjump.mountaincore.entities.model.EntityType;
+import technology.rocketjump.mountaincore.entities.model.physical.furniture.FurnitureEntityAttributes;
 import technology.rocketjump.mountaincore.entities.model.physical.furniture.FurnitureLayout;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemEntityAttributes;
 import technology.rocketjump.mountaincore.entities.model.physical.item.ItemQuality;
@@ -41,6 +43,7 @@ import technology.rocketjump.mountaincore.persistence.model.InvalidSaveException
 import technology.rocketjump.mountaincore.persistence.model.SavedGameStateHolder;
 import technology.rocketjump.mountaincore.rooms.HaulingAllocation;
 import technology.rocketjump.mountaincore.rooms.HaulingAllocationBuilder;
+import technology.rocketjump.mountaincore.settlement.ImmigrationManager;
 import technology.rocketjump.mountaincore.settlement.production.CraftingAssignment;
 import technology.rocketjump.mountaincore.ui.i18n.I18nText;
 import technology.rocketjump.mountaincore.ui.i18n.I18nTranslator;
@@ -885,6 +888,11 @@ public class CraftingStationBehaviour extends FurnitureBehaviour
 	public List<I18nText> getDescription(I18nTranslator i18nTranslator, GameContext gameContext, MessageDispatcher messageDispatcher) {
 		List<I18nText> descriptions = new ArrayList<>(2);
 
+		if (!workspaceReachable()) {
+			// Otherwise the station just sits there: its job waits as inaccessible and nothing says why
+			descriptions.add(i18nTranslator.getTranslatedString("FURNITURE.DESCRIPTION.WORKSPACE_UNREACHABLE"));
+		}
+
 		if (craftingAssignment != null) {
 			I18nText targetDescription;
 			QuantifiedItemTypeWithMaterial output = craftingAssignment.getTargetRecipe().getOutput();
@@ -924,6 +932,26 @@ public class CraftingStationBehaviour extends FurnitureBehaviour
 			descriptions.add(i18nTranslator.getTranslatedString("FURNITURE.DESCRIPTION.NOTHING_ORDERED"));
 		}
 		return descriptions;
+	}
+
+	/**
+	 * Whether a settler can get to any spot this station is worked from. A station placed against rock, or walled in by
+	 * its own tiles, can leave every workspace cut off from the rest of the settlement.
+	 */
+	private boolean workspaceReachable() {
+		if (gameContext == null || !(parentEntity.getPhysicalEntityComponent().getAttributes() instanceof FurnitureEntityAttributes attributes)
+				|| attributes.getCurrentLayout() == null || attributes.getCurrentLayout().getWorkspaces().isEmpty()) {
+			return true;
+		}
+		int settlerRegion = ImmigrationManager.determineSettlementRegionId(gameContext, true);
+		GridPoint2 furniturePosition = VectorUtils.toGridPoint(parentEntity.getLocationComponent().getWorldPosition());
+		for (FurnitureLayout.Workspace workspace : attributes.getCurrentLayout().getWorkspaces()) {
+			MapTile accessedFrom = gameContext.getAreaMap().getTile(furniturePosition.cpy().add(workspace.getAccessedFrom()));
+			if (accessedFrom != null && accessedFrom.isNavigable(null) && accessedFrom.getRegionId() == settlerRegion) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public CraftingType getCraftingType() {

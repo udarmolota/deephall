@@ -269,6 +269,7 @@ FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} i
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%
 FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room
+FURNITURE.DESCRIPTION.WORKSPACE_UNREACHABLE,,Nobody can get to where this is worked from: clear the way to it
 FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}}
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%
@@ -1081,6 +1082,10 @@ NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,"{{character}} is close to a tant
 NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum
 NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot."
 NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but there is no cauldron in the feasting hall to serve it from. Place one there: until then the kitchen cannot cook again and its vegetables rot."
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.

@@ -280,6 +280,7 @@ FURNITURE.COKE_OVEN.TOOLTIP,,A coke oven converts {{ORE.BITUMINOUS_COAL.NOUN}} i
 FURNITURE.DESCRIPTION,E.g. “Granite stonemason workbench”,{{materialType.adjective}} {{furnitureType.noun}},{{furnitureType.noun}} {{materialType.adjective}}
 FURNITURE.DESCRIPTION.GENERIC_PROGRESS,,Progress to completion: {{progress}}%,Прогресс до завершения: {{progress}}%
 FURNITURE.DESCRIPTION.NOTHING_ORDERED,,Nothing to make: choose a product on an export pallet in this room,Нечего делать: выберите продукт на поддоне экспорта в этой комнате
+FURNITURE.DESCRIPTION.WORKSPACE_UNREACHABLE,,Nobody can get to where this is worked from: clear the way to it,К рабочему месту не подойти: расчистите к нему проход
 FURNITURE.DESCRIPTION.WAITING_FOR_INPUT,,Waiting for {{inputs}} to make {{targetDescription}},Не хватает: {{inputs}}. Нужно для: {{targetDescription}}
 FURNITURE.DESCRIPTION.MUSHROOM_INNOCULATION_IN_PROGRESS,,Progress to complete innoculation: {{progress}}%,Заселение грибницы: {{progress}}%
 FURNITURE.DESCRIPTION.SHOCKING_IN_PROGRESS,,Progress: {{progress}}%,Прогресс: {{progress}}%
@@ -1091,6 +1092,10 @@ NOTIFICATION.SETTLER_NEAR_TANTRUM.DESCRIPTION,,"{{character}} is close to a tant
 NOTIFICATION.SETTLER_NEAR_TANTRUM.TITLE,,Close to a tantrum,На грани срыва
 NOTIFICATION.WINTER_FOOD_LOW.DESCRIPTION,,"Winter starts in ten days and the food will not last it: nothing grows in winter. Store rations, bread, grain and flour, which keep; meat and vegetables rot.","Через десять дней зима, а еды на неё не хватит: зимой ничего не растёт. Запасите сухпайки, хлеб, зерно и муку, они не портятся; мясо и овощи гниют."
 NOTIFICATION.WINTER_FOOD_LOW.TITLE,,Winter is coming,Скоро зима
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.DESCRIPTION,,"Soup is cooked, but there is no cauldron in the feasting hall to serve it from. Place one there: until then the kitchen cannot cook again and its vegetables rot.","Суп готов, но раздавать его не из чего: в трапезной нет котла. Поставьте его туда, иначе кухня не сможет варить дальше, а овощи сгниют."
+NOTIFICATION.SOUP_NEEDS_FEASTING_CAULDRON.TITLE,,Soup has nowhere to go,Суп некуда выставить
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.DESCRIPTION,,{{character}} smashed {{furniture}} in a rage. It is gone and will need building again.,{{character}} в ярости разбивает: {{furniture}}. Этого больше нет, придётся строить заново.
+NOTIFICATION.FURNITURE_SMASHED_IN_TANTRUM.TITLE,,Furniture smashed,Мебель разбита
 NOTIFICATION.PIRATE_INVASION.DESCRIPTION,,Pirates have arrived! Don't let them steal your stuff!,Пираты! Не дайте им украсть ваше добро!
 NOTIFICATION.PIRATE_INVASION.TITLE,,Pirates!,Пираты!
 NOTIFICATION.ROOFING_COLLAPSE.DESCRIPTION,,A roof has collapsed due to a lack of pillars and supports.,Крыша обрушилась: не хватило колонн и опор.

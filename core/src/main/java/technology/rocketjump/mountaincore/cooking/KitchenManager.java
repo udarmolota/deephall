@@ -42,6 +42,9 @@ import technology.rocketjump.mountaincore.rooms.constructions.ConstructionState;
 import technology.rocketjump.mountaincore.rooms.constructions.ConstructionStore;
 import technology.rocketjump.mountaincore.settlement.SettlementFurnitureTracker;
 import technology.rocketjump.mountaincore.settlement.SettlementItemTracker;
+import technology.rocketjump.mountaincore.settlement.notifications.Notification;
+import technology.rocketjump.mountaincore.settlement.notifications.NotificationType;
+import technology.rocketjump.mountaincore.ui.Selectable;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -63,6 +66,9 @@ public class KitchenManager implements Telegraph, Updatable {
 
 	private GameContext gameContext;
 	private float timeSinceLastUpdate = 0f;
+	// Game time of the last "soup has nowhere to go" warning; not saved, so it can come again after loading
+	private double lastNoFeastingCauldronWarning = -Double.MAX_VALUE;
+	private static final double HOURS_BETWEEN_NO_FEASTING_CAULDRON_WARNINGS = 24;
 
 
 	@Inject
@@ -136,7 +142,36 @@ public class KitchenManager implements Telegraph, Updatable {
 			// Help along furniture with CollectItemsBehaviour to move completed cooking out
 			setupHaulingToCollectionFurniture(furnitureWithItemsToMove);
 
+			warnIfSoupHasNowhereToGo();
 		}
+	}
+
+	/**
+	 * Cooked soup only leaves the kitchen when its cauldron is carried to a feasting cauldron placed in a feasting hall.
+	 * With none placed (or the one there smashed in a tantrum) the soup sits in the kitchen, the kitchen cannot cook
+	 * again and its vegetables rot, all without a word. Every placed feasting cauldron waiting for soup has been matched
+	 * above, so soup still waiting here means there is none free.
+	 */
+	private void warnIfSoupHasNowhereToGo() {
+		Entity waitingSoup = null;
+		for (Entity furniture : gameContext.getSettlementState().furnitureHoldingCompletedCooking.values()) {
+			LiquidContainerComponent liquidContainer = furniture.getComponent(LiquidContainerComponent.class);
+			if (furniture.getType().equals(EntityType.FURNITURE) && liquidContainer != null && liquidContainer.getTargetLiquidMaterial() != null
+					&& liquidContainer.getTargetLiquidMaterial().isEdible() && liquidContainer.getLiquidQuantity() > 0) {
+				waitingSoup = furniture;
+				break;
+			}
+		}
+		if (waitingSoup == null) {
+			return;
+		}
+		double now = gameContext.getGameClock().getCurrentGameTime();
+		if (now - lastNoFeastingCauldronWarning < HOURS_BETWEEN_NO_FEASTING_CAULDRON_WARNINGS) {
+			return;
+		}
+		lastNoFeastingCauldronWarning = now;
+		messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, new Notification(NotificationType.SOUP_NEEDS_FEASTING_CAULDRON,
+				waitingSoup.getLocationComponent().getWorldOrParentPosition().cpy(), new Selectable(waitingSoup, 0)));
 	}
 
 	private void setupHaulingToCollectionFurniture(List<Entity> furnitureWithItemsToMove) {
@@ -299,5 +334,6 @@ public class KitchenManager implements Telegraph, Updatable {
 	public void clearContextRelatedState() {
 		gameContext = null;
 		timeSinceLastUpdate = 0f;
+		lastNoFeastingCauldronWarning = -Double.MAX_VALUE;
 	}
 }

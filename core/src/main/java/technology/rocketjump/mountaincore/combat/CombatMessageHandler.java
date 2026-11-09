@@ -21,6 +21,10 @@ import technology.rocketjump.mountaincore.entities.behaviour.creature.CombatBeha
 import technology.rocketjump.mountaincore.entities.behaviour.creature.CreatureBehaviour;
 import technology.rocketjump.mountaincore.entities.behaviour.items.ProjectileBehaviour;
 import technology.rocketjump.mountaincore.entities.components.Faction;
+import technology.rocketjump.mountaincore.entities.components.FactionComponent;
+import technology.rocketjump.mountaincore.settlement.notifications.Notification;
+import technology.rocketjump.mountaincore.settlement.notifications.NotificationType;
+import technology.rocketjump.mountaincore.ui.i18n.I18nTranslator;
 import technology.rocketjump.mountaincore.entities.components.creature.CombatStateComponent;
 import technology.rocketjump.mountaincore.entities.components.creature.MemoryComponent;
 import technology.rocketjump.mountaincore.entities.components.creature.SkillsComponent;
@@ -61,12 +65,14 @@ public class CombatMessageHandler implements Telegraph, GameContextAware {
 	private static final int XP_GAIN_PER_COMBAT_ROUND = 1;
 	private final MessageDispatcher messageDispatcher;
 	private final ItemEntityFactory itemEntityFactory;
+	private final I18nTranslator i18nTranslator;
 	private GameContext gameContext;
 
 	@Inject
-	public CombatMessageHandler(MessageDispatcher messageDispatcher, ItemEntityFactory itemEntityFactory) {
+	public CombatMessageHandler(MessageDispatcher messageDispatcher, ItemEntityFactory itemEntityFactory, I18nTranslator i18nTranslator) {
 		this.messageDispatcher = messageDispatcher;
 		this.itemEntityFactory = itemEntityFactory;
+		this.i18nTranslator = i18nTranslator;
 
 		messageDispatcher.addListener(this, MessageType.MAKE_ATTACK_WITH_WEAPON);
 		messageDispatcher.addListener(this, MessageType.COMBAT_PROJECTILE_REACHED_TARGET);
@@ -283,6 +289,9 @@ public class CombatMessageHandler implements Telegraph, GameContextAware {
 			attributes.setDamageAmount(attributes.getDamageAmount() + damageAmount);
 
 			if (attributes.getDamageAmount() > damageToDestroyFurniture(attackMessage.defenderEntity)) {
+				if (!attributes.isDestroyed()) {
+					notifyIfSmashedBySettler(attackMessage.attackerEntity, attackMessage.defenderEntity);
+				}
 				messageDispatcher.dispatchMessage(MessageType.DAMAGE_FURNITURE, new FurnitureDamagedMessage(
 						attackMessage.defenderEntity, EntityDestructionCause.COMBAT_DAMAGE, null,
 						FireMessageHandler.blackenedColor(gameContext.getRandom()), FireMessageHandler.blackenedColor(gameContext.getRandom())
@@ -292,6 +301,25 @@ public class CombatMessageHandler implements Telegraph, GameContextAware {
 			Logger.warn("TODO: Damage application to non-creature entities");
 		}
 		return true;
+	}
+
+	/**
+	 * Settlers only attack furniture in a tantrum, and the furniture they smash is gone for good without a trace: a
+	 * feasting cauldron, a bed or a workbench just disappears. Say what was smashed and by whom.
+	 */
+	private void notifyIfSmashedBySettler(Entity attacker, Entity furniture) {
+		if (attacker == null || !attacker.getType().equals(EntityType.CREATURE)) {
+			return;
+		}
+		FactionComponent factionComponent = attacker.getComponent(FactionComponent.class);
+		if (factionComponent == null || !Faction.SETTLEMENT.equals(factionComponent.getFaction())) {
+			return;
+		}
+		Notification notification = new Notification(NotificationType.FURNITURE_SMASHED_IN_TANTRUM,
+				furniture.getLocationComponent().getWorldOrParentPosition().cpy(), null);
+		notification.addTextReplacement("character", i18nTranslator.getDescription(attacker));
+		notification.addTextReplacement("furniture", i18nTranslator.getDescription(furniture));
+		messageDispatcher.dispatchMessage(MessageType.POST_NOTIFICATION, notification);
 	}
 
 	private int calculateFurnitureDamage(Entity defenderEntity, int damageAmount) {
