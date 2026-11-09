@@ -136,7 +136,8 @@ public class AssignedGoal implements ChildPersistable, Destructible {
 						// The need this goal is here to deal with must not interrupt it
 						continue;
 					}
-					if (entry.getValue() < gameContext.getConstantsRepo().getWorldConstants().getMinNeedBeforeGoalInterrupted()) {
+					if (entry.getValue() < gameContext.getConstantsRepo().getWorldConstants().getMinNeedBeforeGoalInterrupted()
+							&& !UnmetNeeds.nothingToMeet(parentEntity, entry.getKey(), gameContext)) {
 						setInterrupted(true);
 						break;
 					}

@@ -212,7 +212,7 @@ public class SleepOnFloorAction extends Action {
 	 * interrupted by low needs) and fire still get it up.
 	 */
 	private boolean stayOnBedRest(NeedsComponent needsComponent, GameContext gameContext) {
-		if (!GoalSelectionByBadlyWounded.isBadlyWounded(parent.parentEntity) || parent.parentEntity.isOnFire()
+		if (!GoalSelectionByBadlyWounded.needsBedRest(parent.parentEntity) || parent.parentEntity.isOnFire()
 				|| (needsComponent.has(FOOD) && needsComponent.getValue(FOOD) <= 0.0)
 				|| (needsComponent.has(DRINK) && needsComponent.getValue(DRINK) <= 0.0)) {
 			return false;

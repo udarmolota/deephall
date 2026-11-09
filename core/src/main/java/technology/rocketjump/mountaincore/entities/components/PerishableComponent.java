@@ -1,5 +1,7 @@
 package technology.rocketjump.mountaincore.entities.components;
 
+import technology.rocketjump.mountaincore.materials.model.GameMaterial;
+import technology.rocketjump.mountaincore.materials.model.GameMaterialType;
 import com.alibaba.fastjson.JSONObject;
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import technology.rocketjump.mountaincore.entities.model.Entity;
@@ -62,7 +64,7 @@ public class PerishableComponent implements InfrequentlyUpdatableComponent {
 			return;
 		}
 		PerishableTag tag = parentEntity.getTag(PerishableTag.class);
-		if (tag == null) {
+		if (tag == null || keepsDried(attributes)) {
 			return;
 		}
 		double shelfLifeHours = tag.getShelfLifeDays(gameContext.getGameClock().getCurrentSeason()) * HOURS_IN_DAY;
@@ -81,6 +83,16 @@ public class PerishableComponent implements InfrequentlyUpdatableComponent {
 			}
 			messageDispatcher.dispatchMessage(MessageType.DESTROY_ENTITY, parentEntity);
 		}
+	}
+
+	/**
+	 * A crop nobody eats - hops, grain, hemp - goes into the same sacks as vegetables but is dried and keeps: hops
+	 * rotting in a season left a brewery with nothing to brew.
+	 */
+	private static boolean keepsDried(ItemEntityAttributes attributes) {
+		GameMaterial material = attributes.getPrimaryMaterial();
+		return material != null && material.getMaterialType() == GameMaterialType.VEGETABLE && !material.isEdible()
+				&& attributes.getItemType().getItemTypeName().startsWith("Ingredient-Vegetable-");
 	}
 
 	public double getSpoilage() {

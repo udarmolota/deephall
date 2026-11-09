@@ -248,7 +248,8 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 		}
 		double minNeedBeforeInterrupted = gameContext.getConstantsRepo().getWorldConstants().getMinNeedBeforeGoalInterrupted();
 		for (Map.Entry<EntityNeed, Double> need : needsComponent.getAll()) {
-			if (!need.getKey().equals(goal.satisfiesNeed) && need.getValue() < minNeedBeforeInterrupted) {
+			if (!need.getKey().equals(goal.satisfiesNeed) && need.getValue() < minNeedBeforeInterrupted
+					&& !UnmetNeeds.nothingToMeet(parentEntity, need.getKey(), gameContext)) {
 				return true;
 			}
 		}
@@ -262,7 +263,7 @@ public class CreatureBehaviour implements BehaviourComponent, Destructible, Sele
 		}
 		double minNeedBeforeInterrupted = gameContext.getConstantsRepo().getWorldConstants().getMinNeedBeforeGoalInterrupted();
 		for (Map.Entry<EntityNeed, Double> need : needsComponent.getAll()) {
-			if (need.getValue() < minNeedBeforeInterrupted) {
+			if (need.getValue() < minNeedBeforeInterrupted && !UnmetNeeds.nothingToMeet(parentEntity, need.getKey(), gameContext)) {
 				return true;
 			}
 		}

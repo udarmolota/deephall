@@ -2,6 +2,8 @@ package technology.rocketjump.mountaincore.entities.ai.goap.condition;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import technology.rocketjump.mountaincore.entities.components.Faction;
+import technology.rocketjump.mountaincore.entities.components.FactionComponent;
 import technology.rocketjump.mountaincore.entities.model.Entity;
 import technology.rocketjump.mountaincore.entities.model.physical.creature.CreatureEntityAttributes;
 import technology.rocketjump.mountaincore.entities.model.physical.creature.body.BodyPartDamage;
@@ -21,7 +23,16 @@ public class GoalSelectionByBadlyWounded implements GoalSelectionCondition {
 	@JsonIgnore
 	@Override
 	public boolean apply(Entity parentEntity, GameContext gameContext) {
-		return isBadlyWounded(parentEntity);
+		return needsBedRest(parentEntity);
+	}
+
+	/**
+	 * Bed rest is for the settlement's own people. An invader with the same wounds lay down to heal in the middle of
+	 * the settlement it was raiding, eating and sleeping there; invaders fight or retreat instead.
+	 */
+	public static boolean needsBedRest(Entity entity) {
+		FactionComponent factionComponent = entity.getComponent(FactionComponent.class);
+		return factionComponent != null && Faction.SETTLEMENT.equals(factionComponent.getFaction()) && isBadlyWounded(entity);
 	}
 
 	public static boolean isBadlyWounded(Entity entity) {

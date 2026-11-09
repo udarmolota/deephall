@@ -32,8 +32,9 @@
   "actionRelationships": {
     "LocateDrink": {
       "pass": ["GoToDrinkLocation"],
-      "fail": []
+      "fail": ["RememberFailedGoal"]
     },
+    "RememberFailedGoal": {},
     "GoToDrinkLocation": {
       "pass": ["FaceTowardsLocation"],
       "fail": ["CancelLiquidAllocation"]

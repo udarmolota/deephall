@@ -31,8 +31,9 @@
   "actionRelationships": {
     "LocateFood": {
       "pass": ["GoToFoodLocation"],
-      "fail": []
+      "fail": ["RememberFailedGoal"]
     },
+    "RememberFailedGoal": {},
     "GoToFoodLocation": {
       "pass": ["PickUpEntity"],
       "fail": ["CancelFoodAllocation"]
