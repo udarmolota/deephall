@@ -322,6 +322,7 @@ public class SettingsFragment extends Fragment {
         binding.settingsEnvVarsClearBtn.setOnClickListener(v -> binding.settingsEnvVarsEt.setText(""));
 
         setUpTextureShrinkSpinner();
+        setUpGameTexturesChoice();
 
         binding.settingsMemorySaverSwitch.setChecked(settings.isMemorySaver());
         binding.settingsMemorySaverSwitch.setOnCheckedChangeListener((v, isChecked) ->
@@ -512,7 +513,10 @@ public class SettingsFragment extends Fragment {
         // Shrinking is a GL4ES/NG_GL4ES thing (LIBGL_SHRINK); ZINK has no such knob.
         boolean shrink = renderer == LauncherPreferences.Renderer.GL4ES
                 || renderer == LauncherPreferences.Renderer.NG_GL4ES;
-        binding.settingsTextureShrinkSection.setVisibility(shrink ? View.VISIBLE : View.GONE);
+        // Hidden in Deephall all the same: the presets are tuned for Project Zomboid's textures, and the
+        // game's own reduced set (the spinner above) does the job better. LIBGL_SHRINK can still be typed
+        // into the environment variables as a last resort.
+        binding.settingsTextureShrinkSection.setVisibility(View.GONE);
         // NG_GL4ES and both ZINK variants write this cache (same encoder, same store); plain
         // GL4ES has no ETC2 path, so the rows would only raise questions there.
         boolean visible = renderer == LauncherPreferences.Renderer.NG_GL4ES
@@ -639,6 +643,24 @@ public class SettingsFragment extends Fragment {
         if (build == null) return true;
         boolean instanceIsBuild42 = build.startsWith("42");
         return instanceIsBuild42 != rendererIsForBuild42;
+    }
+
+    private void setUpGameTexturesChoice() {
+        // Before the player picks, the buttons show what the phone's RAM chose
+        String current = com.zomdroid.game.GameTextures.effectiveChoice(requireContext(), settings);
+        int checked = com.zomdroid.game.GameTextures.ULTRA.equals(current) ? R.id.settings_game_textures_ultra_rb
+                : com.zomdroid.game.GameTextures.REDUCED.equals(current) ? R.id.settings_game_textures_low_rb
+                : R.id.settings_game_textures_none_rb;
+        binding.settingsGameTexturesRg.check(checked);
+        // Set after check(), so showing the RAM-based default does not turn it into a fixed pick
+        binding.settingsGameTexturesRg.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.settings_game_textures_ultra_rb)
+                settings.setGameTextures(com.zomdroid.game.GameTextures.ULTRA);
+            else if (checkedId == R.id.settings_game_textures_low_rb)
+                settings.setGameTextures(com.zomdroid.game.GameTextures.REDUCED);
+            else if (checkedId == R.id.settings_game_textures_none_rb)
+                settings.setGameTextures(com.zomdroid.game.GameTextures.FULL);
+        });
     }
 
     private void setUpTextureShrinkSpinner() {

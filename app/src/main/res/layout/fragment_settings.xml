@@ -271,11 +271,11 @@
              cache it fills - folded, the size on the fold - and the GL4ES/NG_GL4ES shrink
              presets that used to hide under Advanced. Rows show only for the renderer that
              uses them, so nobody on GL4ES stares at a greyed-out ETC2 switch.
-             Hidden in Deephall: the presets are tuned for Project Zomboid's textures. A shrink
+             In Deephall the card holds the game's own texture set (full or reduced copies). The
+             LIBGL_SHRINK presets stay hidden: they are tuned for Project Zomboid's textures, and a
              mode can still be set by hand as LIBGL_SHRINK in the environment variables. -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/settings_texture_card"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -297,6 +297,48 @@
                     android:textAppearance="?attr/textAppearanceLabelSmall"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="13sp"/>
+
+                <!-- Deephall's texture compression: none, low (the game's reduced copies), ultra low
+                     (those plus LIBGL_SHRINK=7). Until the player picks, below 6 GB of RAM gets low. -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/settings_game_textures_title"
+                    android:textStyle="bold"
+                    android:textAppearance="?attr/textAppearanceBodySmall"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/settings_game_textures_desc"
+                    android:textAppearance="?attr/textAppearanceBodySmall"/>
+
+                <RadioGroup
+                    android:id="@+id/settings_game_textures_rg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/settings_game_textures_none_rb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_game_textures_none"/>
+
+                    <RadioButton
+                        android:id="@+id/settings_game_textures_low_rb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_game_textures_low"/>
+
+                    <RadioButton
+                        android:id="@+id/settings_game_textures_ultra_rb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_game_textures_ultra"/>
+                </RadioGroup>
 
                 <!-- Title with the "?" glued to it, toggle at the right edge. A ConstraintLayout so a long
                      title (Russian) wraps instead of pushing the toggle off the screen. -->
@@ -732,8 +774,11 @@
                         android:textAppearance="?attr/textAppearanceBodySmall"
                         android:text="@string/settings_debug_mode"/>
 
+                    <!-- Memory saver, hidden in Deephall: it only acts on NG_GL4ES, and the game runs on
+                         GL4ES. Texture compression in the Textures card is what saves memory here. -->
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/settings_memory_saver_switch"
+                        android:visibility="gone"
                     android:textStyle="bold"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -746,6 +791,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:visibility="gone"
                         android:text="@string/settings_memory_saver_hint"
                         android:textSize="11sp"
                         android:textColor="?android:attr/textColorSecondary"/>
@@ -779,16 +825,21 @@
                     android:textColor="?attr/colorPrimary"
                     android:textSize="13sp"/>
 
+                <!-- The "touch only, no gamepad" switch and its explanation, hidden in Deephall until the
+                     game has full controller support (TODO 37). The saved value still applies (off by
+                     default). -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
+                    android:visibility="gone"
                     android:text="@string/touch_controls_description"
                     android:textSize="12sp"
                     android:textColor="?android:attr/textColorSecondary"/>
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/touch_controls_switch"
+                    android:visibility="gone"
                     android:textStyle="bold"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -800,7 +851,6 @@
                     android:textStyle="bold"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:textAppearance="?attr/textAppearanceBodySmall"
                     android:text="@string/vibrate_on_touch_switch_label"/>
 

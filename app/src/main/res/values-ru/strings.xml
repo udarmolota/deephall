@@ -273,7 +273,7 @@
 
     <!-- Settings groups -->
     <string name="settings_group_rendering">Рендеринг</string>
-    <string name="settings_group_texture">Сжатие текстур</string>
+    <string name="settings_group_texture">Текстуры</string>
     <string name="settings_group_advanced">Дополнительно</string>
     <string name="settings_group_controls">Управление</string>
     <string name="settings_group_audio">Звук</string>
@@ -449,4 +449,9 @@
     <string name="editor_move_toolbar">Потяните, чтобы передвинуть панель</string>
     <string name="editor_reset_confirm">Вернуть все экранные кнопки к раскладке Deephall?</string>
     <string name="editor_game_running">Закройте игру, прежде чем менять кнопки</string>
+    <string name="settings_game_textures_title">Сжатие</string>
+    <string name="settings_game_textures_desc">«Низко» занимает вчетверо меньше памяти и грузится быстрее, но вблизи мягче. «Ультра низко» сжимает ещё вдвое: для телефонов, где игре всё равно не хватает памяти. По умолчанию телефоны с памятью меньше 6 ГБ получают «Низко». Действует со следующего запуска.</string>
+    <string name="settings_game_textures_none">Нет</string>
+    <string name="settings_game_textures_low">Низко</string>
+    <string name="settings_game_textures_ultra">Ультра низко</string>
 </resources>

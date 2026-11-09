@@ -165,6 +165,12 @@ public class GameLauncher {
 
         // JVM args [variables] from user settings
         ArrayList<String> jvmArgs = gameInstance.getJvmArgsAsList();
+        // Which texture set Deephall loads (see GameTextures). Before the player's own arguments, so a
+        // -Ddeephall.textures typed there still wins.
+        if (BundledGame.PRESET_NAME.equals(gameInstance.getPresetName())) {
+            jvmArgs.add(com.zomdroid.game.GameTextures.jvmArg(
+                    AppStorage.requireSingleton().getApplicationContext(), settings));
+        }
         String rawArgs = settings.getJvmArgs();
 
         if (rawArgs != null && !rawArgs.trim().isEmpty()) {
@@ -189,6 +195,12 @@ public class GameLauncher {
         // accident; a LIBGL_GL the player sets above still wins (overwrite false).
         if (BundledGame.PRESET_NAME.equals(gameInstance.getPresetName())) {
             Os.setenv("LIBGL_GL", "30", false);
+            // Ultra low texture compression halves the game's reduced textures once more in GL4ES; a
+            // LIBGL_SHRINK the player typed above still wins (overwrite false).
+            if (com.zomdroid.game.GameTextures.useUltra(
+                    AppStorage.requireSingleton().getApplicationContext(), settings)) {
+                Os.setenv("LIBGL_SHRINK", com.zomdroid.game.GameTextures.ULTRA_LIBGL_SHRINK, false);
+            }
         }
 
         // Debug builds always carry the emulated-JNI statistics ([JNISTAT] in native.log); a user

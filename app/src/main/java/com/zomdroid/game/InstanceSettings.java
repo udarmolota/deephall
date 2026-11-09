@@ -130,6 +130,15 @@ public class InstanceSettings {
         prefs.edit().putBoolean(keyPrefix + "debug", debug).apply();
     }
 
+    /** Deephall's texture set: {@link GameTextures#AUTO} (by installed RAM), FULL or REDUCED. */
+    public String getGameTextures() {
+        return prefs.getString(keyPrefix + "game_textures", GameTextures.AUTO);
+    }
+
+    public void setGameTextures(String choice) {
+        prefs.edit().putString(keyPrefix + "game_textures", choice).apply();
+    }
+
     public boolean isMemorySaver() {
         return prefs.getBoolean(keyPrefix + "memory_saver", global.isMemorySaver());
     }

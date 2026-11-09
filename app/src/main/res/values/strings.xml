@@ -321,7 +321,7 @@
 
     <!-- Settings groups -->
     <string name="settings_group_rendering">Rendering</string>
-    <string name="settings_group_texture">Texture compression</string>
+    <string name="settings_group_texture">Textures</string>
     <string name="settings_group_appearance">Appearance</string>
     <string name="settings_theme">Launcher theme</string>
     <string name="settings_group_advanced">Advanced</string>
@@ -497,4 +497,9 @@
     <string name="editor_move_toolbar">Drag to move the toolbar</string>
     <string name="editor_reset_confirm">Reset all on-screen buttons to the Deephall layout?</string>
     <string name="editor_game_running">Close the game before editing the controls</string>
+    <string name="settings_game_textures_title">Compression</string>
+    <string name="settings_game_textures_desc">Low takes a quarter of the memory and loads faster, but looks softer up close. Ultra low halves it once more, for phones where the game still runs out of memory. By default phones with less than 6 GB of RAM get Low. Applies at the next start.</string>
+    <string name="settings_game_textures_none">None</string>
+    <string name="settings_game_textures_low">Low</string>
+    <string name="settings_game_textures_ultra">Ultra low</string>
 </resources>
