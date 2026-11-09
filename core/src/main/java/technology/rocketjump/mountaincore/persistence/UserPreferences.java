@@ -106,7 +106,8 @@ public class UserPreferences {
 		LANGUAGE("en-gb"),
 		DISPLAY_RESOLUTION(null),
 		FULLSCREEN_MODE(BORDERLESS_FULLSCREEN.name()),
-		UI_SCALE(Boolean.getBoolean("mountaincore.android") ? "0.65" : "1.0"),
+		// On the phone: what Inna settled on playing on a 6.9" screen at the default render scale 0.6 (was 0.65)
+		UI_SCALE(Boolean.getBoolean("mountaincore.android") ? "0.92" : "1.0"),
 		EDGE_SCROLLING("true"),
 		ZOOM_TO_CURSOR("true"),
 		TREE_TRANSPARENCY("true"),
