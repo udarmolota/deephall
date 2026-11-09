@@ -349,7 +349,7 @@ public class ProductionExportFurnitureWidget extends Table implements DisplaysTe
 		public void addSelectionComponents(Table innerTable) {
 			Image image = new Image(drawable);
 			innerTable.add(image).size(183, 183).pad(10).row();
-			innerTable.add(availabilityMarkers.row(itemType, skin)).height(40).row();
+			innerTable.add(availabilityMarkers.row(itemType, skin)).padBottom(6).row();
 			craftingHintWidgetFactory.addComplexTooltip(innerTable, skin, itemType, null);
 		}
 
