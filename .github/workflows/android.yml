@@ -2,9 +2,11 @@
 # from the `launcher` branch of this repository, with the game packed inside the APK.
 # The APK is uploaded as a workflow artifact only; nothing is published as a GitHub Release.
 #
-# Signing (optional): set the repository secrets DEEPHALL_KEYSTORE_BASE64 (the keystore file,
-# base64-encoded), DEEPHALL_KEYSTORE_PASSWORD, DEEPHALL_KEY_ALIAS and DEEPHALL_KEY_PASSWORD.
-# Without all four the APK comes out unsigned.
+# Signing, as in ValDroid: the release key (udarmolota_release.p12) with the lineage from the old
+# AOSP test key in tools/signing/deephall.lineage, so a release installs over the earlier ones
+# that the test key signed (key rotation, Android 9+). Repository secrets: SIGNING_KEY_BASE64 (the
+# .p12, base64-encoded), SIGNING_STORE_PASSWORD, SIGNING_KEY_ALIAS and SIGNING_KEY_PASSWORD.
+# Without them the APK comes out unsigned.
 name: Deephall Android APK
 
 on:
@@ -24,7 +26,7 @@ jobs:
       NDK_VERSION: 27.3.13750724
       CMAKE_VERSION: 3.22.1
       # A step's `if` cannot read secrets, so whether there is a keystore is worked out here.
-      HAS_KEYSTORE: ${{ secrets.DEEPHALL_KEYSTORE_BASE64 != '' }}
+      HAS_KEYSTORE: ${{ secrets.SIGNING_KEY_BASE64 != '' }}
     steps:
       - name: Check out the game
         uses: actions/checkout@v4
@@ -70,33 +72,44 @@ jobs:
           fi
           ls "$ANDROID_HOME/ndk" "$ANDROID_HOME/cmake"
 
-      - name: Decode the signing keystore
-        if: env.HAS_KEYSTORE == 'true'
-        env:
-          DEEPHALL_KEYSTORE_BASE64: ${{ secrets.DEEPHALL_KEYSTORE_BASE64 }}
-        run: |
-          echo "$DEEPHALL_KEYSTORE_BASE64" | base64 --decode --ignore-garbage >"$RUNNER_TEMP/deephall-release.jks"
-          echo "RELEASE_STORE_FILE=$RUNNER_TEMP/deephall-release.jks" >> "$GITHUB_ENV"
-
       - name: Build the release APK
         working-directory: launcher
         env:
-          # app/build.gradle.kts signs the release only when all four values are set, and
-          # treats an empty one (a secret that does not exist) as not set.
-          RELEASE_STORE_PASSWORD: ${{ secrets.DEEPHALL_KEYSTORE_PASSWORD }}
-          RELEASE_KEY_ALIAS: ${{ secrets.DEEPHALL_KEY_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.DEEPHALL_KEY_PASSWORD }}
+          # Gradle builds it unsigned (no RELEASE_* values here); the next step signs it.
           DEEPHALL_GAME_DIR: ${{ github.workspace }}/game/desktop/build/phone-game
         run: |
           chmod +x gradlew
-          if [ -n "$RELEASE_STORE_FILE" ] && [ -n "$RELEASE_STORE_PASSWORD" ] \
-              && [ -n "$RELEASE_KEY_ALIAS" ] && [ -n "$RELEASE_KEY_PASSWORD" ]; then
-            echo "Signing the release APK"
-          else
-            echo "::warning::Signing secrets are missing or incomplete: the release APK is unsigned"
-          fi
           ./gradlew :app:assembleRelease --stacktrace
           ls -la app/build/outputs/apk/release
+
+      # The release key with the lineage from the old AOSP test key, so this APK installs over any
+      # earlier Deephall (rotation from SDK 28). v3 only: the launcher needs Android 11+ anyway.
+      - name: Sign the release APK
+        working-directory: launcher
+        env:
+          SIGNING_KEY_BASE64: ${{ secrets.SIGNING_KEY_BASE64 }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          LINEAGE: ${{ github.workspace }}/game/tools/signing/deephall.lineage
+        run: |
+          if [ "$HAS_KEYSTORE" != "true" ]; then
+            echo "::warning::Signing secrets are missing: the release APK is unsigned"
+            exit 0
+          fi
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
+          KEY="$RUNNER_TEMP/release.p12"
+          echo "$SIGNING_KEY_BASE64" | base64 --decode --ignore-garbage > "$KEY"
+          for APK in app/build/outputs/apk/release/*.apk; do
+            "$BT/apksigner" sign --ks "$KEY" --ks-type PKCS12 --ks-key-alias "$SIGNING_KEY_ALIAS" \
+              --ks-pass env:SIGNING_STORE_PASSWORD --key-pass env:SIGNING_KEY_PASSWORD \
+              --lineage "$LINEAGE" --rotation-min-sdk-version 28 \
+              --v1-signing-enabled false --v2-signing-enabled false --v3-signing-enabled true "$APK"
+            "$BT/apksigner" verify --print-certs --min-sdk-version 30 "$APK"
+            # Gradle names an APK it did not sign *-unsigned.apk; it is signed now
+            case "$APK" in *-unsigned.apk) mv "$APK" "${APK%-unsigned.apk}.apk" ;; esac
+          done
+          rm -f "$KEY"
 
       - name: Upload the APK
         uses: actions/upload-artifact@v4
@@ -109,4 +122,4 @@ jobs:
 
       - name: Remove the decoded keystore
         if: always()
-        run: rm -f "$RUNNER_TEMP/deephall-release.jks"
+        run: rm -f "$RUNNER_TEMP/release.p12"
