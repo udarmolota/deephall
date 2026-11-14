@@ -329,6 +329,8 @@ FURNITURE.SERVING_TABLE,A table used to hold food for serving,Serving table,
 FURNITURE.SERVING_TABLE.TOOLTIP,,{{PRODUCT.BREAD.LOAF.PLURAL}} are placed here for serving after being baked in a {{FURNITURE.BAKING_OVEN}}.,
 FURNITURE.SINGLE_BED,,Bed,
 FURNITURE.SINGLE_BED.TOOLTIP,,A bed is the best place for a comfortable night’s rest.,
+FURNITURE.LEATHER_BED,,Leather bed,Leren bed
+FURNITURE.LEATHER_BED.TOOLTIP,,"A wooden bed made up with leather instead of linen. It rests as well as any bed, and needs no hemp.","Een houten bed opgemaakt met leer in plaats van linnen. Je rust er net zo goed in als in elk ander bed, en er is geen hennep voor nodig."
 FURNITURE.SINGLE_DOOR,,Door,Deur
 FURNITURE.SINGLE_DOOR_FRAME,,Door frame,Deurkozijn
 FURNITURE.SLEEPING_SPOT,,Sleeping spot,

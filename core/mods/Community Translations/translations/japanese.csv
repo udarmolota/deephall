@@ -329,6 +329,8 @@ FURNITURE.SERVING_TABLE,A table used to hold food for serving,Serving table,サ�
 FURNITURE.SERVING_TABLE.TOOLTIP,,{{PRODUCT.BREAD.LOAF.PLURAL}} are placed here for serving after being baked in a {{FURNITURE.BAKING_OVEN}}.,{{FURNITURE.BAKING_OVEN}}で焼いた後、{{PRODUCT.BREAD.LOAF.PLURAL}}を切り分けるために使われる台です。
 FURNITURE.SINGLE_BED,,Bed,ベッド
 FURNITURE.SINGLE_BED.TOOLTIP,,A bed is the best place for a comfortable night’s rest.,夜を快適に過ごすなら、ベッドが一番です。
+FURNITURE.LEATHER_BED,,Leather bed,革のベッド
+FURNITURE.LEATHER_BED.TOOLTIP,,"A wooden bed made up with leather instead of linen. It rests as well as any bed, and needs no hemp.",亜麻布の代わりに革を敷いた木のベッド。普通のベッドと同じようによく休めて、麻は必要ない。
 FURNITURE.SINGLE_DOOR,,Door,ドア
 FURNITURE.SINGLE_DOOR_FRAME,,Door frame,ドアフレーム
 FURNITURE.SLEEPING_SPOT,,Sleeping spot,寝床

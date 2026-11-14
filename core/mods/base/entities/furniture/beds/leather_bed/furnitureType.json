@@ -1,0 +1,18 @@
+{
+  "name": "LEATHER_BED",
+  "i18nKey": "FURNITURE.LEATHER_BED",
+  "blocksMovement": true,
+  "defaultLayoutName": "1x2N",
+  "requirements": {
+    "WOOD": [
+      {
+        "itemTypeName": "Resource-Planks",
+        "quantity": 4
+      },
+      {
+        "itemTypeName": "Product-Leather",
+        "quantity": 1
+      }
+    ]
+  }
+}

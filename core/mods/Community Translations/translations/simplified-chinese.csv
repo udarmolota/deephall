@@ -329,6 +329,8 @@ FURNITURE.SERVING_TABLE,A table used to hold food for serving,Serving table,餐�
 FURNITURE.SERVING_TABLE.TOOLTIP,,{{PRODUCT.BREAD.LOAF.PLURAL}} are placed here for serving after being baked in a {{FURNITURE.BAKING_OVEN}}.,{{FURNITURE.BAKING_OVEN}}烘焙的{{PRODUCT.BREAD.LOAF.PLURAL}}放在这里供所有人享用。
 FURNITURE.SINGLE_BED,,Bed,床
 FURNITURE.SINGLE_BED.TOOLTIP,,A bed is the best place for a comfortable night’s rest.,"安逸睡觉用的家具。 "
+FURNITURE.LEATHER_BED,,Leather bed,皮革床
+FURNITURE.LEATHER_BED.TOOLTIP,,"A wooden bed made up with leather instead of linen. It rests as well as any bed, and needs no hemp.",用皮革代替亚麻布铺成的木床。休息效果和普通床一样，而且不需要大麻。
 FURNITURE.SINGLE_DOOR,,Door,门
 FURNITURE.SINGLE_DOOR_FRAME,,Door frame,门框
 FURNITURE.SLEEPING_SPOT,,Sleeping spot,睡觉地点

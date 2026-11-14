@@ -329,6 +329,8 @@ FURNITURE.SERVING_TABLE,A table used to hold food for serving,Serving table,Serv
 FURNITURE.SERVING_TABLE.TOOLTIP,,{{PRODUCT.BREAD.LOAF.PLURAL}} are placed here for serving after being baked in a {{FURNITURE.BAKING_OVEN}}.," {{PRODUCT.BREAD.LOAF.PLURAL}} {{FURNITURE.BAKING_OVEN}} pişirildikten sonra servis edilmek için buraya yerleştirilir."
 FURNITURE.SINGLE_BED,,Bed,Yatak
 FURNITURE.SINGLE_BED.TOOLTIP,,A bed is the best place for a comfortable night’s rest.,"Yatak, rahat bir uyku için en iyi yer."
+FURNITURE.LEATHER_BED,,Leather bed,Deri yatak
+FURNITURE.LEATHER_BED.TOOLTIP,,"A wooden bed made up with leather instead of linen. It rests as well as any bed, and needs no hemp.",Keten yerine deriyle serilmiş ahşap bir yatak. Her yatak kadar iyi dinlendirir ve kenevir gerektirmez.
 FURNITURE.SINGLE_DOOR,,Door,Kapı
 FURNITURE.SINGLE_DOOR_FRAME,,Door frame,Kapı çerçevesi
 FURNITURE.SLEEPING_SPOT,,Sleeping spot,

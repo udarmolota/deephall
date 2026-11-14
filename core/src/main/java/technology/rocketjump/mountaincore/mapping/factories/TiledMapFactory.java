@@ -314,6 +314,9 @@ public class TiledMapFactory {
 		items.addAll(item("Ingredient-Seeds", 12, "Hops Seed"));
 		items.addAll(item("Ingredient-Seeds", 8, "Hemp Seed"));
 
+		// Enough linen for three beds: hemp is sown in spring only and takes over a season, and the floor gives half the rest
+		items.addAll(item("Product-Linen", 3, "Hemp-Linen"));
+
 		return items;
 	}
 

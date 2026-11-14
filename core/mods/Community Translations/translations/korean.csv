@@ -329,6 +329,8 @@ FURNITURE.SERVING_TABLE,A table used to hold food for serving,Serving table,서�
 FURNITURE.SERVING_TABLE.TOOLTIP,,{{PRODUCT.BREAD.LOAF.PLURAL}} are placed here for serving after being baked in a {{FURNITURE.BAKING_OVEN}}.,{{PRODUCT.BREAD.LOAF.PLURAL}} 은 (는) {{FURNITURE.BAKING_OVEN}} 에서 구운 후 서빙하기 위해 여기에 놓입니다.
 FURNITURE.SINGLE_BED,,Bed,침대
 FURNITURE.SINGLE_BED.TOOLTIP,,A bed is the best place for a comfortable night’s rest.,침대는 편안한 야간 휴식을위한 최고의 장소입니다.
+FURNITURE.LEATHER_BED,,Leather bed,가죽 침대
+FURNITURE.LEATHER_BED.TOOLTIP,,"A wooden bed made up with leather instead of linen. It rests as well as any bed, and needs no hemp.",리넨 대신 가죽을 깐 나무 침대. 다른 침대만큼 잘 쉴 수 있고 대마가 필요 없다.
 FURNITURE.SINGLE_DOOR,,Door,문
 FURNITURE.SINGLE_DOOR_FRAME,,Door frame,도어 프레임
 FURNITURE.SLEEPING_SPOT,,Sleeping spot,

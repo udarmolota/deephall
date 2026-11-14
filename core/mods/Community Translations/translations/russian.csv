@@ -344,6 +344,8 @@ FURNITURE.SERVING_TABLE,A table used to hold food for serving,Serving table,Се
 FURNITURE.SERVING_TABLE.TOOLTIP,,{{PRODUCT.BREAD.LOAF.PLURAL}} are placed here for serving after being baked in a {{FURNITURE.BAKING_OVEN}}.,"Сюда кладут {{PRODUCT.BREAD.LOAF.PLURAL}}, когда их вынимают из печи «{{FURNITURE.BAKING_OVEN}}»."
 FURNITURE.SINGLE_BED,,Bed,Кровать
 FURNITURE.SINGLE_BED.TOOLTIP,,A bed is the best place for a comfortable night’s rest.,Кровать — лучшее место для комфортного сна.
+FURNITURE.LEATHER_BED,,Leather bed,Кожаная кровать
+FURNITURE.LEATHER_BED.TOOLTIP,,"A wooden bed made up with leather instead of linen. It rests as well as any bed, and needs no hemp.","Деревянная кровать, застеленная кожей вместо полотна. Отдыхать на ней так же хорошо, а конопля не нужна."
 FURNITURE.SINGLE_DOOR,,Door,Дверь
 FURNITURE.SINGLE_DOOR_FRAME,,Door frame,Дверной проем
 FURNITURE.SLEEPING_SPOT,,Sleeping spot,"Спальное место "

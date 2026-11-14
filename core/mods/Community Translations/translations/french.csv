@@ -329,6 +329,8 @@ FURNITURE.SERVING_TABLE,A table used to hold food for serving,Serving table,Buff
 FURNITURE.SERVING_TABLE.TOOLTIP,,{{PRODUCT.BREAD.LOAF.PLURAL}} are placed here for serving after being baked in a {{FURNITURE.BAKING_OVEN}}.,{{PRODUCT.BREAD.LOAF.PLURAL}} sont placés ici pour servir après avoir été cuit dans un {{FURNITURE.BAKING_OVEN}}.
 FURNITURE.SINGLE_BED,,Bed,Lit
 FURNITURE.SINGLE_BED.TOOLTIP,,A bed is the best place for a comfortable night’s rest.,Un lit est le meilleur endroit pour une nuit de repos confortable.
+FURNITURE.LEATHER_BED,,Leather bed,Lit en cuir
+FURNITURE.LEATHER_BED.TOOLTIP,,"A wooden bed made up with leather instead of linen. It rests as well as any bed, and needs no hemp.","Un lit en bois garni de cuir au lieu de lin. On s’y repose aussi bien que dans tout autre lit, sans avoir besoin de chanvre."
 FURNITURE.SINGLE_DOOR,,Door,Porte
 FURNITURE.SINGLE_DOOR_FRAME,,Door frame,Encadrement de porte
 FURNITURE.SLEEPING_SPOT,,Sleeping spot,Lieu de couchage
